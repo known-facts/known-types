@@ -1,0 +1,27 @@
+# See: https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[workspace]
+members = ["lib/*"]
+default-members = ["lib/*"]
+resolver = "2"
+
+[workspace.package]
+version = "0.0.0"
+authors = ["Arto Bendiken"]
+edition = "2024"
+#rust-version = "1.85"
+description = "Well-known types."
+#documentation = "https://docs.rs/known-types/"
+readme = true
+homepage = "https://github.com/known-facts/known-types"
+repository = "https://github.com/known-facts/known-types"
+license = "Unlicense"
+keywords = ["known", "struct", "types"]
+categories = ["network-programming", "rust-patterns", "no-std"]
+publish = true
+
+[workspace.dependencies]
+known-types = { path = "lib/known-types" }
+
+[patch.crates-io]
+known-types = { path = "lib/known-types" }
