@@ -17,10 +17,16 @@ publish.workspace = true
 [features]
 default = ["all", "std"]
 all = []
-std = []
+alloc = ["serde?/alloc"]
+std = ["alloc", "serde?/std"]
 unstable = []
 
+# Integrations:
+serde = ["dep:serde", "alloc"]
+
 [dependencies]
-serde = { version = "1", default-features = false, optional = true }
+serde = { version = "1", default-features = false, features = [
+    "derive",
+], optional = true }
 
 [dev-dependencies]
