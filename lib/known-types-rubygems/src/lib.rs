@@ -17,3 +17,8 @@
 pub struct ReadmeDoctests;
 
 mod prelude;
+
+#[cfg(feature = "alloc")]
+mod gem;
+#[cfg(feature = "alloc")]
+pub use gem::*;

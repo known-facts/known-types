@@ -7,25 +7,23 @@ use crate::prelude::{String, Vec};
 
 #[derive(Debug, Default)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct PackageMetadata {
-    pub info: PackageInfo,
-    #[cfg_attr(feature = "serde", serde(default))]
-    pub urls: Vec<PackageUrl>,
-}
-
-#[derive(Debug, Default)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct PackageInfo {
-    pub name: String,
+pub struct GemInfo {
     pub version: String,
-    #[cfg_attr(feature = "serde", serde(default))]
-    pub requires_dist: Option<Vec<String>>,
+    pub dependencies: Dependencies,
 }
 
 #[derive(Debug, Default)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct PackageUrl {
-    pub filename: String,
-    pub packagetype: String,
-    pub url: String,
+pub struct Dependencies {
+    #[cfg_attr(feature = "serde", serde(default))]
+    pub development: Vec<Dependency>,
+    #[cfg_attr(feature = "serde", serde(default))]
+    pub runtime: Vec<Dependency>,
+}
+
+#[derive(Debug, Default)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub struct Dependency {
+    pub name: String,
+    pub requirements: String,
 }
