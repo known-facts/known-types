@@ -17,7 +17,13 @@ homepage = "https://github.com/known-facts/known-types"
 repository = "https://github.com/known-facts/known-types"
 license = "Unlicense"
 keywords = ["known", "struct", "types"]
-categories = ["network-programming", "rust-patterns", "no-std"]
+categories = [
+    "api-bindings",
+    "config",
+    "data-structures",
+    "rust-patterns",
+    "no-std",
+]
 publish = true
 
 [workspace.dependencies]

@@ -9,6 +9,8 @@
 #![no_std]
 #![deny(unsafe_code)]
 
+pub mod c;
+
 mod features;
 pub use features::*;
 
