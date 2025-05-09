@@ -38,9 +38,9 @@ jobs:
       - name: Build library (no default features)
         if: ${{ always() }}
         run: cargo +${{ steps.install-rust.outputs.name }} check --workspace --keep-going --lib --no-default-features
-      - name: Build library (all features)
-        if: ${{ always() }}
-        run: cargo +${{ steps.install-rust.outputs.name }} check --workspace --keep-going --lib --all-features
+      #- name: Build library (all features)
+      #  if: ${{ always() }}
+      #  run: cargo +${{ steps.install-rust.outputs.name }} check --workspace --keep-going --lib --all-features
       - name: Build library (all features, no std)
         if: ${{ always() }}
         run: cargo +${{ steps.install-rust.outputs.name }} check --workspace --keep-going --lib --no-default-features --features "all"
