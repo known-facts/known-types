@@ -26,12 +26,55 @@ Well-known types for Rust.
 cargo add known-types
 ```
 
+<details>
+<summary>Instructions for each crate</summary>
+
+### Installation via Cargo (all crates)
+
+```bash
+cargo add known-types
+cargo add known-types-anthropic
+cargo add known-types-google
+cargo add known-types-graphql
+cargo add known-types-ietf
+cargo add known-types-nostr
+cargo add known-types-openai
+cargo add known-types-pypi
+cargo add known-types-rubygems
+cargo add known-types-w3c
+cargo add known-types-x
+```
+
+</details>
+
 ### Installation in `Cargo.toml` (with all features enabled)
 
 ```toml
 [dependencies]
 known-types = "0.1"
 ```
+
+<details>
+<summary>Instructions for each crate</summary>
+
+### Installation in `Cargo.toml` (with all features enabled, in all crates)
+
+```toml
+[dependencies]
+known-types = "0.1"
+known-types-anthropic = "0.1"
+known-types-google = "0.1"
+known-types-graphql = "0.1"
+known-types-ietf = "0.1"
+known-types-nostr = "0.1"
+known-types-openai = "0.1"
+known-types-pypi = "0.1"
+known-types-rubygems = "0.1"
+known-types-w3c = "0.1"
+known-types-x = "0.1"
+```
+
+</details>
 
 ### Installation in `Cargo.toml` (with only specific features enabled)
 
@@ -40,6 +83,28 @@ known-types = "0.1"
 known-types = { version = "0.1", default-features = false, features = ["serde"] }
 ```
 
+<details>
+<summary>Instructions for each crate</summary>
+
+### Installation in `Cargo.toml` (with only specific features enabled, in all crates)
+
+```toml
+[dependencies]
+known-types = { version = "0.1", default-features = false, features = ["serde"] }
+known-types-anthropic = { version = "0.1", default-features = false, features = ["serde"] }
+known-types-google = { version = "0.1", default-features = false, features = ["serde"] }
+known-types-graphql = { version = "0.1", default-features = false, features = ["serde"] }
+known-types-ietf = { version = "0.1", default-features = false, features = ["serde"] }
+known-types-nostr = { version = "0.1", default-features = false, features = ["serde"] }
+known-types-openai = { version = "0.1", default-features = false, features = ["serde"] }
+known-types-pypi = { version = "0.1", default-features = false, features = ["serde"] }
+known-types-rubygems = { version = "0.1", default-features = false, features = ["serde"] }
+known-types-w3c = { version = "0.1", default-features = false, features = ["serde"] }
+known-types-x = { version = "0.1", default-features = false, features = ["serde"] }
+```
+
+</details>
+
 ## 👉 Examples
 
 ### Importing the library
@@ -47,6 +112,27 @@ known-types = { version = "0.1", default-features = false, features = ["serde"] 
 ```rust
 use known_types;
 ```
+
+<details>
+<summary>Instructions for each crate</summary>
+
+### Importing the library
+
+```rust
+use known_types;
+use known_types_anthropic;
+use known_types_google;
+use known_types_graphql;
+use known_types_ietf;
+use known_types_nostr;
+use known_types_openai;
+use known_types_pypi;
+use known_types_rubygems;
+use known_types_w3c;
+use known_types_x;
+```
+
+</details>
 
 ## 📚 Reference
 
@@ -65,18 +151,18 @@ Crate | Version | Docs | Summary
 [known-types-rubygems] | [![known-types-rubygems](https://img.shields.io/crates/v/known-types-rubygems)](https://crates.io/crates/known-types-rubygems) | [![known-types-rubygems](https://docs.rs/known-types-rubygems/badge.svg)](https://docs.rs/known-types-rubygems/) | Well-known types for RubyGems.org APIs.
 [known-types-w3c] | [![known-types-w3c](https://img.shields.io/crates/v/known-types-w3c)](https://crates.io/crates/known-types-w3c) | [![known-types-w3c](https://docs.rs/known-types-w3c/badge.svg)](https://docs.rs/known-types-w3c/) | Well-known types for W3C specifications.
 [known-types-x] | [![known-types-x](https://img.shields.io/crates/v/known-types-x)](https://crates.io/crates/known-types-x) | [![known-types-x](https://docs.rs/known-types-x/badge.svg)](https://docs.rs/known-types-x/) | Well-known types for X (formerly Twitter) APIs.
-<img width=210 height=1/> | <img width=110 height=1/> | <img width=100 height=1/> | &nbsp;
+<img width=220 height=1/> | <img width=110 height=1/> | <img width=100 height=1/> | &nbsp;
 
 ### Integrations
 
-Crate | Version | Usage | Derives
+Crate (Feature) | Version | Usage | Summary
 :--- | :--- | :--- | :---
-[bincode] | `version = "2"` | `features = ["bincode"]` | `bincode::{Encode, Decode}`
-[borsh] | `version = "1.5"` | `features = ["borsh"]` | `borsh::{BorshSerialize, BorshDeserialize}`
-[musli] | `version = "0.0.131"` | `features = ["musli"]` | `musli::{Encode, Decode}`
-[rasn] | `version = "0.26"` | `features = ["rasn"]` | `rasn::AsnType` with `rasn(automatic_tags)`
-[serde] | `version = "1"` | `features = ["serde"]` | `serde::{Serialize, Deserialize}`
-<img width=210 height=1/> | <img width=110 height=1/> | <img width=100 height=1/> | &nbsp;
+[bincode] &nbsp;<sub>(`features = ["bincode"]`)</sub> | <sub>`version = "2"`</sub> | [![bincode](https://docs.rs/bincode/badge.svg)](https://docs.rs/bincode/) | Derives `bincode::{Encode, Decode}`
+[borsh] &nbsp;<sub>(`features = ["borsh"]`)</sub> | <sub>`version = "1.5"`</sub> | [![borsh](https://docs.rs/borsh/badge.svg)](https://docs.rs/borsh/) | Derives `borsh::{BorshSerialize, BorshDeserialize}`
+[musli] &nbsp;<sub>(`features = ["musli"]`)</sub> | <sub>`version = "0.0"`</sub> | [![musli](https://docs.rs/musli/badge.svg)](https://docs.rs/musli/) | Derives `musli::{Encode, Decode}`
+[rasn] &nbsp;<sub>(`features = ["rasn"]`)</sub> | <sub>`version = "0.26"`</sub> | [![rasn](https://docs.rs/rasn/badge.svg)](https://docs.rs/rasn/) | Derives `rasn::AsnType` with `rasn(automatic_tags)`
+[serde] &nbsp;<sub>(`features = ["serde"]`)</sub> | <sub>`version = "1"`</sub> | [![serde](https://docs.rs/serde/badge.svg)](https://docs.rs/serde/) | Derives `serde::{Serialize, Deserialize}`
+<img width=220 height=1/> | <img width=110 height=1/> | <img width=100 height=1/> | &nbsp;
 
 ## 👨‍💻 Development
 

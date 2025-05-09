@@ -11,10 +11,28 @@ namespace :version do
 end
 
 namespace :readme do
-  task :crates do
-    Dir['lib/known-types*'].sort.map { |s| Pathname::new(s) }.each do |crate_path|
-      crate_name = crate_path.basename.to_s
-      crate_toml = TomlRB.load_file(crate_path / 'Cargo.toml')
+  crate_names = Dir['lib/known-types*'].sort.map { |s| Pathname::new(s) }.map(&:basename).map(&:to_s)
+
+  task :cargo_add do
+    crate_names.each { |crate_name| puts "cargo add #{crate_name}" }
+  end
+
+  task :cargo_toml do
+    crate_names.each { |crate_name| puts "#{crate_name} = \"0.1\"" }
+  end
+
+  task :rust_use do
+    crate_names.each { |crate_name| puts "use #{crate_name.gsub('-', '_')};" }
+  end
+
+  task :rust_use_custom do
+    crate_names.each { |crate_name| puts "#{crate_name} = { version = \"0.1\", default-features = false, features = [\"serde\"] }" }
+  end
+
+  task :table do
+    crate_names.each do |crate_name|
+      crate_dir = Pathname('lib') / crate_name
+      crate_toml = TomlRB.load_file(crate_dir / 'Cargo.toml')
       crate_summary = crate_toml['package']['description']
       crate_summary = nil unless crate_summary.is_a?(String)
       puts [
