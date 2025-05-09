@@ -8,6 +8,7 @@ use crate::prelude::{String, Vec};
 #[derive(Clone, Debug, Default)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[cfg_attr(feature = "rasn", derive(rasn::AsnType), rasn(automatic_tags))]
+#[cfg_attr(feature = "musli", derive(musli::Encode, musli::Decode))]
 #[cfg_attr(feature = "bincode", derive(bincode::Encode, bincode::Decode))]
 #[cfg_attr(
     feature = "borsh",
@@ -22,6 +23,7 @@ pub struct PackageMetadata {
 #[derive(Clone, Debug, Default)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[cfg_attr(feature = "rasn", derive(rasn::AsnType), rasn(automatic_tags))]
+#[cfg_attr(feature = "musli", derive(musli::Encode, musli::Decode))]
 #[cfg_attr(feature = "bincode", derive(bincode::Encode, bincode::Decode))]
 #[cfg_attr(
     feature = "borsh",
@@ -37,6 +39,7 @@ pub struct PackageInfo {
 #[derive(Clone, Debug, Default)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[cfg_attr(feature = "rasn", derive(rasn::AsnType), rasn(automatic_tags))]
+#[cfg_attr(feature = "musli", derive(musli::Encode, musli::Decode))]
 #[cfg_attr(feature = "bincode", derive(bincode::Encode, bincode::Decode))]
 #[cfg_attr(
     feature = "borsh",
