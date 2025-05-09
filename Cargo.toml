@@ -16,7 +16,7 @@ readme = true
 homepage = "https://github.com/known-facts/known-types"
 repository = "https://github.com/known-facts/known-types"
 license = "Unlicense"
-keywords = ["known", "struct", "types"]
+keywords = ["known", "known-types", "struct", "types"]
 categories = [
     "api-bindings",
     "config",

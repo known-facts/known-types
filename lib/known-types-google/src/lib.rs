@@ -1,20 +1,15 @@
 // This is free and unencumbered software released into the public domain.
 
-//! This crate provides well-known types.
+//! This crate provides well-known types for Google APIs.
 //!
 //! ```edition2024
-//! # use known_types::*;
+//! # use known_types_google::*;
 //! ```
 
 #![no_std]
 #![deny(unsafe_code)]
 #![deny(missing_debug_implementations)]
 #![deny(clippy::unwrap_used)]
-
-pub mod c;
-
-mod features;
-pub use features::*;
 
 #[cfg(doctest)]
 #[doc = include_str!("../../../README.md")]
