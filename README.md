@@ -9,7 +9,7 @@ Well-known types for Rust.
 
 ## ✨ Features
 
-- Zero mandatory dependencies, only optional [integrations](#integrations).
+- Zero default dependencies, only optional [integrations](#integrations).
 - Supports opting out of any feature using comprehensive [feature flags].
 - Adheres to the Rust API Guidelines in its [naming conventions].
 - 100% free and unencumbered public domain software.
@@ -116,7 +116,7 @@ use known_types;
 <details>
 <summary>Instructions for each crate</summary>
 
-### Importing the library
+### Importing the library (all crates)
 
 ```rust
 use known_types;
@@ -151,18 +151,18 @@ Crate | Version | Docs | Summary
 [known-types-rubygems] | [![known-types-rubygems](https://img.shields.io/crates/v/known-types-rubygems)](https://crates.io/crates/known-types-rubygems) | [![known-types-rubygems](https://docs.rs/known-types-rubygems/badge.svg)](https://docs.rs/known-types-rubygems/) | Well-known types for RubyGems.org APIs.
 [known-types-w3c] | [![known-types-w3c](https://img.shields.io/crates/v/known-types-w3c)](https://crates.io/crates/known-types-w3c) | [![known-types-w3c](https://docs.rs/known-types-w3c/badge.svg)](https://docs.rs/known-types-w3c/) | Well-known types for W3C specifications.
 [known-types-x] | [![known-types-x](https://img.shields.io/crates/v/known-types-x)](https://crates.io/crates/known-types-x) | [![known-types-x](https://docs.rs/known-types-x/badge.svg)](https://docs.rs/known-types-x/) | Well-known types for X (formerly Twitter) APIs.
-<img width=220 height=1/> | <img width=110 height=1/> | <img width=100 height=1/> | &nbsp;
+<img width="220" height="1"/> | <img width="110" height="1"/> | <img width="100" height="1"/> | &nbsp;
 
 ### Integrations
 
 Crate (Feature) | Version | Usage | Summary
 :--- | :--- | :--- | :---
-[bincode] &nbsp;<sub>(`features = ["bincode"]`)</sub> | <sub>`version = "2"`</sub> | [![bincode](https://docs.rs/bincode/badge.svg)](https://docs.rs/bincode/) | Derives `bincode::{Encode, Decode}`
-[borsh] &nbsp;<sub>(`features = ["borsh"]`)</sub> | <sub>`version = "1.5"`</sub> | [![borsh](https://docs.rs/borsh/badge.svg)](https://docs.rs/borsh/) | Derives `borsh::{BorshSerialize, BorshDeserialize}`
-[musli] &nbsp;<sub>(`features = ["musli"]`)</sub> | <sub>`version = "0.0"`</sub> | [![musli](https://docs.rs/musli/badge.svg)](https://docs.rs/musli/) | Derives `musli::{Encode, Decode}`
-[rasn] &nbsp;<sub>(`features = ["rasn"]`)</sub> | <sub>`version = "0.26"`</sub> | [![rasn](https://docs.rs/rasn/badge.svg)](https://docs.rs/rasn/) | Derives `rasn::AsnType` with `rasn(automatic_tags)`
-[serde] &nbsp;<sub>(`features = ["serde"]`)</sub> | <sub>`version = "1"`</sub> | [![serde](https://docs.rs/serde/badge.svg)](https://docs.rs/serde/) | Derives `serde::{Serialize, Deserialize}`
-<img width=220 height=1/> | <img width=110 height=1/> | <img width=100 height=1/> | &nbsp;
+[bincode] &nbsp;<sub>(`"bincode"`)</sub> | 2 | [![bincode](https://docs.rs/bincode/badge.svg)](https://docs.rs/bincode/) | Derives `bincode::{Encode, Decode}`
+[borsh] &nbsp;<sub>(`"borsh"`)</sub> | 1.5 | [![borsh](https://docs.rs/borsh/badge.svg)](https://docs.rs/borsh/) | Derives `borsh::{BorshSerialize, BorshDeserialize}`
+[musli] &nbsp;<sub>(`"musli"`)</sub> | 0.0.131 | [![musli](https://docs.rs/musli/badge.svg)](https://docs.rs/musli/) | Derives `musli::{Encode, Decode}`
+[rasn] &nbsp;<sub>(`"rasn"`)</sub> | 0.26 | [![rasn](https://docs.rs/rasn/badge.svg)](https://docs.rs/rasn/) | Derives `rasn::AsnType` with `rasn(automatic_tags)`
+[serde] &nbsp;<sub>(`"serde"`)</sub> | 1 | [![serde](https://docs.rs/serde/badge.svg)](https://docs.rs/serde/) | Derives `serde::{Serialize, Deserialize}`
+<img width="220" height="1"/> | <img width="110" height="1"/> | <img width="100" height="1"/> | &nbsp;
 
 ## 👨‍💻 Development
 
