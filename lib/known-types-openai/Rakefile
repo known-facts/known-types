@@ -2,21 +2,36 @@ require 'pathname'
 require 'yaml'
 
 HEADER = "This is free and unencumbered software released into the public domain."
+BASE_URL = 'https://platform.openai.com'
 
 namespace :codegen do
   task groups: %w(openapi.yaml) do |t|
     spec = OpenAI::Spec.parse(t.prerequisites.first)
-    module_names = spec.group_ids.map { |g| g.gsub('-', '_') }.sort
-    module_names.each do |module_name|
+    spec.groups.each do |group|
+      module_name = group.snake_case_id
       module_path = Pathname("src/groups/#{module_name}.rs")
       File.open(module_path, 'w') do |out|
         out.puts "// #{HEADER}"
+        out.puts
+        out.puts "//! OpenAI API: #{group.title}"
+        next if group.description.empty?
+        out.puts
+        wrap_text(group.description, 80-4).each do |line|
+          out.puts "//! #{line}"
+        end
+        link_refs = link_refs(group.description)
+        next if link_refs.empty?
+        out.puts "//!"
+        link_refs.each do |link_ref|
+          out.puts "//! #{link_ref}"
+        end
       end
     end
     File.open('src/groups.rs', 'w') do |out|
       out.puts "// #{HEADER}"
       out.puts
-      module_names.each do |module_name|
+      spec.groups.each do |group|
+        module_name = group.snake_case_id
         out.puts "pub mod #{module_name};"
       end
     end
@@ -30,7 +45,27 @@ module OpenAI
     end
 
     def initialize(spec) @spec = spec end
-    def group_ids() self.groups.map { |g| g['id'] } end
-    def groups() @spec['x-oaiMeta']['groups'] end
+
+    def groups()
+      @spec['x-oaiMeta']['groups'].map { |g| Group.new(g) }.sort_by { |g| g.snake_case_id }
+    end
   end # Spec
+
+  class Group
+    def initialize(spec) @spec = spec end
+    def snake_case_id() @spec['id'].gsub('-', '_') end
+    def title() @spec['title'] end
+    def description() @spec['description'] end
+  end
 end # OpenAI
+
+def wrap_text(text, max_width = 80)
+  text.gsub(/(.{1,#{max_width}})(\s+|$)/, "\\1\n").split("\n")
+end
+
+def link_refs(markdown, base_url = BASE_URL)
+  base_url = base_url.chomp('/')
+  markdown.scan(/\[(.*?)\]\((\/[^)]*)\)/)
+    .map { |_, path| "[#{path}]: #{base_url}#{path}" }
+    .uniq
+end
