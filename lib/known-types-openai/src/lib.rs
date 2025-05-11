@@ -3,7 +3,7 @@
 //! This crate provides well-known types for OpenAI APIs.
 //!
 //! ```edition2024
-//! # use known_types_openai::*;
+//! use known_types_openai::*;
 //! ```
 
 #![no_std]
@@ -18,4 +18,5 @@ pub struct ReadmeDoctests;
 
 mod prelude;
 
+pub mod components;
 pub mod groups;
