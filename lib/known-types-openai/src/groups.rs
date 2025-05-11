@@ -1,5 +1,6 @@
 // This is free and unencumbered software released into the public domain.
 
+//! OpenAI API types organized by group
 pub mod admin_api_keys;
 pub mod administration;
 pub mod assistants;

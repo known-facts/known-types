@@ -1,7 +1,7 @@
 // This is free and unencumbered software released into the public domain.
 
-//! OpenAI API: Project service accounts
-
+//! **OpenAI API: Project service accounts**
+//!
 //! Manage service accounts within a project. A service account is a bot user
 //! that is not associated with a user.
 //! If a user leaves an organization, their keys and membership in projects will

@@ -1,7 +1,7 @@
 // This is free and unencumbered software released into the public domain.
 
-//! OpenAI API: Admin API Keys
-
+//! **OpenAI API: Admin API Keys**
+//!
 //! Admin API keys enable Organization Owners to programmatically manage various
 //! aspects of their organization, including users, projects, and API keys.
 //! These keys provide administrative capabilities, such as creating, updating,
