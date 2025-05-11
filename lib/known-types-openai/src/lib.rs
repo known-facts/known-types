@@ -17,3 +17,5 @@
 pub struct ReadmeDoctests;
 
 mod prelude;
+
+pub mod groups;
