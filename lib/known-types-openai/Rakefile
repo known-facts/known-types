@@ -1,9 +1,13 @@
 require 'json'
 require 'pathname'
 require 'yaml'
+require './rust.rb'
 
 HEADER = "This is free and unencumbered software released into the public domain."
 BASE_URL = 'https://platform.openai.com'
+OneOf = Rust::Types::Unit.new(:OneOf)
+AnyOf = Rust::Types::Unit.new(:AnyOf)
+AllOf = Rust::Types::Unit.new(:AllOf)
 
 namespace :codegen do
   task components: %w(openapi.yaml) do |t|
@@ -13,6 +17,8 @@ namespace :codegen do
       out.puts "// #{HEADER}"
       out.puts
       out.puts "//! OpenAI API components"
+      out.puts
+      out.puts "#![allow(non_camel_case_types)]"
       out.puts
       out.puts "use crate::prelude::{String, Vec};"
 
@@ -27,52 +33,70 @@ namespace :codegen do
           next
         end
 
-        definition = case
+        definitions = case
           when schema.one_of?
             # Some 23 schemas are `oneOf`.
             #puts JSON.pretty_generate(schema.to_h)
-            definition = Rust::Enum.new(schema.id, derives: %i(Clone Debug))
-            # out.puts "#[default]" if schema.nullable? # TODO: && schema.default == 'null'
-            definition.variants << Rust::Variant.new(:Null) if schema.nullable?
-            schema.one_of.each do |t|
-              variant = Rust::Variant.new(t.to_rust_variant, t.to_rust)
-              variant.comment = t.summary
-              definition.variants << variant
-            end
-            definition
+            [Rust::Enum.new(schema.id, derives: %i(Clone Debug)) do |definition|
+              definition.comment = schema.summary
+              # out.puts "#[default]" if schema.nullable? # TODO: && schema.default == 'null'
+              definition.variants << Rust::Variant.new(:Null) if schema.nullable?
+              schema.one_of.each do |t|
+                #p [:ONE_OF, schema.id]
+                variant = Rust::Variant.new(t.to_rust_variant, t.to_rust)
+                variant.comment = t.summary
+                definition.variants << variant
+              end
+            end]
           when schema.any_of?
             # Only 10 schemas are `anyOf`.
-            Rust::Newtype.new(schema.id, '(/*AnyOf*/)', derives: %i(Clone Debug)) # TODO
+            [Rust::Newtype.new(schema.id, AnyOf, derives: %i(Clone Debug)) do |definition|
+              definition.comment = schema.summary
+            end] # TODO
           when schema.all_of?
             # Only 9 schemas are `allOf`.
-            Rust::Newtype.new(schema.id, '(/*AllOf*/)', derives: %i(Clone Debug)) # TODO
+            [Rust::Newtype.new(schema.id, AllOf, derives: %i(Clone Debug)) do |definition|
+              definition.comment = schema.summary
+            end] # TODO
           when schema.items? || schema.type == :array
             # Only 4 schemas are `type: "array"`.
-            Rust::Newtype.new(schema.id, "Vec<#{schema.items.to_rust}>")
+              [Rust::Newtype.new(schema.id, Rust::Types::Vec.new(schema.items.to_rust)) do |definition|
+              definition.comment = schema.summary
+            end]
           when schema.properties? || schema.type == :object
             # Some 414 schemas are `type: "object"`.
-            definition = Rust::Struct.new(schema.id, derives: %i(Clone Debug))
-            definition.comment = schema.summary
-            schema.properties.each do |(k, v)|
-              field = Rust::Field.new(k, v)
-              field.comment = v.summary
-              field.rename = k.id if k.needs_rename?
-              definition.fields << field
+            related_definitions = []
+            definition = Rust::Struct.new(schema.id, derives: %i(Clone Debug)) do |definition|
+              definition.comment = schema.summary
+              schema.properties.each do |(property_id, property_type)|
+                field_type = property_type.to_rust
+                field = Rust::Field.new(property_id, field_type)
+                field.comment = property_type.summary
+                field.rename = property_id.id if property_id.needs_rename?
+                definition.fields << field
+                related_definitions += property_type.related_types
+              end
             end
-            definition
+            [definition] + related_definitions
           else case schema.type
             # Only `ParallelToolCalls` has `type: "boolean"`.
             # TODO: schema['default'] if schema.type == :boolean
-            when :boolean then Rust::Newtype.new(schema.id, :bool)
+            when :boolean then [Rust::Newtype.new(schema.id, Rust::Types::Bool) do |definition|
+              definition.comment = schema.summary
+            end]
             # Some 12 schemas are `type: "string"`.
-            when :string then Rust::Newtype.new(schema.id, :String)
+            when :string then [Rust::Newtype.new(schema.id, Rust::Types::String) do |definition|
+              definition.comment = schema.summary
+            end]
             else raise NotImplementedError # unreachable
           end
         end
 
-        definition.comment = schema.summary
-        definition.derives << :Default if false # TODO
-        definition.write(out)
+        definitions.each_with_index do |definition, i|
+          out.puts if i > 0
+          definition.derives << :Default if false # TODO
+          definition.write(out)
+        end
       end
     end
   end
@@ -124,6 +148,7 @@ module OpenAPI
 
     attr_reader :id, :ref, :type, :nullable, :default
     attr_reader :title, :description
+    attr_reader :related_types
 
     def initialize(id, spec)
       spec = spec.dup
@@ -135,6 +160,7 @@ module OpenAPI
       @title = spec.delete('title')
       @description = spec.delete('description')
       @spec = spec
+      @related_types = []
     end
 
     def to_h
@@ -153,28 +179,29 @@ module OpenAPI
     def summary() first_sentence(self.description) end
 
     def ref?() !!@ref end
+    def recursive_ref?() !!@spec['$recursiveRef'] end
     def one_of?() !!@spec['oneOf'] end
     def any_of?() !!@spec['anyOf'] end
     def all_of?() !!@spec['allOf'] end
     def items?() !!@spec['items'] end
-    def items() Type.new(nil, @spec['items']) end
+    def items() Type.new("#{self.id}_Item", @spec['items']) end
     def properties?() !!@spec['properties'] end
 
     def one_of
-      (@spec['oneOf'] || []).map { |x| Type.new(nil, x) }
+      (@spec['oneOf'] || []).map { |x| Type.new("#{self.id}_OneOf", x) } # FIXME
     end
 
     def any_of
-      (@spec['anyOf'] || []).map { |x| Type.new(nil, x) }
+      (@spec['anyOf'] || []).map { |x| Type.new("#{self.id}_AnyOf", x) } # FIXME
     end
 
     def all_of
-      (@spec['allOf'] || []).map { |x| Type.new(nil, x) }
+      (@spec['allOf'] || []).map { |x| Type.new("#{self.id}_AllOf", x) } # FIXME
     end
 
     def properties
       (@spec['properties'] || {}).inject({}) do |result, (k, v)|
-        result[Identifier.new(k)] = Type.new(nil, v)
+        result[Identifier.new(k)] = Type.new("#{self.id}_#{snake_to_camel(k)}", v) # FIXME
         result
       end
     end
@@ -197,27 +224,53 @@ module OpenAPI
       end
     end
 
-    def to_rust_basetype
-      case
-        when self.ref? then self.ref.split('/').last
-        when self.one_of? then '(/*OneOf*/)' # TODO
-        when self.any_of? then '(/*AnyOf*/)' # TODO
-        when self.all_of? then '(/*AllOf*/)' # TODO
-        when self.items? || @type == :array then "Vec<#{self.items.to_rust}>"
-        when self.properties? || @type == :object then '(/*Object*/)' # TODO
+    def to_rust
+      basetype = case
+        when self.ref? then Rust::Types::Val.new(self.ref.split('/').last)
+        when self.one_of?
+          enum = Rust::Enum.new(self.id, derives: %i(Clone Debug)) do |definition|
+            definition.comment = self.summary
+            self.one_of.each do |t|
+              next if t.recursive_ref? # skip $recursiveRef
+              variant = Rust::Variant.new(t.to_rust_variant, t.to_rust)
+              variant.comment = t.summary
+              definition.variants << variant
+            end
+          end
+          @related_types << enum
+          enum
+        when self.any_of?
+          struct = Rust::Newtype.new(self.id, AnyOf, derives: %i(Clone Debug)) # TODO
+          @related_types << struct
+          struct
+        when self.all_of?
+          struct = Rust::Newtype.new(self.id, AllOf, derives: %i(Clone Debug)) # TODO
+          @related_types << struct
+          struct
+        when self.items? || @type == :array # FIXME
+          item_type = self.items.to_rust
+          if self.is_a?(Rust::Definition) || self.items.ref?
+            Rust::Types::Vec.new(item_type)
+          else
+            #p [item_type, self.items]
+            struct = Rust::Struct.new(item_type, derives: %i(Clone Debug)) # TODO
+            @related_types << struct
+            struct
+            Rust::Types::Vec.new(item_type)
+          end
+        when self.properties? || @type == :object
+          struct = Rust::Struct.new(self.id, derives: %i(Clone Debug)) # TODO: fields
+          @related_types << struct
+          struct
         else case @type
-          when :boolean then :bool
-          when :integer then :i64
-          when :number then :f64
-          when :string then :String
+          when :boolean then Rust::Types::Bool
+          when :integer then Rust::Types::I64
+          when :number then Rust::Types::F64
+          when :string then Rust::Types::String
           else raise NotImplementedError, self.inspect
         end
       end
-    end
-
-    def to_rust
-      basetype = self.to_rust_basetype
-      @nullable ? "Option<#{basetype}>" : basetype
+      @nullable ? Rust::Types::Option.new(basetype) : basetype
     end
   end
 
@@ -228,6 +281,8 @@ module OpenAPI
 
     def initialize(id) @id = id end
     def <=>(other) self.id <=> other.id end
+    def ==(other) self.id == other.id end
+    def hash() @id.hash end
     def needs_rename?() @id.to_s.match?(/[\[\]\.]/) end
     def to_s() @id.to_s end
     def to_sym() @id.to_sym end
@@ -262,126 +317,6 @@ module OpenAI
   end
 end # OpenAI
 
-module Rust
-  class Definition
-    attr_reader :name
-    attr_reader :derives
-    attr_accessor :comment
-
-    def initialize(name, derives: nil, comment: nil)
-      @name = name
-      @derives = (derives || []).to_a.dup.uniq.sort
-      @comment = comment ? comment.to_s.strip : nil
-    end
-
-    def comment?() self.comment && !self.comment.empty? end
-
-    def write(out)
-      out.puts wrap_text(self.comment, 80-4).map { |s| s.prepend("/// ") }.join("\n") if self.comment?
-      out.puts "#[derive(#{@derives.sort.join(", ")})]" unless @derives.empty?
-      out.puts "#[cfg_attr(feature = \"serde\", derive(serde::Serialize, serde::Deserialize))]"
-    end
-  end # Definition
-
-  class Newtype < Definition
-    def initialize(name, type, derives: %i(Clone Debug), comment: nil)
-      super(name, derives:, comment:)
-      @type = type.to_s
-    end
-
-    def write(out)
-      super(out)
-      out.puts "pub struct #{@name}(pub #{@type});"
-    end
-  end # Struct
-
-  class Struct < Definition
-    attr_reader :fields
-
-    def initialize(name, fields: nil, derives: nil, comment: nil)
-      super(name, derives:, comment:)
-      @fields = (fields || []).to_a.dup
-    end
-
-    def write(out)
-      super(out)
-      if self.fields.empty?
-        out.puts "pub struct #{@name};"
-      else
-        out.puts "pub struct #{@name} {"
-        @fields.each_with_index do |field, i|
-          out.puts if i > 0
-          out.puts wrap_text(field.comment, 80-8).map { |s| s.prepend("    /// ") }.join("\n") if field.comment?
-          out.puts "    #[cfg_attr(feature = \"serde\", serde(rename = \"#{k.id}\"))]" if false
-          field.write(out)
-        end
-        out.puts "}"
-      end
-    end
-  end # Struct
-
-  class Enum < Definition
-    attr_reader :variants
-
-    def initialize(name, variants: nil, derives: nil, comment: nil)
-      super(name, derives:, comment:)
-      @variants = (variants || []).to_a.dup
-    end
-
-    def write(out)
-      super(out)
-      if self.variants.empty?
-        out.puts "pub struct #{@name};"
-      else
-        out.puts "pub enum #{@name} {"
-        @variants.each_with_index do |variant, i|
-          out.puts if i > 0
-          out.puts wrap_text(variant.comment, 80-8).map { |s| s.prepend("    /// ") }.join("\n") if variant.comment?
-          variant.write(out)
-        end
-        out.puts "}"
-      end
-    end
-  end # Enum
-
-  class Field
-    attr_reader :name, :type, :summary
-    attr_accessor :comment, :rename
-
-    def initialize(name, type)
-      @name = name.to_s.gsub('[]', '').gsub('.', '_')
-      @type = type.to_rust # FIXME
-    end
-
-    def comment?() self.comment && !self.comment.empty? end
-
-    def write(out)
-      out.puts "    #[cfg_attr(feature = \"serde\", serde(rename = \"#{self.rename}\"))]" if self.rename
-      out.puts "    pub r##{@name}: #{@type},"
-    end
-  end # Field
-
-  class Variant
-    attr_reader :name, :type, :summary
-    attr_accessor :comment
-
-    def initialize(name, type = nil)
-      @name = name.to_sym
-      @type = type ? type.to_s : nil
-    end
-
-    def comment?() self.comment && !self.comment.empty? end
-
-    def write(out)
-      if !@type
-        out.puts "    #{@name},"
-      else
-        out.puts "    #{@name}(#{@type}),"
-      end
-    end
-  end # Variant
-end # Rust
-
 def wrap_text(text, max_width = 80)
   text.gsub(/(.{1,#{max_width}})(\s+|$)/, "\\1\n").split("\n")
 end
@@ -403,4 +338,8 @@ end
 
 def camel_to_snake(camel_string)
   camel_string.gsub(/([A-Z])/, '_\1').downcase.gsub(/^_/, '')
+end
+
+def snake_to_camel(snake_string)
+  snake_string.gsub(/[_.]/, ' ').split.map(&:capitalize).join
 end
