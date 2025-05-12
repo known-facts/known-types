@@ -18,6 +18,15 @@ namespace :codegen do
 
       spec.schemas.each do |schema|
         out.puts
+
+        module_name = camel_to_snake(schema.id.to_s)
+        module_path = Pathname("components/#{module_name}.rs")
+
+        if (Pathname('src') / module_path).exist?
+          out.puts "include!(\"#{module_path}\");"
+          next
+        end
+
         definition = case schema.type
           when :boolean, :string, :array
             # Only `ParallelToolCalls` has a type of 'boolean'
@@ -61,6 +70,7 @@ namespace :codegen do
             else raise NotImplementedError # shouldn't reach here
           end
         end
+
         definition.comment = schema.summary
         definition.derives << :Default if false # TODO
         definition.write(out)
@@ -75,6 +85,7 @@ namespace :codegen do
       out.puts "// #{HEADER}"
       out.puts
       out.puts "//! OpenAI API types organized by group"
+      out.puts
       spec.groups.each do |group|
         module_name = group.snake_case_id
         out.puts "pub mod #{module_name};"
@@ -389,4 +400,8 @@ end
 
 def first_sentence(text)
   text.to_s.gsub(/\s*\n+/, ' ').match(/^.*?[.!?](?:\s|$)/)&.[](0)&.strip || text.to_s.strip
+end
+
+def camel_to_snake(camel_string)
+  camel_string.gsub(/([A-Z])/, '_\1').downcase.gsub(/^_/, '')
 end

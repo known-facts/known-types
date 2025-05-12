@@ -3831,28 +3831,7 @@ pub struct MessageRequestContentTextObject {
     pub r#text: String,
 }
 
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub enum MessageStreamEvent {
-    /// Occurs when a [message](/docs/api-reference/messages/object) is created.
-    Object((/*Object*/)),
-
-    /// Occurs when a [message](/docs/api-reference/messages/object) moves to an
-    /// `in_progress` state.
-    Object((/*Object*/)),
-
-    /// Occurs when parts of a [Message](/docs/api-reference/messages/object)
-    /// are being streamed.
-    Object((/*Object*/)),
-
-    /// Occurs when a [message](/docs/api-reference/messages/object) is
-    /// completed.
-    Object((/*Object*/)),
-
-    /// Occurs when a [message](/docs/api-reference/messages/object) ends before
-    /// it is completed.
-    Object((/*Object*/)),
-}
+include!("components/message_stream_event.rs");
 
 /// Set of 16 key-value pairs that can be attached to an object.
 #[derive(Clone, Debug)]
@@ -6708,76 +6687,9 @@ pub struct RunStepObject {
     pub r#usage: RunStepCompletionUsage,
 }
 
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub enum RunStepStreamEvent {
-    /// Occurs when a [run step](/docs/api-reference/run-steps/step-object) is
-    /// created.
-    Object((/*Object*/)),
+include!("components/run_step_stream_event.rs");
 
-    /// Occurs when a [run step](/docs/api-reference/run-steps/step-object)
-    /// moves to an `in_progress` state.
-    Object((/*Object*/)),
-
-    /// Occurs when parts of a [run
-    /// step](/docs/api-reference/run-steps/step-object) are being streamed.
-    Object((/*Object*/)),
-
-    /// Occurs when a [run step](/docs/api-reference/run-steps/step-object) is
-    /// completed.
-    Object((/*Object*/)),
-
-    /// Occurs when a [run step](/docs/api-reference/run-steps/step-object)
-    /// fails.
-    Object((/*Object*/)),
-
-    /// Occurs when a [run step](/docs/api-reference/run-steps/step-object) is
-    /// cancelled.
-    Object((/*Object*/)),
-
-    /// Occurs when a [run step](/docs/api-reference/run-steps/step-object)
-    /// expires.
-    Object((/*Object*/)),
-}
-
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub enum RunStreamEvent {
-    /// Occurs when a new [run](/docs/api-reference/runs/object) is created.
-    Object((/*Object*/)),
-
-    /// Occurs when a [run](/docs/api-reference/runs/object) moves to a `queued`
-    /// status.
-    Object((/*Object*/)),
-
-    /// Occurs when a [run](/docs/api-reference/runs/object) moves to an
-    /// `in_progress` status.
-    Object((/*Object*/)),
-
-    /// Occurs when a [run](/docs/api-reference/runs/object) moves to a
-    /// `requires_action` status.
-    Object((/*Object*/)),
-
-    /// Occurs when a [run](/docs/api-reference/runs/object) is completed.
-    Object((/*Object*/)),
-
-    /// Occurs when a [run](/docs/api-reference/runs/object) ends with status
-    /// `incomplete`.
-    Object((/*Object*/)),
-
-    /// Occurs when a [run](/docs/api-reference/runs/object) fails.
-    Object((/*Object*/)),
-
-    /// Occurs when a [run](/docs/api-reference/runs/object) moves to a
-    /// `cancelling` status.
-    Object((/*Object*/)),
-
-    /// Occurs when a [run](/docs/api-reference/runs/object) is cancelled.
-    Object((/*Object*/)),
-
-    /// Occurs when a [run](/docs/api-reference/runs/object) expires.
-    Object((/*Object*/)),
-}
+include!("components/run_stream_event.rs");
 
 /// Tool call objects
 #[derive(Clone, Debug)]
@@ -6930,13 +6842,7 @@ pub struct ThreadObject {
     pub r#metadata: Metadata,
 }
 
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub enum ThreadStreamEvent {
-    /// Occurs when a new [thread](/docs/api-reference/threads/object) is
-    /// created.
-    Object((/*Object*/)),
-}
+include!("components/thread_stream_event.rs");
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
