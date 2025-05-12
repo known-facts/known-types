@@ -2,11 +2,40 @@
 
 module Rust; end
 
-module Rust::Type; end
+module Rust::Type
+  def definition?
+    Rust::Definition === self
+  end
+
+  ##
+  # @return [Boolean]
+  def primitive?() true end
+
+  ##
+  # @return [Array<Type>]
+  def types() [] end
+
+  ##
+  # @return [void]
+  def each_subtype(&block)
+    self.types.each do |subtype|
+      raise RuntimeError, subtype.inspect unless subtype.is_a?(Rust::Type)
+      block.call(subtype) if block_given?
+      subtype.each_subtype(&block)
+    end
+  end
+end
 
 module Rust::Types
+  Named = ::Struct.new('Named', :t) do |type|
+    include Rust::Type
+    type.define_method(:types) { [] } # NB
+    type.define_method(:to_s) { t.to_s }
+  end
+
   Val = ::Struct.new('Val', :t) do |type|
     include Rust::Type
+    type.define_method(:types) { [] }
     type.define_method(:to_s) { t.to_s }
   end
 
@@ -17,26 +46,31 @@ module Rust::Types
 
   Ref = ::Struct.new('Ref', :t) do |type|
     include Rust::Type
+    type.define_method(:types) { [t] }
     type.define_method(:to_s) { "&#{t}" }
   end
 
   Unit = ::Struct.new('Unit', :m) do |type|
     include Rust::Type
+    type.define_method(:types) { [] }
     type.define_method(:to_s) { "(/*#{m}*/)" }
   end
 
   Vec = ::Struct.new('Vec', :t) do |type|
     include Rust::Type
+    type.define_method(:types) { [t] }
     type.define_method(:to_s) { "Vec<#{t}>" }
   end
 
   Option = ::Struct.new('Option', :t) do |type|
     include Rust::Type
+    type.define_method(:types) { [t] }
     type.define_method(:to_s) { "Option<#{t}>" }
   end
 
   Result = ::Struct.new('Result', :t, :e) do |type|
     include Rust::Type
+    type.define_method(:types) { [t, e] }
     type.define_method(:to_s) { "Result<#{t}, #{e}>" }
   end
 end # Rust::Types
@@ -62,6 +96,14 @@ module Rust
     ##
     # @return [Boolean]
     def comment?() self.comment && !self.comment.empty? end
+
+    ##
+    # @return [Array<Type>]
+    def types() [] end
+
+    ##
+    # @return [Boolean]
+    def primitive?() false end
 
     ##
     # @return [String]
@@ -92,6 +134,10 @@ module Rust
     end
 
     ##
+    # @return [Array<Type>]
+    def types() [@type] end
+
+    ##
     # @param [IO] out
     # @return [void]
     def write(out)
@@ -114,6 +160,10 @@ module Rust
       @fields = (fields || []).to_a.dup
       block.call(self) if block_given?
     end
+
+    ##
+    # @return [Array<Type>]
+    def types() @fields.map(&:type).uniq.to_a end
 
     ##
     # @param [IO] out
@@ -151,6 +201,10 @@ module Rust
     end
 
     ##
+    # @return [Array<Type>]
+    def types() @variants.map(&:type).compact.uniq.to_a end
+
+    ##
     # @param [IO] out
     # @return [void]
     def write(out)
@@ -185,6 +239,10 @@ module Rust
     def comment?() self.comment && !self.comment.empty? end
 
     ##
+    # @return [Array<Type>]
+    def types() [@type] end
+
+    ##
     # @param [IO] out
     # @return [void]
     def write(out)
@@ -207,6 +265,10 @@ module Rust
     ##
     # @return [Boolean]
     def comment?() self.comment && !self.comment.empty? end
+
+    ##
+    # @return [Array<Type>]
+    def types() [@type].compact end
 
     ##
     # @param [IO] out

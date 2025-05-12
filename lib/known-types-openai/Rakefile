@@ -10,6 +10,19 @@ AnyOf = Rust::Types::Unit.new(:AnyOf)
 AllOf = Rust::Types::Unit.new(:AllOf)
 
 namespace :codegen do
+  task debug: %w(openapi.yaml) do |t|
+    spec = OpenAI::Spec.parse(t.prerequisites.first)
+    spec.schemas.each do |schema|
+      #puts JSON.pretty_generate(schema.to_h)
+      definition = schema.to_rust
+      p [definition.name, definition]
+      definition.each_subtype do |definition2|
+        next if definition2.primitive?
+        p [definition2.name, definition2]
+      end
+    end
+  end
+
   task components: %w(openapi.yaml) do |t|
     spec = OpenAI::Spec.parse(t.prerequisites.first)
 
@@ -22,84 +35,26 @@ namespace :codegen do
       out.puts
       out.puts "use crate::prelude::{String, Vec};"
 
-      spec.schemas.each do |schema|
-        out.puts
-
-        module_name = camel_to_snake(schema.id.to_s)
+      definitions = spec.schemas.map(&:to_rust)
+      definitions.each do |definition|
+        module_name = camel_to_snake(definition.name)
         module_path = Pathname("components/#{module_name}.rs")
-
         if (Pathname('src') / module_path).exist?
+          out.puts
           out.puts "include!(\"#{module_path}\");"
-          next
+        else
+          out.puts
+          definition.write(out)
         end
 
-        definitions = case
-          when schema.one_of?
-            # Some 23 schemas are `oneOf`.
-            #puts JSON.pretty_generate(schema.to_h)
-            [Rust::Enum.new(schema.id, derives: %i(Clone Debug)) do |definition|
-              definition.comment = schema.summary
-              # out.puts "#[default]" if schema.nullable? # TODO: && schema.default == 'null'
-              definition.variants << Rust::Variant.new(:Null) if schema.nullable?
-              schema.one_of.each do |t|
-                #p [:ONE_OF, schema.id]
-                variant = Rust::Variant.new(t.to_rust_variant, t.to_rust)
-                variant.comment = t.summary
-                definition.variants << variant
-              end
-            end]
-          when schema.any_of?
-            # Only 10 schemas are `anyOf`.
-            [Rust::Newtype.new(schema.id, AnyOf, derives: %i(Clone Debug)) do |definition|
-              definition.comment = schema.summary
-            end] # TODO
-          when schema.all_of?
-            # Only 9 schemas are `allOf`.
-            [Rust::Newtype.new(schema.id, AllOf, derives: %i(Clone Debug)) do |definition|
-              definition.comment = schema.summary
-            end] # TODO
-          when schema.items? || schema.type == :array
-            # Only 4 schemas are `type: "array"`.
-              [Rust::Newtype.new(schema.id, Rust::Types::Vec.new(schema.items.to_rust)) do |definition|
-              definition.comment = schema.summary
-            end]
-          when schema.properties? || schema.type == :object
-            # Some 414 schemas are `type: "object"`.
-            related_definitions = []
-            definition = Rust::Struct.new(schema.id, derives: %i(Clone Debug)) do |definition|
-              definition.comment = schema.summary
-              schema.properties.each do |(property_id, property_type)|
-                field_type = property_type.to_rust
-                field = Rust::Field.new(property_id, field_type)
-                field.comment = property_type.summary
-                field.rename = property_id.id if property_id.needs_rename?
-                definition.fields << field
-                related_definitions += property_type.related_types
-              end
-            end
-            [definition] + related_definitions
-          else case schema.type
-            # Only `ParallelToolCalls` has `type: "boolean"`.
-            # TODO: schema['default'] if schema.type == :boolean
-            when :boolean then [Rust::Newtype.new(schema.id, Rust::Types::Bool) do |definition|
-              definition.comment = schema.summary
-            end]
-            # Some 12 schemas are `type: "string"`.
-            when :string then [Rust::Newtype.new(schema.id, Rust::Types::String) do |definition|
-              definition.comment = schema.summary
-            end]
-            else raise NotImplementedError # unreachable
-          end
-        end
-
-        definitions.each_with_index do |definition, i|
-          out.puts if i > 0
-          definition.derives << :Default if false # TODO
+        definition.each_subtype do |definition|
+          next if definition.primitive?
+          out.puts
           definition.write(out)
         end
       end
     end
-  end
+  end # :components
 
   task groups: %w(openapi.yaml) do |t|
     spec = OpenAI::Spec.parse(t.prerequisites.first)
@@ -141,17 +96,12 @@ namespace :codegen do
 end # :codegen
 
 module OpenAPI
-  class Type
-    # def self.new(spec)
-    #   Type.new(nil, spec)
-    # end
-
+  class Schema
     attr_reader :id, :ref, :type, :nullable, :default
     attr_reader :title, :description
-    attr_reader :related_types
 
     def initialize(id, spec)
-      spec = spec.dup
+      spec = spec.dup || {}
       @id = id ? id.to_sym : nil
       @ref = spec.delete('$ref')
       @type = spec['type'] ? spec.delete('type').to_sym : nil
@@ -160,7 +110,6 @@ module OpenAPI
       @title = spec.delete('title')
       @description = spec.delete('description')
       @spec = spec
-      @related_types = []
     end
 
     def to_h
@@ -184,36 +133,50 @@ module OpenAPI
     def any_of?() !!@spec['anyOf'] end
     def all_of?() !!@spec['allOf'] end
     def items?() !!@spec['items'] end
-    def items() Type.new("#{self.id}_Item", @spec['items']) end
+    def items() Schema.new("#{self.id}_Item", @spec['items']) end
     def properties?() !!@spec['properties'] end
 
     def one_of
-      (@spec['oneOf'] || []).map { |x| Type.new("#{self.id}_OneOf", x) } # FIXME
+      make_enums(@spec['oneOf'])
     end
 
     def any_of
-      (@spec['anyOf'] || []).map { |x| Type.new("#{self.id}_AnyOf", x) } # FIXME
+      make_enums(@spec['anyOf'])
     end
 
     def all_of
-      (@spec['allOf'] || []).map { |x| Type.new("#{self.id}_AllOf", x) } # FIXME
+      make_enums(@spec['allOf'])
+    end
+
+    def make_enums(inputs)
+      if inputs && inputs.size == 1
+        [Schema.new(self.id, inputs.first)]
+      else
+        (inputs || []).map.with_index { |x, i| Schema.new("#{self.id}_#{i + 1}", x) }
+      end
     end
 
     def properties
       (@spec['properties'] || {}).inject({}) do |result, (k, v)|
-        result[Identifier.new(k)] = Type.new("#{self.id}_#{snake_to_camel(k)}", v) # FIXME
+        result[Identifier.new(k.to_sym)] = Schema.new("#{self.id}_#{snake_to_camel(k)}", v) # FIXME
         result
       end
     end
 
-    def to_rust_variant
-      case
+    def to_rust_variant(index = nil)
+      result = case
         when self.ref? then self.ref.split('/').last
+        when self.properties? || @type == :object
+          'Object'
+        when self.items? || @type == :array
+          case self.items.type
+            when :integer then 'ArrayOfIntegers'
+            when :string then 'ArrayOfStrings'
+            else 'Array'
+          end
         when self.one_of? then 'OneOf'
         when self.any_of? then 'AnyOf'
         when self.all_of? then 'AllOf'
-        when self.items? || @type == :array then 'Array'
-        when self.properties? || @type == :object then 'Object'
         else case @type
           when :boolean then 'Boolean'
           when :integer then 'Integer'
@@ -222,57 +185,107 @@ module OpenAPI
           else raise NotImplementedError, self.inspect
         end
       end
+      #index ? "#{result}#{index}" : result
+      result
     end
 
-    def to_rust
-      basetype = case
-        when self.ref? then Rust::Types::Val.new(self.ref.split('/').last)
-        when self.one_of?
-          enum = Rust::Enum.new(self.id, derives: %i(Clone Debug)) do |definition|
+    def to_rust(level = 0)
+      type = case
+        when self.ref?
+          Rust::Types::Named.new(self.ref.split('/').last)
+        when self.properties? || @type == :object
+          # Some 414 top-level schemas are `type: "object"`.
+          Rust::Struct.new(self.id, derives: %i(Clone Debug)) do |definition|
             definition.comment = self.summary
-            self.one_of.each do |t|
-              next if t.recursive_ref? # skip $recursiveRef
-              variant = Rust::Variant.new(t.to_rust_variant, t.to_rust)
-              variant.comment = t.summary
-              definition.variants << variant
+            self.properties.each do |(property_id, property_type)|
+              field_type = property_type.to_rust(level + 1)
+              field = Rust::Field.new(property_id.to_rust, field_type)
+              field.comment = property_type.summary
+              field.rename = property_id.id if property_id.needs_rename?
+              definition.fields << field
             end
           end
-          @related_types << enum
-          enum
-        when self.any_of?
-          struct = Rust::Newtype.new(self.id, AnyOf, derives: %i(Clone Debug)) # TODO
-          @related_types << struct
-          struct
-        when self.all_of?
-          struct = Rust::Newtype.new(self.id, AllOf, derives: %i(Clone Debug)) # TODO
-          @related_types << struct
-          struct
-        when self.items? || @type == :array # FIXME
-          item_type = self.items.to_rust
-          if self.is_a?(Rust::Definition) || self.items.ref?
-            Rust::Types::Vec.new(item_type)
+        when self.items? || self.type == :array
+          # Only 4 top-level schemas are `type: "array"`.
+          item_type = self.items.to_rust(level + 1) rescue Rust::Types::String
+          Rust::Types::Vec.new(item_type)
+        when self.one_of?
+          # Some 23 top-level schemas are `oneOf`.
+          schemas = self.one_of
+          if schemas.size == 1
+            schemas.first.to_rust
+          elsif schemas.all? { |t| t.type == :string }
+            # e.g. RealtimeResponseCreateParams_Conversation
+            Rust::Newtype.new(self.id, Rust::Types::String, derives: %i(Clone Debug)) do |definition|
+              definition.comment = self.summary
+            end
+          elsif schemas.all? { |t| t.type == :object && t.properties.size == 2 && t.properties.any? { |k, _| k.to_sym == :type } }
+            # e.g. CreateEvalCompletionsRunDataSource, CreateEvalResponsesRunDataSource
+            Rust::Enum.new(self.id, derives: %i(Clone Debug)) do |definition|
+              definition.comment = self.summary
+              schemas.each do |t|
+                property1, property2 = t.properties.values
+                variant_name = snake_to_camel(property1.to_h['enum'].first)
+                variant_type = property2.to_rust(level + 1)
+                variant = Rust::Variant.new(variant_name, variant_type)
+                variant.comment = t.summary
+                definition.variants << variant
+              end
+            end
           else
-            #p [item_type, self.items]
-            struct = Rust::Struct.new(item_type, derives: %i(Clone Debug)) # TODO
-            @related_types << struct
-            struct
-            Rust::Types::Vec.new(item_type)
+            Rust::Enum.new(self.id, derives: %i(Clone Debug)) do |definition|
+              definition.comment = self.summary
+              definition.variants << Rust::Variant.new(:Null) if self.nullable?
+              #out.puts "#[default]" if self.nullable? # TODO: && self.default == 'null'
+              schemas.each_with_index do |t, i|
+                next if t.recursive_ref? # skip $recursiveRef
+                variant = Rust::Variant.new(t.to_rust_variant(i), t.to_rust(level + 1))
+                variant.comment = t.summary
+                definition.variants << variant
+              end
+            end
           end
-        when self.properties? || @type == :object
-          struct = Rust::Struct.new(self.id, derives: %i(Clone Debug)) # TODO: fields
-          @related_types << struct
-          struct
+        when self.any_of?
+          # Only 10 top-level schemas are `anyOf`.
+          schemas = self.any_of
+          if schemas.size == 1
+            schemas.first.to_rust
+          else
+            Rust::Newtype.new(self.id, AnyOf, derives: %i(Clone Debug)) do |definition|
+              definition.comment = self.summary
+            end
+          end
+        when self.all_of?
+          # Only 9 top-level schemas are `allOf`.
+          schemas = self.all_of
+          if schemas.size == 1
+            schemas.first.to_rust
+          else
+            Rust::Newtype.new(self.id, AllOf, derives: %i(Clone Debug)) do |definition|
+              definition.comment = self.summary
+            end
+          end
         else case @type
+          # Only `ParallelToolCalls` has `type: "boolean"`.
+          # TODO: spec['default'] if self.type == :boolean
           when :boolean then Rust::Types::Bool
           when :integer then Rust::Types::I64
           when :number then Rust::Types::F64
+          # Some 12 schemas are `type: "string"`.
           when :string then Rust::Types::String
-          else raise NotImplementedError, self.inspect
+          else Rust::Types::String #raise NotImplementedError, self.inspect
         end
       end
-      @nullable ? Rust::Types::Option.new(basetype) : basetype
+
+      if level.zero? && !type.definition?
+        type = Rust::Newtype.new(self.id, type, derives: %i(Clone Debug)) do |definition|
+          definition.comment = self.summary
+        end
+      end
+      #type = @nullable ? Rust::Types::Option.new(type) : type # FIXME
+      type
     end
-  end
+  end # Schema
 
   class Identifier
     include Comparable
@@ -286,8 +299,8 @@ module OpenAPI
     def needs_rename?() @id.to_s.match?(/[\[\]\.]/) end
     def to_s() @id.to_s end
     def to_sym() @id.to_sym end
-    def to_rust() @id.to_s.gsub('[]', '').gsub('.', '_') end
-  end
+    def to_rust() @id.to_s.gsub('[]', '').gsub(/[-\/\.]/, '_') end
+  end # Identifier
 end
 
 module OpenAI
@@ -303,7 +316,7 @@ module OpenAI
     end
 
     def schemas
-      @spec['components']['schemas'].map { |k, v| OpenAPI::Type.new(k, v) }.sort_by(&:id)
+      @spec['components']['schemas'].map { |k, v| OpenAPI::Schema.new(k, v) }.sort_by(&:id)
     end
   end # Spec
 
@@ -318,28 +331,28 @@ module OpenAI
 end # OpenAI
 
 def wrap_text(text, max_width = 80)
-  text.gsub(/(.{1,#{max_width}})(\s+|$)/, "\\1\n").split("\n")
-end
-
-def link_refs(markdown, base_url = BASE_URL)
-  base_url = base_url.chomp('/')
-  markdown.scan(/\[(.*?)\]\((\/[^)]*)\)/)
-    .map { |_, path| "[#{path}]: #{base_url}#{path}" }
-    .uniq
-end
-
-def inline_to_reference_links(markdown)
-  markdown.gsub(/\[(.*?)\]\(((?!https:).*?)\)/, '[\1][\2]')
+  text.to_s.gsub(/(.{1,#{max_width}})(\s+|$)/, "\\1\n").split("\n")
 end
 
 def first_sentence(text)
   text.to_s.gsub(/\s*\n+/, ' ').match(/^.*?[.!?](?:\s|$)/)&.[](0)&.strip || text.to_s.strip
 end
 
-def camel_to_snake(camel_string)
-  camel_string.gsub(/([A-Z])/, '_\1').downcase.gsub(/^_/, '')
+def link_refs(markdown, base_url = BASE_URL)
+  base_url = base_url.to_s.chomp('/')
+  markdown.to_s.scan(/\[(.*?)\]\((\/[^)]*)\)/)
+    .map { |_, path| "[#{path}]: #{base_url}#{path}" }
+    .uniq
 end
 
-def snake_to_camel(snake_string)
-  snake_string.gsub(/[_.]/, ' ').split.map(&:capitalize).join
+def inline_to_reference_links(markdown)
+  markdown.to_s.gsub(/\[(.*?)\]\(((?!https:).*?)\)/, '[\1][\2]')
+end
+
+def camel_to_snake(name)
+  name.to_s.gsub(/([A-Z])/, '_\1').downcase.gsub(/^_/, '')
+end
+
+def snake_to_camel(name)
+  name.to_s.gsub(/[_.]/, ' ').split.map(&:capitalize).join
 end
