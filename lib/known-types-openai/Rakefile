@@ -27,18 +27,30 @@ namespace :codegen do
           next
         end
 
-        definition = case schema.type
-          when :boolean, :string, :array
-            # Only `ParallelToolCalls` has a type of 'boolean'
-            # Only 4 schemas have a type of 'array'
-            # Some 12 schemas have a type of 'string'
-            case schema.type
-              when :boolean then Rust::Newtype.new(schema.id, :bool)
-              when :string then Rust::Newtype.new(schema.id, :String)
-              when :array then Rust::Newtype.new(schema.id, "Vec<#{schema.items.to_rust}>")
+        definition = case
+          when schema.one_of?
+            # Some 23 schemas are `oneOf`.
+            #puts JSON.pretty_generate(schema.to_h)
+            definition = Rust::Enum.new(schema.id, derives: %i(Clone Debug))
+            # out.puts "#[default]" if schema.nullable? # TODO: && schema.default == 'null'
+            definition.variants << Rust::Variant.new(:Null) if schema.nullable?
+            schema.one_of.each do |t|
+              variant = Rust::Variant.new(t.to_rust_variant, t.to_rust)
+              variant.comment = t.summary
+              definition.variants << variant
             end
-            # TODO: schema['default'] if schema.type == :boolean
-          when :object
+            definition
+          when schema.any_of?
+            # Only 10 schemas are `anyOf`.
+            Rust::Newtype.new(schema.id, '(/*AnyOf*/)', derives: %i(Clone Debug)) # TODO
+          when schema.all_of?
+            # Only 9 schemas are `allOf`.
+            Rust::Newtype.new(schema.id, '(/*AllOf*/)', derives: %i(Clone Debug)) # TODO
+          when schema.items? || schema.type == :array
+            # Only 4 schemas are `type: "array"`.
+            Rust::Newtype.new(schema.id, "Vec<#{schema.items.to_rust}>")
+          when schema.properties? || schema.type == :object
+            # Some 414 schemas are `type: "object"`.
             definition = Rust::Struct.new(schema.id, derives: %i(Clone Debug))
             definition.comment = schema.summary
             schema.properties.each do |(k, v)|
@@ -48,26 +60,13 @@ namespace :codegen do
               definition.fields << field
             end
             definition
-          when nil then case
-            # Some 49 schemas have a type of 'nil` with `oneOf`, `anyOf`, `allOf`, or `properties`
-            when schema.one_of?
-              #puts JSON.pretty_generate(schema.to_h)
-              definition = Rust::Enum.new(schema.id, derives: %i(Clone Debug))
-              # out.puts "#[default]" if schema.nullable? # TODO: && schema.default == 'null'
-              definition.variants << Rust::Variant.new(:Null) if schema.nullable?
-              schema.one_of.each do |t|
-                variant = Rust::Variant.new(t.to_rust_variant, t.to_rust)
-                variant.comment = t.summary
-                definition.variants << variant
-              end
-              definition
-            when schema.any_of?
-              Rust::Newtype.new(schema.id, '(/*AnyOf*/)', derives: %i(Clone Debug)) # TODO
-            when schema.all_of?
-              Rust::Newtype.new(schema.id, '(/*AllOf*/)', derives: %i(Clone Debug)) # TODO
-            when schema.properties?
-              Rust::Struct.new(schema.id, derives: %i(Clone Debug)) # TODO
-            else raise NotImplementedError # shouldn't reach here
+          else case schema.type
+            # Only `ParallelToolCalls` has `type: "boolean"`.
+            # TODO: schema['default'] if schema.type == :boolean
+            when :boolean then Rust::Newtype.new(schema.id, :bool)
+            # Some 12 schemas are `type: "string"`.
+            when :string then Rust::Newtype.new(schema.id, :String)
+            else raise NotImplementedError # unreachable
           end
         end
 

@@ -948,7 +948,11 @@ pub enum ChatCompletionToolChoiceOption {
 /// The chunking strategy used to chunk the file(s).
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct ChunkingStrategyRequestParam;
+pub enum ChunkingStrategyRequestParam {
+    AutoChunkingStrategyRequestParam(AutoChunkingStrategyRequestParam),
+
+    StaticChunkingStrategyRequestParam(StaticChunkingStrategyRequestParam),
+}
 
 /// A click action.
 #[derive(Clone, Debug)]
@@ -1522,7 +1526,11 @@ pub struct CreateEvalCustomDataSourceConfig {
 /// A chat message that makes up the prompt or context.
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct CreateEvalItem;
+pub enum CreateEvalItem {
+    Object((/*Object*/)),
+
+    EvalItem(EvalItem),
+}
 
 /// A JsonlRunDataSource object with that specifies a JSONL file that matches
 /// the eval
@@ -3368,7 +3376,25 @@ pub struct InviteRequest {
 /// Content item used to generate a response.
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct Item;
+pub enum Item {
+    InputMessage(InputMessage),
+
+    OutputMessage(OutputMessage),
+
+    FileSearchToolCall(FileSearchToolCall),
+
+    ComputerToolCall(ComputerToolCall),
+
+    ComputerCallOutputItemParam(ComputerCallOutputItemParam),
+
+    WebSearchToolCall(WebSearchToolCall),
+
+    FunctionToolCall(FunctionToolCall),
+
+    FunctionCallOutputItemParam(FunctionCallOutputItemParam),
+
+    ReasoningItem(ReasoningItem),
+}
 
 /// An internal identifier for an item to reference.
 #[derive(Clone, Debug)]
@@ -3522,7 +3548,17 @@ pub struct ListFineTuningJobEventsResponse {
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct ListMessagesResponse;
+pub struct ListMessagesResponse {
+    pub r#object: String,
+
+    pub r#data: Vec<MessageObject>,
+
+    pub r#first_id: String,
+
+    pub r#last_id: String,
+
+    pub r#has_more: bool,
+}
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
@@ -3544,7 +3580,17 @@ pub struct ListPaginatedFineTuningJobsResponse {
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct ListRunStepsResponse;
+pub struct ListRunStepsResponse {
+    pub r#object: String,
+
+    pub r#data: Vec<RunStepObject>,
+
+    pub r#first_id: String,
+
+    pub r#last_id: String,
+
+    pub r#has_more: bool,
+}
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
@@ -3562,11 +3608,31 @@ pub struct ListRunsResponse {
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct ListVectorStoreFilesResponse;
+pub struct ListVectorStoreFilesResponse {
+    pub r#object: String,
+
+    pub r#data: Vec<VectorStoreFileObject>,
+
+    pub r#first_id: String,
+
+    pub r#last_id: String,
+
+    pub r#has_more: bool,
+}
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct ListVectorStoresResponse;
+pub struct ListVectorStoresResponse {
+    pub r#object: String,
+
+    pub r#data: Vec<VectorStoreObject>,
+
+    pub r#first_id: String,
+
+    pub r#last_id: String,
+
+    pub r#has_more: bool,
+}
 
 /// A log probability object.
 #[derive(Clone, Debug)]
@@ -3841,7 +3907,19 @@ pub struct Metadata;
 /// Describes an OpenAI model offering that can be used with the API.
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct Model;
+pub struct Model {
+    /// The model identifier, which can be referenced in the API endpoints.
+    pub r#id: String,
+
+    /// The Unix timestamp (in seconds) when the model was created.
+    pub r#created: i64,
+
+    /// The object type, which is always "model".
+    pub r#object: String,
+
+    /// The organization that owns the model.
+    pub r#owned_by: String,
+}
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
@@ -3957,7 +4035,34 @@ pub struct Move {
 /// The `File` object represents a document that has been uploaded to OpenAI.
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct OpenAIFile;
+pub struct OpenAIFile {
+    /// The file identifier, which can be referenced in the API endpoints.
+    pub r#id: String,
+
+    /// The size of the file, in bytes.
+    pub r#bytes: i64,
+
+    /// The Unix timestamp (in seconds) for when the file was created.
+    pub r#created_at: i64,
+
+    /// The Unix timestamp (in seconds) for when the file will expire.
+    pub r#expires_at: i64,
+
+    /// The name of the file.
+    pub r#filename: String,
+
+    /// The object type, which is always `file`.
+    pub r#object: String,
+
+    /// The intended purpose of the file.
+    pub r#purpose: String,
+
+    /// Deprecated.
+    pub r#status: String,
+
+    /// Deprecated.
+    pub r#status_details: String,
+}
 
 /// This is returned when the chunking strategy is unknown.
 #[derive(Clone, Debug)]
