@@ -1,3 +1,4 @@
+require 'json'
 require 'pathname'
 require 'yaml'
 
@@ -12,30 +13,57 @@ namespace :codegen do
       out.puts "// #{HEADER}"
       out.puts
       out.puts "//! OpenAI API components"
+      out.puts
+      out.puts "use crate::prelude::{String, Vec};"
 
       spec.schemas.each do |schema|
         out.puts
-        case schema.type
+        definition = case schema.type
           when :boolean, :string, :array
             # Only `ParallelToolCalls` has a type of 'boolean'
             # Only 4 schemas have a type of 'array'
             # Some 12 schemas have a type of 'string'
-            out.puts wrap_text(schema.summary, 80-4).map { |s| s.prepend("/// ") }.join("\n") if schema.summary?
-            out.puts "#[derive(Clone, Debug, Default)]"
-            out.puts "#[cfg_attr(feature = \"serde\", derive(serde::Serialize, serde::Deserialize))]"
-            # TODO: schema['default']
-            out.puts "pub struct #{schema.id}(pub bool);" if schema.type == :boolean
-            out.puts "pub struct #{schema.id}(pub String);" if schema.type == :string
-            out.puts "pub struct #{schema.id}(pub Vec<String>);" if schema.type == :array # FIXME
+            case schema.type
+              when :boolean then Rust::Newtype.new(schema.id, :bool)
+              when :string then Rust::Newtype.new(schema.id, :String)
+              when :array then Rust::Newtype.new(schema.id, "Vec<#{schema.items.to_rust}>")
+            end
+            # TODO: schema['default'] if schema.type == :boolean
           when :object
-            out.puts wrap_text(schema.summary, 80-4).map { |s| s.prepend("/// ") }.join("\n") if schema.summary?
-            out.puts "#[derive(Clone, Debug, Default)]"
-            out.puts "#[cfg_attr(feature = \"serde\", derive(serde::Serialize, serde::Deserialize))]"
-            out.puts "pub struct #{schema.id};" # TODO
-          when nil # oneOf, anyOf, allOf
+            definition = Rust::Struct.new(schema.id, derives: %i(Clone Debug))
+            definition.comment = schema.summary
+            schema.properties.each do |(k, v)|
+              field = Rust::Field.new(k, v)
+              field.comment = v.summary
+              field.rename = k.id if k.needs_rename?
+              definition.fields << field
+            end
+            definition
+          when nil then case
             # Some 49 schemas have a type of 'nil` with `oneOf`, `anyOf`, `allOf`, or `properties`
-            out.puts "// TODO: pub enum #{schema.id};"
+            when schema.one_of?
+              #puts JSON.pretty_generate(schema.to_h)
+              definition = Rust::Enum.new(schema.id, derives: %i(Clone Debug))
+              # out.puts "#[default]" if schema.nullable? # TODO: && schema.default == 'null'
+              definition.variants << Rust::Variant.new(:Null) if schema.nullable?
+              schema.one_of.each do |t|
+                variant = Rust::Variant.new(t.to_rust_variant, t.to_rust)
+                variant.comment = t.summary
+                definition.variants << variant
+              end
+              definition
+            when schema.any_of?
+              Rust::Newtype.new(schema.id, '(/*AnyOf*/)', derives: %i(Clone Debug)) # TODO
+            when schema.all_of?
+              Rust::Newtype.new(schema.id, '(/*AllOf*/)', derives: %i(Clone Debug)) # TODO
+            when schema.properties?
+              Rust::Struct.new(schema.id, derives: %i(Clone Debug)) # TODO
+            else raise NotImplementedError # shouldn't reach here
+          end
         end
+        definition.comment = schema.summary
+        definition.derives << :Default if false # TODO
+        definition.write(out)
       end
     end
   end
@@ -78,6 +106,125 @@ namespace :codegen do
   end # :groups
 end # :codegen
 
+module OpenAPI
+  class Type
+    # def self.new(spec)
+    #   Type.new(nil, spec)
+    # end
+
+    attr_reader :id, :ref, :type, :nullable, :default
+    attr_reader :title, :description
+
+    def initialize(id, spec)
+      spec = spec.dup
+      @id = id ? id.to_sym : nil
+      @ref = spec.delete('$ref')
+      @type = spec['type'] ? spec.delete('type').to_sym : nil
+      @nullable = spec.delete('nullable')
+      @default = spec.delete('default')
+      @title = spec.delete('title')
+      @description = spec.delete('description')
+      @spec = spec
+    end
+
+    def to_h
+      @spec.dup.merge!({
+        id: @id,
+        '$ref': @ref,
+        type: @type,
+        nullable: @nullable,
+        title: @title,
+        description: @description,
+      })
+    end
+
+    def nullable?() !!@nullable end
+    def summary?() !self.summary.to_s.empty? end
+    def summary() first_sentence(self.description) end
+
+    def ref?() !!@ref end
+    def one_of?() !!@spec['oneOf'] end
+    def any_of?() !!@spec['anyOf'] end
+    def all_of?() !!@spec['allOf'] end
+    def items?() !!@spec['items'] end
+    def items() Type.new(nil, @spec['items']) end
+    def properties?() !!@spec['properties'] end
+
+    def one_of
+      (@spec['oneOf'] || []).map { |x| Type.new(nil, x) }
+    end
+
+    def any_of
+      (@spec['anyOf'] || []).map { |x| Type.new(nil, x) }
+    end
+
+    def all_of
+      (@spec['allOf'] || []).map { |x| Type.new(nil, x) }
+    end
+
+    def properties
+      (@spec['properties'] || {}).inject({}) do |result, (k, v)|
+        result[Identifier.new(k)] = Type.new(nil, v)
+        result
+      end
+    end
+
+    def to_rust_variant
+      case
+        when self.ref? then self.ref.split('/').last
+        when self.one_of? then 'OneOf'
+        when self.any_of? then 'AnyOf'
+        when self.all_of? then 'AllOf'
+        when self.items? || @type == :array then 'Array'
+        when self.properties? || @type == :object then 'Object'
+        else case @type
+          when :boolean then 'Boolean'
+          when :integer then 'Integer'
+          when :number then 'Number'
+          when :string then 'String'
+          else raise NotImplementedError, self.inspect
+        end
+      end
+    end
+
+    def to_rust_basetype
+      case
+        when self.ref? then self.ref.split('/').last
+        when self.one_of? then '(/*OneOf*/)' # TODO
+        when self.any_of? then '(/*AnyOf*/)' # TODO
+        when self.all_of? then '(/*AllOf*/)' # TODO
+        when self.items? || @type == :array then "Vec<#{self.items.to_rust}>"
+        when self.properties? || @type == :object then '(/*Object*/)' # TODO
+        else case @type
+          when :boolean then :bool
+          when :integer then :i64
+          when :number then :f64
+          when :string then :String
+          else raise NotImplementedError, self.inspect
+        end
+      end
+    end
+
+    def to_rust
+      basetype = self.to_rust_basetype
+      @nullable ? "Option<#{basetype}>" : basetype
+    end
+  end
+
+  class Identifier
+    include Comparable
+
+    attr_reader :id
+
+    def initialize(id) @id = id end
+    def <=>(other) self.id <=> other.id end
+    def needs_rename?() @id.to_s.match?(/[\[\]\.]/) end
+    def to_s() @id.to_s end
+    def to_sym() @id.to_sym end
+    def to_rust() @id.to_s.gsub('[]', '').gsub('.', '_') end
+  end
+end
+
 module OpenAI
   class Spec
     def self.parse(path)
@@ -91,26 +238,139 @@ module OpenAI
     end
 
     def schemas
-      @spec['components']['schemas'].map { |k, v| Schema.new(k, v) }.sort_by(&:id)
+      @spec['components']['schemas'].map { |k, v| OpenAPI::Type.new(k, v) }.sort_by(&:id)
     end
   end # Spec
 
   class Group
+    attr_reader :spec
+
     def initialize(spec) @spec = spec end
     def snake_case_id() @spec['id'].gsub('-', '_') end
     def title() @spec['title'] end
     def description() @spec['description'] end
   end
-
-  class Schema
-    attr_reader :id
-    def initialize(id, spec) @id, @spec = id, spec end
-    def type() @spec['type'] ? @spec['type'].to_sym : nil end
-    def summary?() !self.summary.to_s.empty? end
-    def summary() first_sentence(self.description) end
-    def description() @spec['description'] end
-  end
 end # OpenAI
+
+module Rust
+  class Definition
+    attr_reader :name
+    attr_reader :derives
+    attr_accessor :comment
+
+    def initialize(name, derives: nil, comment: nil)
+      @name = name
+      @derives = (derives || []).to_a.dup.uniq.sort
+      @comment = comment ? comment.to_s.strip : nil
+    end
+
+    def comment?() self.comment && !self.comment.empty? end
+
+    def write(out)
+      out.puts wrap_text(self.comment, 80-4).map { |s| s.prepend("/// ") }.join("\n") if self.comment?
+      out.puts "#[derive(#{@derives.sort.join(", ")})]" unless @derives.empty?
+      out.puts "#[cfg_attr(feature = \"serde\", derive(serde::Serialize, serde::Deserialize))]"
+    end
+  end # Definition
+
+  class Newtype < Definition
+    def initialize(name, type, derives: %i(Clone Debug), comment: nil)
+      super(name, derives:, comment:)
+      @type = type.to_s
+    end
+
+    def write(out)
+      super(out)
+      out.puts "pub struct #{@name}(pub #{@type});"
+    end
+  end # Struct
+
+  class Struct < Definition
+    attr_reader :fields
+
+    def initialize(name, fields: nil, derives: nil, comment: nil)
+      super(name, derives:, comment:)
+      @fields = (fields || []).to_a.dup
+    end
+
+    def write(out)
+      super(out)
+      if self.fields.empty?
+        out.puts "pub struct #{@name};"
+      else
+        out.puts "pub struct #{@name} {"
+        @fields.each_with_index do |field, i|
+          out.puts if i > 0
+          out.puts wrap_text(field.comment, 80-8).map { |s| s.prepend("    /// ") }.join("\n") if field.comment?
+          out.puts "    #[cfg_attr(feature = \"serde\", serde(rename = \"#{k.id}\"))]" if false
+          field.write(out)
+        end
+        out.puts "}"
+      end
+    end
+  end # Struct
+
+  class Enum < Definition
+    attr_reader :variants
+
+    def initialize(name, variants: nil, derives: nil, comment: nil)
+      super(name, derives:, comment:)
+      @variants = (variants || []).to_a.dup
+    end
+
+    def write(out)
+      super(out)
+      if self.variants.empty?
+        out.puts "pub struct #{@name};"
+      else
+        out.puts "pub enum #{@name} {"
+        @variants.each_with_index do |variant, i|
+          out.puts if i > 0
+          out.puts wrap_text(variant.comment, 80-8).map { |s| s.prepend("    /// ") }.join("\n") if variant.comment?
+          variant.write(out)
+        end
+        out.puts "}"
+      end
+    end
+  end # Enum
+
+  class Field
+    attr_reader :name, :type, :summary
+    attr_accessor :comment, :rename
+
+    def initialize(name, type)
+      @name = name.to_s.gsub('[]', '').gsub('.', '_')
+      @type = type.to_rust # FIXME
+    end
+
+    def comment?() self.comment && !self.comment.empty? end
+
+    def write(out)
+      out.puts "    #[cfg_attr(feature = \"serde\", serde(rename = \"#{self.rename}\"))]" if self.rename
+      out.puts "    pub r##{@name}: #{@type},"
+    end
+  end # Field
+
+  class Variant
+    attr_reader :name, :type, :summary
+    attr_accessor :comment
+
+    def initialize(name, type = nil)
+      @name = name.to_sym
+      @type = type ? type.to_s : nil
+    end
+
+    def comment?() self.comment && !self.comment.empty? end
+
+    def write(out)
+      if !@type
+        out.puts "    #{@name},"
+      else
+        out.puts "    #{@name}(#{@type}),"
+      end
+    end
+  end # Variant
+end # Rust
 
 def wrap_text(text, max_width = 80)
   text.gsub(/(.{1,#{max_width}})(\s+|$)/, "\\1\n").split("\n")
