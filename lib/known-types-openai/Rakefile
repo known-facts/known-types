@@ -1,13 +1,19 @@
 require 'json'
 require 'pathname'
 require 'yaml'
-require './rust.rb'
+
+require 'codify/rust' # https://rubygems.org/gems/codify.rb
 
 HEADER = "This is free and unencumbered software released into the public domain."
 BASE_URL = 'https://platform.openai.com'
-OneOf = Rust::Types::Unit.new(:OneOf)
-AnyOf = Rust::Types::Unit.new(:AnyOf)
-AllOf = Rust::Types::Unit.new(:AllOf)
+
+Rust = Codify::Rust
+OneOf = Rust::Types::Tuple0.new(:OneOf)
+AnyOf = Rust::Types::Tuple0.new(:AnyOf)
+AllOf = Rust::Types::Tuple0.new(:AllOf)
+
+task default: %w(codegen)
+task codegen: %w(codegen:components codegen:groups)
 
 namespace :codegen do
   task debug: %w(openapi.yaml) do |t|
@@ -195,11 +201,11 @@ module OpenAPI
           Rust::Types::Named.new(self.ref.split('/').last)
         when self.properties? || @type == :object
           # Some 414 top-level schemas are `type: "object"`.
-          Rust::Struct.new(self.id, derives: %i(Clone Debug)) do |definition|
+          Rust::Struct.new(self.id, derives: %i(Clone Debug), cfg_derives: %i(serde)) do |definition|
             definition.comment = self.summary
             self.properties.each do |(property_id, property_type)|
               field_type = property_type.to_rust(level + 1)
-              field = Rust::Field.new(property_id.to_rust, field_type)
+              field = Rust::StructField.new(property_id.to_rust, field_type)
               field.comment = property_type.summary
               field.rename = property_id.id if property_id.needs_rename?
               definition.fields << field
@@ -216,30 +222,30 @@ module OpenAPI
             schemas.first.to_rust
           elsif schemas.all? { |t| t.type == :string }
             # e.g. RealtimeResponseCreateParams_Conversation
-            Rust::Newtype.new(self.id, Rust::Types::String, derives: %i(Clone Debug)) do |definition|
+            Rust::Newtype.new(self.id, Rust::Types::String, derives: %i(Clone Debug), cfg_derives: %i(serde)) do |definition|
               definition.comment = self.summary
             end
           elsif schemas.all? { |t| t.type == :object && t.properties.size == 2 && t.properties.any? { |k, _| k.to_sym == :type } }
             # e.g. CreateEvalCompletionsRunDataSource, CreateEvalResponsesRunDataSource
-            Rust::Enum.new(self.id, derives: %i(Clone Debug)) do |definition|
+            Rust::Enum.new(self.id, derives: %i(Clone Debug), cfg_derives: %i(serde)) do |definition|
               definition.comment = self.summary
               schemas.each do |t|
                 property1, property2 = t.properties.values
                 variant_name = snake_to_camel(property1.to_h['enum'].first)
                 variant_type = property2.to_rust(level + 1)
-                variant = Rust::Variant.new(variant_name, variant_type)
+                variant = Rust::EnumVariant.new(variant_name, variant_type)
                 variant.comment = t.summary
                 definition.variants << variant
               end
             end
           else
-            Rust::Enum.new(self.id, derives: %i(Clone Debug)) do |definition|
+            Rust::Enum.new(self.id, derives: %i(Clone Debug), cfg_derives: %i(serde)) do |definition|
               definition.comment = self.summary
-              definition.variants << Rust::Variant.new(:Null) if self.nullable?
+              definition.variants << Rust::EnumVariant.new(:Null) if self.nullable?
               #out.puts "#[default]" if self.nullable? # TODO: && self.default == 'null'
               schemas.each_with_index do |t, i|
                 next if t.recursive_ref? # skip $recursiveRef
-                variant = Rust::Variant.new(t.to_rust_variant(i), t.to_rust(level + 1))
+                variant = Rust::EnumVariant.new(t.to_rust_variant(i), t.to_rust(level + 1))
                 variant.comment = t.summary
                 definition.variants << variant
               end
@@ -251,7 +257,7 @@ module OpenAPI
           if schemas.size == 1
             schemas.first.to_rust
           else
-            Rust::Newtype.new(self.id, AnyOf, derives: %i(Clone Debug)) do |definition|
+            Rust::Newtype.new(self.id, AnyOf, derives: %i(Clone Debug), cfg_derives: %i(serde)) do |definition|
               definition.comment = self.summary
             end
           end
@@ -261,7 +267,7 @@ module OpenAPI
           if schemas.size == 1
             schemas.first.to_rust
           else
-            Rust::Newtype.new(self.id, AllOf, derives: %i(Clone Debug)) do |definition|
+            Rust::Newtype.new(self.id, AllOf, derives: %i(Clone Debug), cfg_derives: %i(serde)) do |definition|
               definition.comment = self.summary
             end
           end
@@ -278,7 +284,7 @@ module OpenAPI
       end
 
       if level.zero? && !type.definition?
-        type = Rust::Newtype.new(self.id, type, derives: %i(Clone Debug)) do |definition|
+        type = Rust::Newtype.new(self.id, type, derives: %i(Clone Debug), cfg_derives: %i(serde)) do |definition|
           definition.comment = self.summary
         end
       end
