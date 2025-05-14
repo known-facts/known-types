@@ -102,21 +102,13 @@ pub struct ApproximateLocation {
     pub r#timezone: ApproximateLocation_Timezone,
 }
 
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct ApproximateLocation_Country(pub (/*AnyOf*/));
+pub type ApproximateLocation_City = Option<String>;
 
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct ApproximateLocation_Region(pub (/*AnyOf*/));
+pub type ApproximateLocation_Country = Option<String>;
 
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct ApproximateLocation_City(pub (/*AnyOf*/));
+pub type ApproximateLocation_Region = Option<String>;
 
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct ApproximateLocation_Timezone(pub (/*AnyOf*/));
+pub type ApproximateLocation_Timezone = Option<String>;
 
 /// Represents an `assistant` that can call the model and use tools.
 #[derive(Clone, Debug)]
@@ -144,9 +136,8 @@ pub struct AssistantObject {
     pub r#instructions: String,
 
     /// A list of tool enabled on the assistant.
-    pub r#tools: Vec<AssistantObject_Tools_Item>,
+    pub r#tools: Vec<AssistantObject_Tools>,
 
-    /// A set of resources that are used by the assistant's tools.
     pub r#tool_resources: AssistantObject_ToolResources,
 
     pub r#metadata: Metadata,
@@ -160,16 +151,6 @@ pub struct AssistantObject {
     pub r#top_p: f64,
 
     pub r#response_format: AssistantsApiResponseFormatOption,
-}
-
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub enum AssistantObject_Tools_Item {
-    AssistantToolsCode(AssistantToolsCode),
-
-    AssistantToolsFileSearch(AssistantToolsFileSearch),
-
-    AssistantToolsFunction(AssistantToolsFunction),
 }
 
 /// A set of resources that are used by the assistant's tools.
@@ -195,6 +176,16 @@ pub struct AssistantObject_ToolResources_FileSearch {
     /// The ID of the [vector store](/docs/api-reference/vector-stores/object)
     /// attached to this assistant.
     pub r#vector_store_ids: Vec<String>,
+}
+
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub enum AssistantObject_Tools {
+    AssistantToolsCode(AssistantToolsCode),
+
+    AssistantToolsFileSearch(AssistantToolsFileSearch),
+
+    AssistantToolsFunction(AssistantToolsFunction),
 }
 
 /// Represents an event emitted when streaming a Run.
@@ -231,8 +222,14 @@ pub struct AssistantToolsFileSearch {
     /// The type of tool being defined: `file_search`
     pub r#type: String,
 
-    /// Overrides for the file search tool.
     pub r#file_search: AssistantToolsFileSearch_FileSearch,
+}
+
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub struct AssistantToolsFileSearchTypeOnly {
+    /// The type of tool being defined: `file_search`
+    pub r#type: String,
 }
 
 /// Overrides for the file search tool.
@@ -243,13 +240,6 @@ pub struct AssistantToolsFileSearch_FileSearch {
     pub r#max_num_results: i64,
 
     pub r#ranking_options: FileSearchRankingOptions,
-}
-
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct AssistantToolsFileSearchTypeOnly {
-    /// The type of tool being defined: `file_search`
-    pub r#type: String,
 }
 
 #[derive(Clone, Debug)]
@@ -321,559 +311,90 @@ pub struct AuditLog {
     /// The Unix timestamp (in seconds) of the event.
     pub r#effective_at: i64,
 
-    /// The project that the action was scoped to.
     pub r#project: AuditLog_Project,
 
     pub r#actor: AuditLogActor,
 
-    /// The details for events with this `type`.
     #[cfg_attr(feature = "serde", serde(rename = "api_key.created"))]
     pub r#api_key_created: AuditLog_ApiKeyCreated,
 
-    /// The details for events with this `type`.
     #[cfg_attr(feature = "serde", serde(rename = "api_key.updated"))]
     pub r#api_key_updated: AuditLog_ApiKeyUpdated,
 
-    /// The details for events with this `type`.
     #[cfg_attr(feature = "serde", serde(rename = "api_key.deleted"))]
     pub r#api_key_deleted: AuditLog_ApiKeyDeleted,
 
-    /// The project and fine-tuned model checkpoint that the checkpoint
-    /// permission was created for.
     #[cfg_attr(feature = "serde", serde(rename = "checkpoint_permission.created"))]
     pub r#checkpoint_permission_created: AuditLog_CheckpointPermissionCreated,
 
-    /// The details for events with this `type`.
     #[cfg_attr(feature = "serde", serde(rename = "checkpoint_permission.deleted"))]
     pub r#checkpoint_permission_deleted: AuditLog_CheckpointPermissionDeleted,
 
-    /// The details for events with this `type`.
     #[cfg_attr(feature = "serde", serde(rename = "invite.sent"))]
     pub r#invite_sent: AuditLog_InviteSent,
 
-    /// The details for events with this `type`.
     #[cfg_attr(feature = "serde", serde(rename = "invite.accepted"))]
     pub r#invite_accepted: AuditLog_InviteAccepted,
 
-    /// The details for events with this `type`.
     #[cfg_attr(feature = "serde", serde(rename = "invite.deleted"))]
     pub r#invite_deleted: AuditLog_InviteDeleted,
 
-    /// The details for events with this `type`.
     #[cfg_attr(feature = "serde", serde(rename = "login.failed"))]
     pub r#login_failed: AuditLog_LoginFailed,
 
-    /// The details for events with this `type`.
     #[cfg_attr(feature = "serde", serde(rename = "logout.failed"))]
     pub r#logout_failed: AuditLog_LogoutFailed,
 
-    /// The details for events with this `type`.
     #[cfg_attr(feature = "serde", serde(rename = "organization.updated"))]
     pub r#organization_updated: AuditLog_OrganizationUpdated,
 
-    /// The details for events with this `type`.
     #[cfg_attr(feature = "serde", serde(rename = "project.created"))]
     pub r#project_created: AuditLog_ProjectCreated,
 
-    /// The details for events with this `type`.
     #[cfg_attr(feature = "serde", serde(rename = "project.updated"))]
     pub r#project_updated: AuditLog_ProjectUpdated,
 
-    /// The details for events with this `type`.
     #[cfg_attr(feature = "serde", serde(rename = "project.archived"))]
     pub r#project_archived: AuditLog_ProjectArchived,
 
-    /// The details for events with this `type`.
     #[cfg_attr(feature = "serde", serde(rename = "rate_limit.updated"))]
     pub r#rate_limit_updated: AuditLog_RateLimitUpdated,
 
-    /// The details for events with this `type`.
     #[cfg_attr(feature = "serde", serde(rename = "rate_limit.deleted"))]
     pub r#rate_limit_deleted: AuditLog_RateLimitDeleted,
 
-    /// The details for events with this `type`.
     #[cfg_attr(feature = "serde", serde(rename = "service_account.created"))]
     pub r#service_account_created: AuditLog_ServiceAccountCreated,
 
-    /// The details for events with this `type`.
     #[cfg_attr(feature = "serde", serde(rename = "service_account.updated"))]
     pub r#service_account_updated: AuditLog_ServiceAccountUpdated,
 
-    /// The details for events with this `type`.
     #[cfg_attr(feature = "serde", serde(rename = "service_account.deleted"))]
     pub r#service_account_deleted: AuditLog_ServiceAccountDeleted,
 
-    /// The details for events with this `type`.
     #[cfg_attr(feature = "serde", serde(rename = "user.added"))]
     pub r#user_added: AuditLog_UserAdded,
 
-    /// The details for events with this `type`.
     #[cfg_attr(feature = "serde", serde(rename = "user.updated"))]
     pub r#user_updated: AuditLog_UserUpdated,
 
-    /// The details for events with this `type`.
     #[cfg_attr(feature = "serde", serde(rename = "user.deleted"))]
     pub r#user_deleted: AuditLog_UserDeleted,
 
-    /// The details for events with this `type`.
     #[cfg_attr(feature = "serde", serde(rename = "certificate.created"))]
     pub r#certificate_created: AuditLog_CertificateCreated,
 
-    /// The details for events with this `type`.
     #[cfg_attr(feature = "serde", serde(rename = "certificate.updated"))]
     pub r#certificate_updated: AuditLog_CertificateUpdated,
 
-    /// The details for events with this `type`.
     #[cfg_attr(feature = "serde", serde(rename = "certificate.deleted"))]
     pub r#certificate_deleted: AuditLog_CertificateDeleted,
 
-    /// The details for events with this `type`.
     #[cfg_attr(feature = "serde", serde(rename = "certificates.activated"))]
     pub r#certificates_activated: AuditLog_CertificatesActivated,
 
-    /// The details for events with this `type`.
     #[cfg_attr(feature = "serde", serde(rename = "certificates.deactivated"))]
     pub r#certificates_deactivated: AuditLog_CertificatesDeactivated,
-}
-
-/// The project that the action was scoped to.
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct AuditLog_Project {
-    /// The project ID.
-    pub r#id: String,
-
-    /// The project title.
-    pub r#name: String,
-}
-
-/// The details for events with this `type`.
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct AuditLog_ApiKeyCreated {
-    /// The tracking ID of the API key.
-    pub r#id: String,
-
-    /// The payload used to create the API key.
-    pub r#data: AuditLog_ApiKeyCreated_Data,
-}
-
-/// The payload used to create the API key.
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct AuditLog_ApiKeyCreated_Data {
-    /// A list of scopes allowed for the API key, e.g.
-    pub r#scopes: Vec<String>,
-}
-
-/// The details for events with this `type`.
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct AuditLog_ApiKeyUpdated {
-    /// The tracking ID of the API key.
-    pub r#id: String,
-
-    /// The payload used to update the API key.
-    pub r#changes_requested: AuditLog_ApiKeyUpdated_ChangesRequested,
-}
-
-/// The payload used to update the API key.
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct AuditLog_ApiKeyUpdated_ChangesRequested {
-    /// A list of scopes allowed for the API key, e.g.
-    pub r#scopes: Vec<String>,
-}
-
-/// The details for events with this `type`.
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct AuditLog_ApiKeyDeleted {
-    /// The tracking ID of the API key.
-    pub r#id: String,
-}
-
-/// The project and fine-tuned model checkpoint that the checkpoint permission
-/// was created for.
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct AuditLog_CheckpointPermissionCreated {
-    /// The ID of the checkpoint permission.
-    pub r#id: String,
-
-    /// The payload used to create the checkpoint permission.
-    pub r#data: AuditLog_CheckpointPermissionCreated_Data,
-}
-
-/// The payload used to create the checkpoint permission.
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct AuditLog_CheckpointPermissionCreated_Data {
-    /// The ID of the project that the checkpoint permission was created for.
-    pub r#project_id: String,
-
-    /// The ID of the fine-tuned model checkpoint.
-    pub r#fine_tuned_model_checkpoint: String,
-}
-
-/// The details for events with this `type`.
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct AuditLog_CheckpointPermissionDeleted {
-    /// The ID of the checkpoint permission.
-    pub r#id: String,
-}
-
-/// The details for events with this `type`.
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct AuditLog_InviteSent {
-    /// The ID of the invite.
-    pub r#id: String,
-
-    /// The payload used to create the invite.
-    pub r#data: AuditLog_InviteSent_Data,
-}
-
-/// The payload used to create the invite.
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct AuditLog_InviteSent_Data {
-    /// The email invited to the organization.
-    pub r#email: String,
-
-    /// The role the email was invited to be.
-    pub r#role: String,
-}
-
-/// The details for events with this `type`.
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct AuditLog_InviteAccepted {
-    /// The ID of the invite.
-    pub r#id: String,
-}
-
-/// The details for events with this `type`.
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct AuditLog_InviteDeleted {
-    /// The ID of the invite.
-    pub r#id: String,
-}
-
-/// The details for events with this `type`.
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct AuditLog_LoginFailed {
-    /// The error code of the failure.
-    pub r#error_code: String,
-
-    /// The error message of the failure.
-    pub r#error_message: String,
-}
-
-/// The details for events with this `type`.
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct AuditLog_LogoutFailed {
-    /// The error code of the failure.
-    pub r#error_code: String,
-
-    /// The error message of the failure.
-    pub r#error_message: String,
-}
-
-/// The details for events with this `type`.
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct AuditLog_OrganizationUpdated {
-    /// The organization ID.
-    pub r#id: String,
-
-    /// The payload used to update the organization settings.
-    pub r#changes_requested: AuditLog_OrganizationUpdated_ChangesRequested,
-}
-
-/// The payload used to update the organization settings.
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct AuditLog_OrganizationUpdated_ChangesRequested {
-    /// The organization title.
-    pub r#title: String,
-
-    /// The organization description.
-    pub r#description: String,
-
-    /// The organization name.
-    pub r#name: String,
-
-    pub r#settings: AuditLog_OrganizationUpdated_ChangesRequested_Settings,
-}
-
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct AuditLog_OrganizationUpdated_ChangesRequested_Settings {
-    /// Visibility of the threads page which shows messages created with the
-    /// Assistants API and Playground.
-    pub r#threads_ui_visibility: String,
-
-    /// Visibility of the usage dashboard which shows activity and costs for
-    /// your organization.
-    pub r#usage_dashboard_visibility: String,
-}
-
-/// The details for events with this `type`.
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct AuditLog_ProjectCreated {
-    /// The project ID.
-    pub r#id: String,
-
-    /// The payload used to create the project.
-    pub r#data: AuditLog_ProjectCreated_Data,
-}
-
-/// The payload used to create the project.
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct AuditLog_ProjectCreated_Data {
-    /// The project name.
-    pub r#name: String,
-
-    /// The title of the project as seen on the dashboard.
-    pub r#title: String,
-}
-
-/// The details for events with this `type`.
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct AuditLog_ProjectUpdated {
-    /// The project ID.
-    pub r#id: String,
-
-    /// The payload used to update the project.
-    pub r#changes_requested: AuditLog_ProjectUpdated_ChangesRequested,
-}
-
-/// The payload used to update the project.
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct AuditLog_ProjectUpdated_ChangesRequested {
-    /// The title of the project as seen on the dashboard.
-    pub r#title: String,
-}
-
-/// The details for events with this `type`.
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct AuditLog_ProjectArchived {
-    /// The project ID.
-    pub r#id: String,
-}
-
-/// The details for events with this `type`.
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct AuditLog_RateLimitUpdated {
-    /// The rate limit ID
-    pub r#id: String,
-
-    /// The payload used to update the rate limits.
-    pub r#changes_requested: AuditLog_RateLimitUpdated_ChangesRequested,
-}
-
-/// The payload used to update the rate limits.
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct AuditLog_RateLimitUpdated_ChangesRequested {
-    /// The maximum requests per minute.
-    pub r#max_requests_per_1_minute: i64,
-
-    /// The maximum tokens per minute.
-    pub r#max_tokens_per_1_minute: i64,
-
-    /// The maximum images per minute.
-    pub r#max_images_per_1_minute: i64,
-
-    /// The maximum audio megabytes per minute.
-    pub r#max_audio_megabytes_per_1_minute: i64,
-
-    /// The maximum requests per day.
-    pub r#max_requests_per_1_day: i64,
-
-    /// The maximum batch input tokens per day.
-    pub r#batch_1_day_max_input_tokens: i64,
-}
-
-/// The details for events with this `type`.
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct AuditLog_RateLimitDeleted {
-    /// The rate limit ID
-    pub r#id: String,
-}
-
-/// The details for events with this `type`.
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct AuditLog_ServiceAccountCreated {
-    /// The service account ID.
-    pub r#id: String,
-
-    /// The payload used to create the service account.
-    pub r#data: AuditLog_ServiceAccountCreated_Data,
-}
-
-/// The payload used to create the service account.
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct AuditLog_ServiceAccountCreated_Data {
-    /// The role of the service account.
-    pub r#role: String,
-}
-
-/// The details for events with this `type`.
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct AuditLog_ServiceAccountUpdated {
-    /// The service account ID.
-    pub r#id: String,
-
-    /// The payload used to updated the service account.
-    pub r#changes_requested: AuditLog_ServiceAccountUpdated_ChangesRequested,
-}
-
-/// The payload used to updated the service account.
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct AuditLog_ServiceAccountUpdated_ChangesRequested {
-    /// The role of the service account.
-    pub r#role: String,
-}
-
-/// The details for events with this `type`.
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct AuditLog_ServiceAccountDeleted {
-    /// The service account ID.
-    pub r#id: String,
-}
-
-/// The details for events with this `type`.
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct AuditLog_UserAdded {
-    /// The user ID.
-    pub r#id: String,
-
-    /// The payload used to add the user to the project.
-    pub r#data: AuditLog_UserAdded_Data,
-}
-
-/// The payload used to add the user to the project.
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct AuditLog_UserAdded_Data {
-    /// The role of the user.
-    pub r#role: String,
-}
-
-/// The details for events with this `type`.
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct AuditLog_UserUpdated {
-    /// The project ID.
-    pub r#id: String,
-
-    /// The payload used to update the user.
-    pub r#changes_requested: AuditLog_UserUpdated_ChangesRequested,
-}
-
-/// The payload used to update the user.
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct AuditLog_UserUpdated_ChangesRequested {
-    /// The role of the user.
-    pub r#role: String,
-}
-
-/// The details for events with this `type`.
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct AuditLog_UserDeleted {
-    /// The user ID.
-    pub r#id: String,
-}
-
-/// The details for events with this `type`.
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct AuditLog_CertificateCreated {
-    /// The certificate ID.
-    pub r#id: String,
-
-    /// The name of the certificate.
-    pub r#name: String,
-}
-
-/// The details for events with this `type`.
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct AuditLog_CertificateUpdated {
-    /// The certificate ID.
-    pub r#id: String,
-
-    /// The name of the certificate.
-    pub r#name: String,
-}
-
-/// The details for events with this `type`.
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct AuditLog_CertificateDeleted {
-    /// The certificate ID.
-    pub r#id: String,
-
-    /// The name of the certificate.
-    pub r#name: String,
-
-    /// The certificate content in PEM format.
-    pub r#certificate: String,
-}
-
-/// The details for events with this `type`.
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct AuditLog_CertificatesActivated {
-    pub r#certificates: Vec<AuditLog_CertificatesActivated_Certificates_Item>,
-}
-
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct AuditLog_CertificatesActivated_Certificates_Item {
-    /// The certificate ID.
-    pub r#id: String,
-
-    /// The name of the certificate.
-    pub r#name: String,
-}
-
-/// The details for events with this `type`.
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct AuditLog_CertificatesDeactivated {
-    pub r#certificates: Vec<AuditLog_CertificatesDeactivated_Certificates_Item>,
-}
-
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct AuditLog_CertificatesDeactivated_Certificates_Item {
-    /// The certificate ID.
-    pub r#id: String,
-
-    /// The name of the certificate.
-    pub r#name: String,
 }
 
 /// The actor who performed the audit logged action.
@@ -936,6 +457,434 @@ pub struct AuditLogActorUser {
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct AuditLogEventType(pub String);
+
+/// The details for events with this `type`.
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub struct AuditLog_ApiKeyCreated {
+    /// The tracking ID of the API key.
+    pub r#id: String,
+
+    pub r#data: AuditLog_ApiKeyCreated_Data,
+}
+
+/// The payload used to create the API key.
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub struct AuditLog_ApiKeyCreated_Data {
+    /// A list of scopes allowed for the API key, e.g.
+    pub r#scopes: Vec<String>,
+}
+
+/// The details for events with this `type`.
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub struct AuditLog_ApiKeyDeleted {
+    /// The tracking ID of the API key.
+    pub r#id: String,
+}
+
+/// The details for events with this `type`.
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub struct AuditLog_ApiKeyUpdated {
+    /// The tracking ID of the API key.
+    pub r#id: String,
+
+    pub r#changes_requested: AuditLog_ApiKeyUpdated_ChangesRequested,
+}
+
+/// The payload used to update the API key.
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub struct AuditLog_ApiKeyUpdated_ChangesRequested {
+    /// A list of scopes allowed for the API key, e.g.
+    pub r#scopes: Vec<String>,
+}
+
+/// The details for events with this `type`.
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub struct AuditLog_CertificateCreated {
+    /// The certificate ID.
+    pub r#id: String,
+
+    /// The name of the certificate.
+    pub r#name: String,
+}
+
+/// The details for events with this `type`.
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub struct AuditLog_CertificateDeleted {
+    /// The certificate ID.
+    pub r#id: String,
+
+    /// The name of the certificate.
+    pub r#name: String,
+
+    /// The certificate content in PEM format.
+    pub r#certificate: String,
+}
+
+/// The details for events with this `type`.
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub struct AuditLog_CertificateUpdated {
+    /// The certificate ID.
+    pub r#id: String,
+
+    /// The name of the certificate.
+    pub r#name: String,
+}
+
+/// The details for events with this `type`.
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub struct AuditLog_CertificatesActivated {
+    pub r#certificates: Vec<AuditLog_CertificatesActivated_Certificates>,
+}
+
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub struct AuditLog_CertificatesActivated_Certificates {
+    /// The certificate ID.
+    pub r#id: String,
+
+    /// The name of the certificate.
+    pub r#name: String,
+}
+
+/// The details for events with this `type`.
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub struct AuditLog_CertificatesDeactivated {
+    pub r#certificates: Vec<AuditLog_CertificatesDeactivated_Certificates>,
+}
+
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub struct AuditLog_CertificatesDeactivated_Certificates {
+    /// The certificate ID.
+    pub r#id: String,
+
+    /// The name of the certificate.
+    pub r#name: String,
+}
+
+/// The project and fine-tuned model checkpoint that the checkpoint permission
+/// was created for.
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub struct AuditLog_CheckpointPermissionCreated {
+    /// The ID of the checkpoint permission.
+    pub r#id: String,
+
+    pub r#data: AuditLog_CheckpointPermissionCreated_Data,
+}
+
+/// The payload used to create the checkpoint permission.
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub struct AuditLog_CheckpointPermissionCreated_Data {
+    /// The ID of the project that the checkpoint permission was created for.
+    pub r#project_id: String,
+
+    /// The ID of the fine-tuned model checkpoint.
+    pub r#fine_tuned_model_checkpoint: String,
+}
+
+/// The details for events with this `type`.
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub struct AuditLog_CheckpointPermissionDeleted {
+    /// The ID of the checkpoint permission.
+    pub r#id: String,
+}
+
+/// The details for events with this `type`.
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub struct AuditLog_InviteAccepted {
+    /// The ID of the invite.
+    pub r#id: String,
+}
+
+/// The details for events with this `type`.
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub struct AuditLog_InviteDeleted {
+    /// The ID of the invite.
+    pub r#id: String,
+}
+
+/// The details for events with this `type`.
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub struct AuditLog_InviteSent {
+    /// The ID of the invite.
+    pub r#id: String,
+
+    pub r#data: AuditLog_InviteSent_Data,
+}
+
+/// The payload used to create the invite.
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub struct AuditLog_InviteSent_Data {
+    /// The email invited to the organization.
+    pub r#email: String,
+
+    /// The role the email was invited to be.
+    pub r#role: String,
+}
+
+/// The details for events with this `type`.
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub struct AuditLog_LoginFailed {
+    /// The error code of the failure.
+    pub r#error_code: String,
+
+    /// The error message of the failure.
+    pub r#error_message: String,
+}
+
+/// The details for events with this `type`.
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub struct AuditLog_LogoutFailed {
+    /// The error code of the failure.
+    pub r#error_code: String,
+
+    /// The error message of the failure.
+    pub r#error_message: String,
+}
+
+/// The details for events with this `type`.
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub struct AuditLog_OrganizationUpdated {
+    /// The organization ID.
+    pub r#id: String,
+
+    pub r#changes_requested: AuditLog_OrganizationUpdated_ChangesRequested,
+}
+
+/// The payload used to update the organization settings.
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub struct AuditLog_OrganizationUpdated_ChangesRequested {
+    /// The organization title.
+    pub r#title: String,
+
+    /// The organization description.
+    pub r#description: String,
+
+    /// The organization name.
+    pub r#name: String,
+
+    pub r#settings: AuditLog_OrganizationUpdated_ChangesRequested_Settings,
+}
+
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub struct AuditLog_OrganizationUpdated_ChangesRequested_Settings {
+    /// Visibility of the threads page which shows messages created with the
+    /// Assistants API and Playground.
+    pub r#threads_ui_visibility: String,
+
+    /// Visibility of the usage dashboard which shows activity and costs for
+    /// your organization.
+    pub r#usage_dashboard_visibility: String,
+}
+
+/// The project that the action was scoped to.
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub struct AuditLog_Project {
+    /// The project ID.
+    pub r#id: String,
+
+    /// The project title.
+    pub r#name: String,
+}
+
+/// The details for events with this `type`.
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub struct AuditLog_ProjectArchived {
+    /// The project ID.
+    pub r#id: String,
+}
+
+/// The details for events with this `type`.
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub struct AuditLog_ProjectCreated {
+    /// The project ID.
+    pub r#id: String,
+
+    pub r#data: AuditLog_ProjectCreated_Data,
+}
+
+/// The payload used to create the project.
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub struct AuditLog_ProjectCreated_Data {
+    /// The project name.
+    pub r#name: String,
+
+    /// The title of the project as seen on the dashboard.
+    pub r#title: String,
+}
+
+/// The details for events with this `type`.
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub struct AuditLog_ProjectUpdated {
+    /// The project ID.
+    pub r#id: String,
+
+    pub r#changes_requested: AuditLog_ProjectUpdated_ChangesRequested,
+}
+
+/// The payload used to update the project.
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub struct AuditLog_ProjectUpdated_ChangesRequested {
+    /// The title of the project as seen on the dashboard.
+    pub r#title: String,
+}
+
+/// The details for events with this `type`.
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub struct AuditLog_RateLimitDeleted {
+    /// The rate limit ID
+    pub r#id: String,
+}
+
+/// The details for events with this `type`.
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub struct AuditLog_RateLimitUpdated {
+    /// The rate limit ID
+    pub r#id: String,
+
+    pub r#changes_requested: AuditLog_RateLimitUpdated_ChangesRequested,
+}
+
+/// The payload used to update the rate limits.
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub struct AuditLog_RateLimitUpdated_ChangesRequested {
+    /// The maximum requests per minute.
+    pub r#max_requests_per_1_minute: i64,
+
+    /// The maximum tokens per minute.
+    pub r#max_tokens_per_1_minute: i64,
+
+    /// The maximum images per minute.
+    pub r#max_images_per_1_minute: i64,
+
+    /// The maximum audio megabytes per minute.
+    pub r#max_audio_megabytes_per_1_minute: i64,
+
+    /// The maximum requests per day.
+    pub r#max_requests_per_1_day: i64,
+
+    /// The maximum batch input tokens per day.
+    pub r#batch_1_day_max_input_tokens: i64,
+}
+
+/// The details for events with this `type`.
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub struct AuditLog_ServiceAccountCreated {
+    /// The service account ID.
+    pub r#id: String,
+
+    pub r#data: AuditLog_ServiceAccountCreated_Data,
+}
+
+/// The payload used to create the service account.
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub struct AuditLog_ServiceAccountCreated_Data {
+    /// The role of the service account.
+    pub r#role: String,
+}
+
+/// The details for events with this `type`.
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub struct AuditLog_ServiceAccountDeleted {
+    /// The service account ID.
+    pub r#id: String,
+}
+
+/// The details for events with this `type`.
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub struct AuditLog_ServiceAccountUpdated {
+    /// The service account ID.
+    pub r#id: String,
+
+    pub r#changes_requested: AuditLog_ServiceAccountUpdated_ChangesRequested,
+}
+
+/// The payload used to updated the service account.
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub struct AuditLog_ServiceAccountUpdated_ChangesRequested {
+    /// The role of the service account.
+    pub r#role: String,
+}
+
+/// The details for events with this `type`.
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub struct AuditLog_UserAdded {
+    /// The user ID.
+    pub r#id: String,
+
+    pub r#data: AuditLog_UserAdded_Data,
+}
+
+/// The payload used to add the user to the project.
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub struct AuditLog_UserAdded_Data {
+    /// The role of the user.
+    pub r#role: String,
+}
+
+/// The details for events with this `type`.
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub struct AuditLog_UserDeleted {
+    /// The user ID.
+    pub r#id: String,
+}
+
+/// The details for events with this `type`.
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub struct AuditLog_UserUpdated {
+    /// The project ID.
+    pub r#id: String,
+
+    pub r#changes_requested: AuditLog_UserUpdated_ChangesRequested,
+}
+
+/// The payload used to update the user.
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub struct AuditLog_UserUpdated_ChangesRequested {
+    /// The role of the user.
+    pub r#role: String,
+}
 
 /// The default strategy.
 #[derive(Clone, Debug)]
@@ -1001,50 +950,9 @@ pub struct Batch {
     /// The Unix timestamp (in seconds) for when the batch was cancelled.
     pub r#cancelled_at: i64,
 
-    /// The request counts for different statuses within the batch.
     pub r#request_counts: Batch_RequestCounts,
 
     pub r#metadata: Metadata,
-}
-
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct Batch_Errors {
-    /// The object type, which is always `list`.
-    pub r#object: String,
-
-    pub r#data: Vec<Batch_Errors_Data_Item>,
-}
-
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct Batch_Errors_Data_Item {
-    /// An error code identifying the error type.
-    pub r#code: String,
-
-    /// A human-readable message providing more details about the error.
-    pub r#message: String,
-
-    /// The name of the parameter that caused the error, if applicable.
-    pub r#param: String,
-
-    /// The line number of the input file where the error occurred, if
-    /// applicable.
-    pub r#line: i64,
-}
-
-/// The request counts for different statuses within the batch.
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct Batch_RequestCounts {
-    /// Total number of requests in the batch.
-    pub r#total: i64,
-
-    /// Number of requests that have been completed successfully.
-    pub r#completed: i64,
-
-    /// Number of requests that have failed.
-    pub r#failed: i64,
 }
 
 /// The per-line object of the batch input file
@@ -1074,9 +982,19 @@ pub struct BatchRequestOutput {
 
     pub r#response: BatchRequestOutput_Response,
 
-    /// For requests that failed with a non-HTTP error, this will contain more
-    /// information on the cause of the failure.
     pub r#error: BatchRequestOutput_Error,
+}
+
+/// For requests that failed with a non-HTTP error, this will contain more
+/// information on the cause of the failure.
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub struct BatchRequestOutput_Error {
+    /// A machine-readable error code.
+    pub r#code: String,
+
+    /// A human-readable error message.
+    pub r#message: String,
 }
 
 #[derive(Clone, Debug)]
@@ -1097,16 +1015,44 @@ pub struct BatchRequestOutput_Response {
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct BatchRequestOutput_Response_Body;
 
-/// For requests that failed with a non-HTTP error, this will contain more
-/// information on the cause of the failure.
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct BatchRequestOutput_Error {
-    /// A machine-readable error code.
+pub struct Batch_Errors {
+    /// The object type, which is always `list`.
+    pub r#object: String,
+
+    pub r#data: Vec<Batch_Errors_Data>,
+}
+
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub struct Batch_Errors_Data {
+    /// An error code identifying the error type.
     pub r#code: String,
 
-    /// A human-readable error message.
+    /// A human-readable message providing more details about the error.
     pub r#message: String,
+
+    /// The name of the parameter that caused the error, if applicable.
+    pub r#param: String,
+
+    /// The line number of the input file where the error occurred, if
+    /// applicable.
+    pub r#line: i64,
+}
+
+/// The request counts for different statuses within the batch.
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub struct Batch_RequestCounts {
+    /// Total number of requests in the batch.
+    pub r#total: i64,
+
+    /// Number of requests that have been completed successfully.
+    pub r#completed: i64,
+
+    /// Number of requests that have failed.
+    pub r#failed: i64,
 }
 
 /// Represents an individual `certificate` uploaded to the organization.
@@ -1207,7 +1153,7 @@ pub struct ChatCompletionMessageList {
     pub r#object: String,
 
     /// An array of chat completion message objects.
-    pub r#data: Vec<ChatCompletionMessageList_Data_Item>,
+    pub r#data: Vec<ChatCompletionMessageList_Data>,
 
     /// The identifier of the first chat message in the data array.
     pub r#first_id: String,
@@ -1221,7 +1167,14 @@ pub struct ChatCompletionMessageList {
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct ChatCompletionMessageList_Data_Item(pub (/*AllOf*/));
+pub struct ChatCompletionMessageList_Data(pub (/*AllOf*/));
+
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub struct ChatCompletionMessageList_Data_Variant2 {
+    /// The identifier of the chat message.
+    pub r#id: String,
+}
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
@@ -1232,20 +1185,7 @@ pub struct ChatCompletionMessageToolCall {
     /// The type of the tool.
     pub r#type: String,
 
-    /// The function that the model called.
     pub r#function: ChatCompletionMessageToolCall_Function,
-}
-
-/// The function that the model called.
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct ChatCompletionMessageToolCall_Function {
-    /// The name of the function to call.
-    pub r#name: String,
-
-    /// The arguments to call the function with, as generated by the model in
-    /// JSON format.
-    pub r#arguments: String,
 }
 
 #[derive(Clone, Debug)]
@@ -1265,6 +1205,18 @@ pub struct ChatCompletionMessageToolCallChunk {
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct ChatCompletionMessageToolCallChunk_Function {
+    /// The name of the function to call.
+    pub r#name: String,
+
+    /// The arguments to call the function with, as generated by the model in
+    /// JSON format.
+    pub r#arguments: String,
+}
+
+/// The function that the model called.
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub struct ChatCompletionMessageToolCall_Function {
     /// The name of the function to call.
     pub r#name: String,
 
@@ -1304,7 +1256,6 @@ pub struct ChatCompletionNamedToolChoice_Function {
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct ChatCompletionRequestAssistantMessage {
-    /// The contents of the assistant message.
     pub r#content: ChatCompletionRequestAssistantMessage_Content,
 
     /// The refusal message by the assistant.
@@ -1316,26 +1267,19 @@ pub struct ChatCompletionRequestAssistantMessage {
     /// An optional name for the participant.
     pub r#name: String,
 
-    /// Data about a previous audio response from the model.
     pub r#audio: ChatCompletionRequestAssistantMessage_Audio,
 
     pub r#tool_calls: ChatCompletionMessageToolCalls,
 
-    /// Deprecated and replaced by `tool_calls`.
     pub r#function_call: ChatCompletionRequestAssistantMessage_FunctionCall,
 }
 
-/// The contents of the assistant message.
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub enum ChatCompletionRequestAssistantMessage_Content {
-    Null,
+pub enum ChatCompletionRequestAssistantMessageContentPart {
+    ChatCompletionRequestMessageContentPartText(ChatCompletionRequestMessageContentPartText),
 
-    /// The contents of the assistant message.
-    String(String),
-
-    /// An array of content parts with a defined type.
-    Array(Vec<ChatCompletionRequestAssistantMessageContentPart>),
+    ChatCompletionRequestMessageContentPartRefusal(ChatCompletionRequestMessageContentPartRefusal),
 }
 
 /// Data about a previous audio response from the model.
@@ -1344,6 +1288,17 @@ pub enum ChatCompletionRequestAssistantMessage_Content {
 pub struct ChatCompletionRequestAssistantMessage_Audio {
     /// Unique identifier for a previous audio response from the model.
     pub r#id: String,
+}
+
+/// The contents of the assistant message.
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub enum ChatCompletionRequestAssistantMessage_Content {
+    /// The contents of the assistant message.
+    String(String),
+
+    /// An array of content parts with a defined type.
+    Array(Vec<ChatCompletionRequestAssistantMessageContentPart>),
 }
 
 /// Deprecated and replaced by `tool_calls`.
@@ -1358,20 +1313,11 @@ pub struct ChatCompletionRequestAssistantMessage_FunctionCall {
     pub r#name: String,
 }
 
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub enum ChatCompletionRequestAssistantMessageContentPart {
-    ChatCompletionRequestMessageContentPartText(ChatCompletionRequestMessageContentPartText),
-
-    ChatCompletionRequestMessageContentPartRefusal(ChatCompletionRequestMessageContentPartRefusal),
-}
-
 /// Developer-provided instructions that the model should follow, regardless of
 /// messages sent by the user.
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct ChatCompletionRequestDeveloperMessage {
-    /// The contents of the developer message.
     pub r#content: ChatCompletionRequestDeveloperMessage_Content,
 
     /// The role of the messages author, in this case `developer`.
@@ -1512,7 +1458,6 @@ pub struct ChatCompletionRequestMessageContentPartText {
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct ChatCompletionRequestSystemMessage {
-    /// The contents of the system message.
     pub r#content: ChatCompletionRequestSystemMessage_Content,
 
     /// The role of the messages author, in this case `system`.
@@ -1521,6 +1466,10 @@ pub struct ChatCompletionRequestSystemMessage {
     /// An optional name for the participant.
     pub r#name: String,
 }
+
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub struct ChatCompletionRequestSystemMessageContentPart(pub ChatCompletionRequestMessageContentPartText);
 
 /// The contents of the system message.
 #[derive(Clone, Debug)]
@@ -1535,20 +1484,19 @@ pub enum ChatCompletionRequestSystemMessage_Content {
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct ChatCompletionRequestSystemMessageContentPart(pub ChatCompletionRequestMessageContentPartText);
-
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct ChatCompletionRequestToolMessage {
     /// The role of the messages author, in this case `tool`.
     pub r#role: String,
 
-    /// The contents of the tool message.
     pub r#content: ChatCompletionRequestToolMessage_Content,
 
     /// Tool call that this message is responding to.
     pub r#tool_call_id: String,
 }
+
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub struct ChatCompletionRequestToolMessageContentPart(pub ChatCompletionRequestMessageContentPartText);
 
 /// The contents of the tool message.
 #[derive(Clone, Debug)]
@@ -1561,16 +1509,11 @@ pub enum ChatCompletionRequestToolMessage_Content {
     Array(Vec<ChatCompletionRequestToolMessageContentPart>),
 }
 
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct ChatCompletionRequestToolMessageContentPart(pub ChatCompletionRequestMessageContentPartText);
-
 /// Messages sent by an end user, containing prompts or additional context
 /// information.
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct ChatCompletionRequestUserMessage {
-    /// The contents of the user message.
     pub r#content: ChatCompletionRequestUserMessage_Content,
 
     /// The role of the messages author, in this case `user`.
@@ -1578,17 +1521,6 @@ pub struct ChatCompletionRequestUserMessage {
 
     /// An optional name for the participant.
     pub r#name: String,
-}
-
-/// The contents of the user message.
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub enum ChatCompletionRequestUserMessage_Content {
-    /// The text contents of the message.
-    String(String),
-
-    /// An array of content parts with a defined type.
-    Array(Vec<ChatCompletionRequestUserMessageContentPart>),
 }
 
 #[derive(Clone, Debug)]
@@ -1601,6 +1533,17 @@ pub enum ChatCompletionRequestUserMessageContentPart {
     ChatCompletionRequestMessageContentPartAudio(ChatCompletionRequestMessageContentPartAudio),
 
     ChatCompletionRequestMessageContentPartFile(ChatCompletionRequestMessageContentPartFile),
+}
+
+/// The contents of the user message.
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub enum ChatCompletionRequestUserMessage_Content {
+    /// The text contents of the message.
+    String(String),
+
+    /// An array of content parts with a defined type.
+    Array(Vec<ChatCompletionRequestUserMessageContentPart>),
 }
 
 /// A chat completion message generated by the model.
@@ -1617,34 +1560,30 @@ pub struct ChatCompletionResponseMessage {
 
     /// Annotations for the message, when applicable, as when using the [web
     /// search tool](/docs/guides/tools-web-search?api-mode=chat).
-    pub r#annotations: Vec<ChatCompletionResponseMessage_Annotations_Item>,
+    pub r#annotations: Vec<ChatCompletionResponseMessage_Annotations>,
 
     /// The role of the author of this message.
     pub r#role: String,
 
-    /// Deprecated and replaced by `tool_calls`.
     pub r#function_call: ChatCompletionResponseMessage_FunctionCall,
 
-    /// If the audio output modality is requested, this object contains data
-    /// about the audio response from the model.
     pub r#audio: ChatCompletionResponseMessage_Audio,
 }
 
 /// A URL citation when using web search.
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct ChatCompletionResponseMessage_Annotations_Item {
+pub struct ChatCompletionResponseMessage_Annotations {
     /// The type of the URL citation.
     pub r#type: String,
 
-    /// A URL citation when using web search.
-    pub r#url_citation: ChatCompletionResponseMessage_Annotations_Item_UrlCitation,
+    pub r#url_citation: ChatCompletionResponseMessage_Annotations_UrlCitation,
 }
 
 /// A URL citation when using web search.
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct ChatCompletionResponseMessage_Annotations_Item_UrlCitation {
+pub struct ChatCompletionResponseMessage_Annotations_UrlCitation {
     /// The index of the last character of the URL citation in the message.
     pub r#end_index: i64,
 
@@ -1656,18 +1595,6 @@ pub struct ChatCompletionResponseMessage_Annotations_Item_UrlCitation {
 
     /// The title of the web resource.
     pub r#title: String,
-}
-
-/// Deprecated and replaced by `tool_calls`.
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct ChatCompletionResponseMessage_FunctionCall {
-    /// The arguments to call the function with, as generated by the model in
-    /// JSON format.
-    pub r#arguments: String,
-
-    /// The name of the function to call.
-    pub r#name: String,
 }
 
 /// If the audio output modality is requested, this object contains data about
@@ -1688,6 +1615,18 @@ pub struct ChatCompletionResponseMessage_Audio {
 
     /// Transcript of the audio generated by the model.
     pub r#transcript: String,
+}
+
+/// Deprecated and replaced by `tool_calls`.
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub struct ChatCompletionResponseMessage_FunctionCall {
+    /// The arguments to call the function with, as generated by the model in
+    /// JSON format.
+    pub r#arguments: String,
+
+    /// The name of the function to call.
+    pub r#name: String,
 }
 
 /// The role of the author of a message
@@ -1711,7 +1650,6 @@ pub struct ChatCompletionStreamResponseDelta {
     /// The contents of the chunk message.
     pub r#content: String,
 
-    /// Deprecated and replaced by `tool_calls`.
     pub r#function_call: ChatCompletionStreamResponseDelta_FunctionCall,
 
     pub r#tool_calls: Vec<ChatCompletionMessageToolCallChunk>,
@@ -1751,12 +1689,12 @@ pub struct ChatCompletionTokenLogprob {
 
     /// List of the most likely tokens and their log probability, at this token
     /// position.
-    pub r#top_logprobs: Vec<ChatCompletionTokenLogprob_TopLogprobs_Item>,
+    pub r#top_logprobs: Vec<ChatCompletionTokenLogprob_TopLogprobs>,
 }
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct ChatCompletionTokenLogprob_TopLogprobs_Item {
+pub struct ChatCompletionTokenLogprob_TopLogprobs {
     /// The token.
     pub r#token: String,
 
@@ -1818,12 +1756,12 @@ pub struct CodeInterpreterFileOutput {
     /// The type of the code interpreter file output.
     pub r#type: String,
 
-    pub r#files: Vec<CodeInterpreterFileOutput_Files_Item>,
+    pub r#files: Vec<CodeInterpreterFileOutput_Files>,
 }
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct CodeInterpreterFileOutput_Files_Item {
+pub struct CodeInterpreterFileOutput_Files {
     /// The MIME type of the file.
     pub r#mime_type: String,
 
@@ -1881,8 +1819,6 @@ pub struct ComparisonFilter {
     /// The key to compare against the value.
     pub r#key: String,
 
-    /// The value to compare against the attribute key; supports string, number,
-    /// or boolean types.
     pub r#value: ComparisonFilter_Value,
 }
 
@@ -1922,10 +1858,8 @@ pub struct CompletionUsage {
     /// Total number of tokens used in the request (prompt + completion).
     pub r#total_tokens: i64,
 
-    /// Breakdown of tokens used in a completion.
     pub r#completion_tokens_details: CompletionUsage_CompletionTokensDetails,
 
-    /// Breakdown of tokens used in the prompt.
     pub r#prompt_tokens_details: CompletionUsage_PromptTokensDetails,
 }
 
@@ -1967,12 +1901,12 @@ pub struct CompoundFilter {
     pub r#type: String,
 
     /// Array of filters to combine.
-    pub r#filters: Vec<CompoundFilter_Filters_Item>,
+    pub r#filters: Vec<CompoundFilter_Filters>,
 }
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub enum CompoundFilter_Filters_Item {
+pub enum CompoundFilter_Filters {
     ComparisonFilter(ComparisonFilter),
 }
 
@@ -2019,15 +1953,17 @@ pub struct ComputerCallOutputItemParam {
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct ComputerCallOutputItemParam_Id(pub (/*AnyOf*/));
+pub enum ComputerCallOutputItemParam_AcknowledgedSafetyChecks {
+    /// The safety checks reported by the API that have been acknowledged by the
+    /// developer.
+    Array(Vec<ComputerCallSafetyCheckParam>),
 
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct ComputerCallOutputItemParam_AcknowledgedSafetyChecks(pub (/*AnyOf*/));
+    Null(()),
+}
 
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct ComputerCallOutputItemParam_Status(pub (/*AnyOf*/));
+pub type ComputerCallOutputItemParam_Id = Option<String>;
+
+pub type ComputerCallOutputItemParam_Status = Option<String>;
 
 /// A pending safety check for the computer call.
 #[derive(Clone, Debug)]
@@ -2041,13 +1977,9 @@ pub struct ComputerCallSafetyCheckParam {
     pub r#message: ComputerCallSafetyCheckParam_Message,
 }
 
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct ComputerCallSafetyCheckParam_Code(pub (/*AnyOf*/));
+pub type ComputerCallSafetyCheckParam_Code = Option<String>;
 
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct ComputerCallSafetyCheckParam_Message(pub (/*AnyOf*/));
+pub type ComputerCallSafetyCheckParam_Message = Option<String>;
 
 /// A computer screenshot image used with the computer use tool.
 #[derive(Clone, Debug)]
@@ -2112,6 +2044,13 @@ pub struct ComputerToolCallOutput {
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct ComputerToolCallOutputResource(pub (/*AllOf*/));
 
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub struct ComputerToolCallOutputResource_Variant2 {
+    /// The unique ID of the computer call tool output.
+    pub r#id: String,
+}
+
 /// A pending safety check for the computer call.
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
@@ -2169,7 +2108,6 @@ pub struct Coordinate {
 pub struct CostsResult {
     pub r#object: String,
 
-    /// The monetary value in its associated currency.
     pub r#amount: CostsResult_Amount,
 
     /// When `group_by=line_item`, this field provides the line item of the
@@ -2195,7 +2133,6 @@ pub struct CostsResult_Amount {
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct CreateAssistantRequest {
-    /// ID of the model to use.
     pub r#model: CreateAssistantRequest_Model,
 
     /// The name of the assistant.
@@ -2210,9 +2147,8 @@ pub struct CreateAssistantRequest {
     pub r#reasoning_effort: ReasoningEffort,
 
     /// A list of tool enabled on the assistant.
-    pub r#tools: Vec<CreateAssistantRequest_Tools_Item>,
+    pub r#tools: Vec<CreateAssistantRequest_Tools>,
 
-    /// A set of resources that are used by the assistant's tools.
     pub r#tool_resources: CreateAssistantRequest_ToolResources,
 
     pub r#metadata: Metadata,
@@ -2231,16 +2167,10 @@ pub struct CreateAssistantRequest {
 /// ID of the model to use.
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct CreateAssistantRequest_Model(pub (/*AnyOf*/));
+pub enum CreateAssistantRequest_Model {
+    String(String),
 
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub enum CreateAssistantRequest_Tools_Item {
-    AssistantToolsCode(AssistantToolsCode),
-
-    AssistantToolsFileSearch(AssistantToolsFileSearch),
-
-    AssistantToolsFunction(AssistantToolsFunction),
+    AssistantSupportedModels(AssistantSupportedModels),
 }
 
 /// A set of resources that are used by the assistant's tools.
@@ -2293,7 +2223,158 @@ pub struct CreateAssistantRequest_ToolResources_FileSearch_VectorStores_Item_Chu
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub enum CreateAssistantRequest_Tools {
+    AssistantToolsCode(AssistantToolsCode),
+
+    AssistantToolsFileSearch(AssistantToolsFileSearch),
+
+    AssistantToolsFunction(AssistantToolsFunction),
+}
+
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct CreateChatCompletionRequest(pub (/*AllOf*/));
+
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub struct CreateChatCompletionRequest_Variant2 {
+    /// A list of messages comprising the conversation so far.
+    pub r#messages: Vec<ChatCompletionRequestMessage>,
+
+    /// Model ID used to generate the response, like `gpt-4o` or `o3`.
+    pub r#model: ModelIdsShared,
+
+    pub r#modalities: ResponseModalities,
+
+    pub r#reasoning_effort: ReasoningEffort,
+
+    /// An upper bound for the number of tokens that can be generated for a
+    /// completion, including visible output tokens and [reasoning
+    /// tokens](/docs/guides/reasoning).
+    pub r#max_completion_tokens: i64,
+
+    /// Number between -2.0 and 2.0.
+    pub r#frequency_penalty: f64,
+
+    /// Number between -2.0 and 2.0.
+    pub r#presence_penalty: f64,
+
+    pub r#web_search_options: CreateChatCompletionRequest_Variant2_WebSearchOptions,
+
+    /// An integer between 0 and 20 specifying the number of most likely tokens
+    /// to return at each token position, each with an associated log
+    /// probability.
+    pub r#top_logprobs: i64,
+
+    pub r#response_format: CreateChatCompletionRequest_Variant2_ResponseFormat,
+
+    pub r#audio: CreateChatCompletionRequest_Variant2_Audio,
+
+    /// Whether or not to store the output of this chat completion request for
+    /// use in our [model distillation](/docs/guides/distillation) or
+    /// [evals](/docs/guides/evals) products.
+    pub r#store: bool,
+
+    /// If set to true, the model response data will be streamed to the client
+    /// as it is generated using [server-sent
+    /// events](https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events#Event_stream_format).
+    pub r#stream: bool,
+
+    pub r#stop: StopConfiguration,
+
+    /// Modify the likelihood of specified tokens appearing in the completion.
+    pub r#logit_bias: CreateChatCompletionRequest_Variant2_LogitBias,
+
+    /// Whether to return log probabilities of the output tokens or not.
+    pub r#logprobs: bool,
+
+    /// The maximum number of [tokens](/tokenizer) that can be generated in the
+    /// chat completion.
+    pub r#max_tokens: i64,
+
+    /// How many chat completion choices to generate for each input message.
+    pub r#n: i64,
+
+    pub r#prediction: PredictionContent,
+
+    /// This feature is in Beta.
+    pub r#seed: i64,
+
+    pub r#stream_options: ChatCompletionStreamOptions,
+
+    /// A list of tools the model may call.
+    pub r#tools: Vec<ChatCompletionTool>,
+
+    pub r#tool_choice: ChatCompletionToolChoiceOption,
+
+    pub r#parallel_tool_calls: ParallelToolCalls,
+
+    pub r#function_call: CreateChatCompletionRequest_Variant2_FunctionCall,
+
+    /// Deprecated in favor of `tools`.
+    pub r#functions: Vec<ChatCompletionFunctions>,
+}
+
+/// Modify the likelihood of specified tokens appearing in the completion.
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub struct CreateChatCompletionRequest_Variant2_LogitBias;
+
+/// Parameters for audio output.
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub struct CreateChatCompletionRequest_Variant2_Audio {
+    /// The voice the model uses to respond.
+    pub r#voice: VoiceIdsShared,
+
+    /// Specifies the output audio format.
+    pub r#format: String,
+}
+
+/// Deprecated in favor of `tool_choice`.
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub enum CreateChatCompletionRequest_Variant2_FunctionCall {
+    /// `none` means the model will not call a function and instead generates a
+    /// message.
+    String(String),
+
+    ChatCompletionFunctionCallOption(ChatCompletionFunctionCallOption),
+}
+
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub struct CreateChatCompletionRequest_Variant2_Prediction(pub PredictionContent);
+
+/// An object specifying the format that the model must output.
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub enum CreateChatCompletionRequest_Variant2_ResponseFormat {
+    ResponseFormatText(ResponseFormatText),
+
+    ResponseFormatJsonSchema(ResponseFormatJsonSchema),
+
+    ResponseFormatJsonObject(ResponseFormatJsonObject),
+}
+
+/// This tool searches the web for relevant results to use in a response.
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub struct CreateChatCompletionRequest_Variant2_WebSearchOptions {
+    pub r#user_location: CreateChatCompletionRequest_Variant2_WebSearchOptions_UserLocation,
+
+    pub r#search_context_size: WebSearchContextSize,
+}
+
+/// Approximate location parameters for the search.
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub struct CreateChatCompletionRequest_Variant2_WebSearchOptions_UserLocation {
+    /// The type of location approximation.
+    pub r#type: String,
+
+    pub r#approximate: WebSearchLocation,
+}
 
 /// Represents a chat completion response returned by model, based on the
 /// provided input.
@@ -2304,7 +2385,7 @@ pub struct CreateChatCompletionResponse {
     pub r#id: String,
 
     /// A list of chat completion choices.
-    pub r#choices: Vec<CreateChatCompletionResponse_Choices_Item>,
+    pub r#choices: Vec<CreateChatCompletionResponse_Choices>,
 
     /// The Unix timestamp (in seconds) of when the chat completion was created.
     pub r#created: i64,
@@ -2326,7 +2407,7 @@ pub struct CreateChatCompletionResponse {
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct CreateChatCompletionResponse_Choices_Item {
+pub struct CreateChatCompletionResponse_Choices {
     /// The reason the model stopped generating tokens.
     pub r#finish_reason: String,
 
@@ -2335,14 +2416,13 @@ pub struct CreateChatCompletionResponse_Choices_Item {
 
     pub r#message: ChatCompletionResponseMessage,
 
-    /// Log probability information for the choice.
-    pub r#logprobs: CreateChatCompletionResponse_Choices_Item_Logprobs,
+    pub r#logprobs: CreateChatCompletionResponse_Choices_Logprobs,
 }
 
 /// Log probability information for the choice.
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct CreateChatCompletionResponse_Choices_Item_Logprobs {
+pub struct CreateChatCompletionResponse_Choices_Logprobs {
     /// A list of message content tokens with log probability information.
     pub r#content: Vec<ChatCompletionTokenLogprob>,
 
@@ -2359,7 +2439,7 @@ pub struct CreateChatCompletionStreamResponse {
     pub r#id: String,
 
     /// A list of chat completion choices.
-    pub r#choices: Vec<CreateChatCompletionStreamResponse_Choices_Item>,
+    pub r#choices: Vec<CreateChatCompletionStreamResponse_Choices>,
 
     /// The Unix timestamp (in seconds) of when the chat completion was created.
     pub r#created: i64,
@@ -2383,11 +2463,10 @@ pub struct CreateChatCompletionStreamResponse {
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct CreateChatCompletionStreamResponse_Choices_Item {
+pub struct CreateChatCompletionStreamResponse_Choices {
     pub r#delta: ChatCompletionStreamResponseDelta,
 
-    /// Log probability information for the choice.
-    pub r#logprobs: CreateChatCompletionStreamResponse_Choices_Item_Logprobs,
+    pub r#logprobs: CreateChatCompletionStreamResponse_Choices_Logprobs,
 
     /// The reason the model stopped generating tokens.
     pub r#finish_reason: String,
@@ -2399,7 +2478,7 @@ pub struct CreateChatCompletionStreamResponse_Choices_Item {
 /// Log probability information for the choice.
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct CreateChatCompletionStreamResponse_Choices_Item_Logprobs {
+pub struct CreateChatCompletionStreamResponse_Choices_Logprobs {
     /// A list of message content tokens with log probability information.
     pub r#content: Vec<ChatCompletionTokenLogprob>,
 
@@ -2410,11 +2489,8 @@ pub struct CreateChatCompletionStreamResponse_Choices_Item_Logprobs {
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct CreateCompletionRequest {
-    /// ID of the model to use.
     pub r#model: CreateCompletionRequest_Model,
 
-    /// The prompt(s) to generate completions for, encoded as a string, array of
-    /// strings, array of tokens, or array of token arrays.
     pub r#prompt: CreateCompletionRequest_Prompt,
 
     /// Generates `best_of` completions server-side and returns the "best" (the
@@ -2472,18 +2548,19 @@ pub struct CreateCompletionRequest {
     pub r#user: String,
 }
 
-/// ID of the model to use.
+/// Modify the likelihood of specified tokens appearing in the completion.
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct CreateCompletionRequest_Model(pub (/*AnyOf*/));
+pub struct CreateCompletionRequest_LogitBias;
+
+/// ID of the model to use.
+pub type CreateCompletionRequest_Model = String;
 
 /// The prompt(s) to generate completions for, encoded as a string, array of
 /// strings, array of tokens, or array of token arrays.
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum CreateCompletionRequest_Prompt {
-    Null,
-
     String(String),
 
     ArrayOfStrings(Vec<String>),
@@ -2493,11 +2570,6 @@ pub enum CreateCompletionRequest_Prompt {
     Array(Vec<Vec<i64>>),
 }
 
-/// Modify the likelihood of specified tokens appearing in the completion.
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct CreateCompletionRequest_LogitBias;
-
 /// Represents a completion response from the API.
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
@@ -2506,7 +2578,7 @@ pub struct CreateCompletionResponse {
     pub r#id: String,
 
     /// The list of completion choices the model generated for the input prompt.
-    pub r#choices: Vec<CreateCompletionResponse_Choices_Item>,
+    pub r#choices: Vec<CreateCompletionResponse_Choices>,
 
     /// The Unix timestamp (in seconds) of when the completion was created.
     pub r#created: i64,
@@ -2526,40 +2598,38 @@ pub struct CreateCompletionResponse {
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct CreateCompletionResponse_Choices_Item {
+pub struct CreateCompletionResponse_Choices {
     /// The reason the model stopped generating tokens.
     pub r#finish_reason: String,
 
     pub r#index: i64,
 
-    pub r#logprobs: CreateCompletionResponse_Choices_Item_Logprobs,
+    pub r#logprobs: CreateCompletionResponse_Choices_Logprobs,
 
     pub r#text: String,
 }
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct CreateCompletionResponse_Choices_Item_Logprobs {
+pub struct CreateCompletionResponse_Choices_Logprobs {
     pub r#text_offset: Vec<i64>,
 
     pub r#token_logprobs: Vec<f64>,
 
     pub r#tokens: Vec<String>,
 
-    pub r#top_logprobs: Vec<CreateCompletionResponse_Choices_Item_Logprobs_TopLogprobs_Item>,
+    pub r#top_logprobs: Vec<CreateCompletionResponse_Choices_Logprobs_TopLogprobs_Item>,
 }
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct CreateCompletionResponse_Choices_Item_Logprobs_TopLogprobs_Item;
+pub struct CreateCompletionResponse_Choices_Logprobs_TopLogprobs_Item;
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct CreateEmbeddingRequest {
-    /// Input text to embed, encoded as a string or array of tokens.
     pub r#input: CreateEmbeddingRequest_Input,
 
-    /// ID of the model to use.
     pub r#model: CreateEmbeddingRequest_Model,
 
     /// The format to return the embeddings in.
@@ -2592,9 +2662,7 @@ pub enum CreateEmbeddingRequest_Input {
 }
 
 /// ID of the model to use.
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct CreateEmbeddingRequest_Model(pub (/*AnyOf*/));
+pub type CreateEmbeddingRequest_Model = String;
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
@@ -2608,7 +2676,6 @@ pub struct CreateEmbeddingResponse {
     /// The object type, which is always "list".
     pub r#object: String,
 
-    /// The usage information for the request.
     pub r#usage: CreateEmbeddingResponse_Usage,
 }
 
@@ -2643,17 +2710,37 @@ pub struct CreateEvalCompletionsRunDataSource {
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum CreateEvalCompletionsRunDataSource_InputMessages {
-    Template(Vec<CreateEvalCompletionsRunDataSource_InputMessages_1_Template_Item>),
+    CreateEvalCompletionsRunDataSource_InputMessages_Variant1(CreateEvalCompletionsRunDataSource_InputMessages_Variant1),
 
-    ItemReference(String),
+    CreateEvalCompletionsRunDataSource_InputMessages_Variant2(CreateEvalCompletionsRunDataSource_InputMessages_Variant2),
 }
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub enum CreateEvalCompletionsRunDataSource_InputMessages_1_Template_Item {
+pub struct CreateEvalCompletionsRunDataSource_InputMessages_Variant1 {
+    /// The type of input messages.
+    pub r#type: String,
+
+    /// A list of chat messages forming the prompt or context.
+    pub r#template: Vec<CreateEvalCompletionsRunDataSource_InputMessages_Variant1_Template>,
+}
+
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub enum CreateEvalCompletionsRunDataSource_InputMessages_Variant1_Template {
     EasyInputMessage(EasyInputMessage),
 
     EvalItem(EvalItem),
+}
+
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub struct CreateEvalCompletionsRunDataSource_InputMessages_Variant2 {
+    /// The type of input messages.
+    pub r#type: String,
+
+    /// A reference to a variable in the "item" namespace.
+    pub r#item_reference: String,
 }
 
 #[derive(Clone, Debug)]
@@ -2708,6 +2795,16 @@ pub struct CreateEvalCustomDataSourceConfig_ItemSchema;
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct CreateEvalItem;
+
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub struct CreateEvalItem_Variant1 {
+    /// The role of the message (e.g.
+    pub r#role: String,
+
+    /// The content of the message.
+    pub r#content: String,
+}
 
 /// A JsonlRunDataSource object with that specifies a JSONL file that matches
 /// the eval
@@ -2777,11 +2874,10 @@ pub struct CreateEvalRequest {
 
     pub r#metadata: Metadata,
 
-    /// The configuration for the data source used for the evaluation runs.
     pub r#data_source_config: CreateEvalRequest_DataSourceConfig,
 
     /// A list of graders for all eval runs in this group.
-    pub r#testing_criteria: Vec<CreateEvalRequest_TestingCriteria_Item>,
+    pub r#testing_criteria: Vec<CreateEvalRequest_TestingCriteria>,
 }
 
 /// The configuration for the data source used for the evaluation runs.
@@ -2791,7 +2887,7 @@ pub struct CreateEvalRequest_DataSourceConfig;
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub enum CreateEvalRequest_TestingCriteria_Item {
+pub enum CreateEvalRequest_TestingCriteria {
     CreateEvalLabelModelGrader(CreateEvalLabelModelGrader),
 
     EvalStringCheckGrader(EvalStringCheckGrader),
@@ -2823,27 +2919,47 @@ pub struct CreateEvalResponsesRunDataSource {
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum CreateEvalResponsesRunDataSource_InputMessages {
-    Template(Vec<CreateEvalResponsesRunDataSource_InputMessages_1_Template_Item>),
+    CreateEvalResponsesRunDataSource_InputMessages_Variant1(CreateEvalResponsesRunDataSource_InputMessages_Variant1),
 
-    ItemReference(String),
+    CreateEvalResponsesRunDataSource_InputMessages_Variant2(CreateEvalResponsesRunDataSource_InputMessages_Variant2),
 }
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub enum CreateEvalResponsesRunDataSource_InputMessages_1_Template_Item {
-    Object(CreateEvalResponsesRunDataSource_InputMessages_1_Template_Item_1),
+pub struct CreateEvalResponsesRunDataSource_InputMessages_Variant1 {
+    /// The type of input messages.
+    pub r#type: String,
+
+    /// A list of chat messages forming the prompt or context.
+    pub r#template: Vec<CreateEvalResponsesRunDataSource_InputMessages_Variant1_Template>,
+}
+
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub enum CreateEvalResponsesRunDataSource_InputMessages_Variant1_Template {
+    CreateEvalResponsesRunDataSource_InputMessages_Variant1_Template_Variant1(CreateEvalResponsesRunDataSource_InputMessages_Variant1_Template_Variant1),
 
     EvalItem(EvalItem),
 }
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct CreateEvalResponsesRunDataSource_InputMessages_1_Template_Item_1 {
+pub struct CreateEvalResponsesRunDataSource_InputMessages_Variant1_Template_Variant1 {
     /// The role of the message (e.g.
     pub r#role: String,
 
     /// The content of the message.
     pub r#content: String,
+}
+
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub struct CreateEvalResponsesRunDataSource_InputMessages_Variant2 {
+    /// The type of input messages.
+    pub r#type: String,
+
+    /// A reference to a variable in the "item" namespace.
+    pub r#item_reference: String,
 }
 
 #[derive(Clone, Debug)]
@@ -2881,7 +2997,6 @@ pub struct CreateEvalRunRequest {
 
     pub r#metadata: Metadata,
 
-    /// Details about the run's data source.
     pub r#data_source: CreateEvalRunRequest_DataSource,
 }
 
@@ -2910,13 +3025,11 @@ pub struct CreateFineTuningCheckpointPermissionRequest {
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct CreateFineTuningJobRequest {
-    /// The name of the model to fine-tune.
     pub r#model: CreateFineTuningJobRequest_Model,
 
     /// The ID of an uploaded file that contains training data.
     pub r#training_file: String,
 
-    /// The hyperparameters used for the fine-tuning job.
     pub r#hyperparameters: CreateFineTuningJobRequest_Hyperparameters,
 
     /// A string of up to 64 characters that will be added to your fine-tuned
@@ -2927,7 +3040,7 @@ pub struct CreateFineTuningJobRequest {
     pub r#validation_file: String,
 
     /// A list of integrations to enable for your fine-tuning job.
-    pub r#integrations: Vec<CreateFineTuningJobRequest_Integrations_Item>,
+    pub r#integrations: Vec<CreateFineTuningJobRequest_Integrations>,
 
     /// The seed controls the reproducibility of the job.
     pub r#seed: i64,
@@ -2937,22 +3050,14 @@ pub struct CreateFineTuningJobRequest {
     pub r#metadata: Metadata,
 }
 
-/// The name of the model to fine-tune.
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct CreateFineTuningJobRequest_Model(pub (/*AnyOf*/));
-
 /// The hyperparameters used for the fine-tuning job.
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct CreateFineTuningJobRequest_Hyperparameters {
-    /// Number of examples in each batch.
     pub r#batch_size: CreateFineTuningJobRequest_Hyperparameters_BatchSize,
 
-    /// Scaling factor for the learning rate.
     pub r#learning_rate_multiplier: CreateFineTuningJobRequest_Hyperparameters_LearningRateMultiplier,
 
-    /// The number of epochs to train the model for.
     pub r#n_epochs: CreateFineTuningJobRequest_Hyperparameters_NEpochs,
 }
 
@@ -2985,22 +3090,20 @@ pub enum CreateFineTuningJobRequest_Hyperparameters_NEpochs {
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct CreateFineTuningJobRequest_Integrations_Item {
-    /// The type of integration to enable.
-    pub r#type: CreateFineTuningJobRequest_Integrations_Item_Type,
+pub struct CreateFineTuningJobRequest_Integrations {
+    pub r#type: String,
 
-    /// The settings for your integration with Weights and Biases.
-    pub r#wandb: CreateFineTuningJobRequest_Integrations_Item_Wandb,
+    pub r#wandb: CreateFineTuningJobRequest_Integrations_Wandb,
 }
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct CreateFineTuningJobRequest_Integrations_Item_Type(pub String);
+pub struct CreateFineTuningJobRequest_Integrations_Type(pub String);
 
 /// The settings for your integration with Weights and Biases.
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct CreateFineTuningJobRequest_Integrations_Item_Wandb {
+pub struct CreateFineTuningJobRequest_Integrations_Wandb {
     /// The name of the project that the new run will be created under.
     pub r#project: String,
 
@@ -3014,10 +3117,12 @@ pub struct CreateFineTuningJobRequest_Integrations_Item_Wandb {
     pub r#tags: Vec<String>,
 }
 
+/// The name of the model to fine-tune.
+pub type CreateFineTuningJobRequest_Model = String;
+
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct CreateImageEditRequest {
-    /// The image(s) to edit.
     pub r#image: CreateImageEditRequest_Image,
 
     /// A text description of the desired image(s).
@@ -3026,7 +3131,6 @@ pub struct CreateImageEditRequest {
     /// An additional image whose fully transparent areas (e.g.
     pub r#mask: String,
 
-    /// The model to use for image generation.
     pub r#model: CreateImageEditRequest_Model,
 
     /// The number of images to generate.
@@ -3049,12 +3153,14 @@ pub struct CreateImageEditRequest {
 /// The image(s) to edit.
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct CreateImageEditRequest_Image(pub (/*AnyOf*/));
+pub enum CreateImageEditRequest_Image {
+    String(String),
+
+    ArrayOfStrings(Vec<String>),
+}
 
 /// The model to use for image generation.
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct CreateImageEditRequest_Model(pub (/*AnyOf*/));
+pub type CreateImageEditRequest_Model = String;
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
@@ -3062,7 +3168,6 @@ pub struct CreateImageRequest {
     /// A text description of the desired image(s).
     pub r#prompt: String,
 
-    /// The model to use for image generation.
     pub r#model: CreateImageRequest_Model,
 
     /// The number of images to generate.
@@ -3100,9 +3205,7 @@ pub struct CreateImageRequest {
 }
 
 /// The model to use for image generation.
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct CreateImageRequest_Model(pub (/*AnyOf*/));
+pub type CreateImageRequest_Model = String;
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
@@ -3110,7 +3213,6 @@ pub struct CreateImageVariationRequest {
     /// The image to use as the basis for the variation(s).
     pub r#image: String,
 
-    /// The model to use for image generation.
     pub r#model: CreateImageVariationRequest_Model,
 
     /// The number of images to generate.
@@ -3128,9 +3230,7 @@ pub struct CreateImageVariationRequest {
 }
 
 /// The model to use for image generation.
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct CreateImageVariationRequest_Model(pub (/*AnyOf*/));
+pub type CreateImageVariationRequest_Model = String;
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
@@ -3142,9 +3242,27 @@ pub struct CreateMessageRequest {
 
     /// A list of files attached to the message, and the tools they should be
     /// added to.
-    pub r#attachments: Vec<CreateMessageRequest_Attachments_Item>,
+    pub r#attachments: Vec<CreateMessageRequest_Attachments>,
 
     pub r#metadata: Metadata,
+}
+
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub struct CreateMessageRequest_Attachments {
+    /// The ID of the file to attach to the message.
+    pub r#file_id: String,
+
+    /// The tools to add this file to.
+    pub r#tools: Vec<CreateMessageRequest_Attachments_Tools>,
+}
+
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub enum CreateMessageRequest_Attachments_Tools {
+    AssistantToolsCode(AssistantToolsCode),
+
+    AssistantToolsFileSearchTypeOnly(AssistantToolsFileSearchTypeOnly),
 }
 
 #[derive(Clone, Debug)]
@@ -3155,12 +3273,12 @@ pub enum CreateMessageRequest_Content {
 
     /// An array of content parts with a defined type, each can be of type
     /// `text` or images can be passed with `image_url` or `image_file`.
-    Array(Vec<CreateMessageRequest_Content_2_Item>),
+    Array(Vec<CreateMessageRequest_Content_Variant2>),
 }
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub enum CreateMessageRequest_Content_2_Item {
+pub enum CreateMessageRequest_Content_Variant2 {
     MessageContentImageFileObject(MessageContentImageFileObject),
 
     MessageContentImageUrlObject(MessageContentImageUrlObject),
@@ -3170,33 +3288,13 @@ pub enum CreateMessageRequest_Content_2_Item {
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct CreateMessageRequest_Attachments_Item {
-    /// The ID of the file to attach to the message.
-    pub r#file_id: String,
-
-    /// The tools to add this file to.
-    pub r#tools: Vec<CreateMessageRequest_Attachments_Item_Tools_Item>,
-}
-
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub enum CreateMessageRequest_Attachments_Item_Tools_Item {
-    AssistantToolsCode(AssistantToolsCode),
-
-    AssistantToolsFileSearchTypeOnly(AssistantToolsFileSearchTypeOnly),
-}
-
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct CreateModelResponseProperties(pub ModelResponseProperties);
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct CreateModerationRequest {
-    /// Input (or inputs) to classify.
     pub r#input: CreateModerationRequest_Input,
 
-    /// The content moderation model you would like to use.
     pub r#model: CreateModerationRequest_Model,
 }
 
@@ -3211,31 +3309,48 @@ pub enum CreateModerationRequest_Input {
     ArrayOfStrings(Vec<String>),
 
     /// An array of multi-modal inputs to the moderation model.
-    Array(Vec<CreateModerationRequest_Input_3_Item>),
+    Array(Vec<CreateModerationRequest_Input_Variant3>),
 }
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub enum CreateModerationRequest_Input_3_Item {
-    /// An object describing an image to classify.
-    ImageUrl(CreateModerationRequest_Input_3_Item_1_ImageUrl),
+pub enum CreateModerationRequest_Input_Variant3 {
+    CreateModerationRequest_Input_Variant3_Variant1(CreateModerationRequest_Input_Variant3_Variant1),
 
-    /// An object describing text to classify.
-    Text(String),
+    CreateModerationRequest_Input_Variant3_Variant2(CreateModerationRequest_Input_Variant3_Variant2),
+}
+
+/// An object describing an image to classify.
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub struct CreateModerationRequest_Input_Variant3_Variant1 {
+    /// Always `image_url`.
+    pub r#type: String,
+
+    pub r#image_url: CreateModerationRequest_Input_Variant3_Variant1_ImageUrl,
 }
 
 /// Contains either an image URL or a data URL for a base64 encoded image.
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct CreateModerationRequest_Input_3_Item_1_ImageUrl {
+pub struct CreateModerationRequest_Input_Variant3_Variant1_ImageUrl {
     /// Either a URL of the image or the base64 encoded image data.
     pub r#url: String,
 }
 
-/// The content moderation model you would like to use.
+/// An object describing text to classify.
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct CreateModerationRequest_Model(pub (/*AnyOf*/));
+pub struct CreateModerationRequest_Input_Variant3_Variant2 {
+    /// Always `text`.
+    pub r#type: String,
+
+    /// A string of text to classify.
+    pub r#text: String,
+}
+
+/// The content moderation model you would like to use.
+pub type CreateModerationRequest_Model = String;
 
 /// Represents if a given text input is potentially harmful.
 #[derive(Clone, Debug)]
@@ -3248,30 +3363,26 @@ pub struct CreateModerationResponse {
     pub r#model: String,
 
     /// A list of moderation objects.
-    pub r#results: Vec<CreateModerationResponse_Results_Item>,
+    pub r#results: Vec<CreateModerationResponse_Results>,
 }
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct CreateModerationResponse_Results_Item {
+pub struct CreateModerationResponse_Results {
     /// Whether any of the below categories are flagged.
     pub r#flagged: bool,
 
-    /// A list of the categories, and whether they are flagged or not.
-    pub r#categories: CreateModerationResponse_Results_Item_Categories,
+    pub r#categories: CreateModerationResponse_Results_Categories,
 
-    /// A list of the categories along with their scores as predicted by model.
-    pub r#category_scores: CreateModerationResponse_Results_Item_CategoryScores,
+    pub r#category_scores: CreateModerationResponse_Results_CategoryScores,
 
-    /// A list of the categories along with the input type(s) that the score
-    /// applies to.
-    pub r#category_applied_input_types: CreateModerationResponse_Results_Item_CategoryAppliedInputTypes,
+    pub r#category_applied_input_types: CreateModerationResponse_Results_CategoryAppliedInputTypes,
 }
 
 /// A list of the categories, and whether they are flagged or not.
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct CreateModerationResponse_Results_Item_Categories {
+pub struct CreateModerationResponse_Results_Categories {
     /// Content that expresses, incites, or promotes hate based on race, gender,
     /// ethnicity, religion, nationality, sexual orientation, disability status,
     /// or caste.
@@ -3330,55 +3441,11 @@ pub struct CreateModerationResponse_Results_Item_Categories {
     pub r#violence_graphic: bool,
 }
 
-/// A list of the categories along with their scores as predicted by model.
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct CreateModerationResponse_Results_Item_CategoryScores {
-    /// The score for the category 'hate'.
-    pub r#hate: f64,
-
-    /// The score for the category 'hate/threatening'.
-    pub r#hate_threatening: f64,
-
-    /// The score for the category 'harassment'.
-    pub r#harassment: f64,
-
-    /// The score for the category 'harassment/threatening'.
-    pub r#harassment_threatening: f64,
-
-    /// The score for the category 'illicit'.
-    pub r#illicit: f64,
-
-    /// The score for the category 'illicit/violent'.
-    pub r#illicit_violent: f64,
-
-    /// The score for the category 'self-harm'.
-    pub r#self_harm: f64,
-
-    /// The score for the category 'self-harm/intent'.
-    pub r#self_harm_intent: f64,
-
-    /// The score for the category 'self-harm/instructions'.
-    pub r#self_harm_instructions: f64,
-
-    /// The score for the category 'sexual'.
-    pub r#sexual: f64,
-
-    /// The score for the category 'sexual/minors'.
-    pub r#sexual_minors: f64,
-
-    /// The score for the category 'violence'.
-    pub r#violence: f64,
-
-    /// The score for the category 'violence/graphic'.
-    pub r#violence_graphic: f64,
-}
-
 /// A list of the categories along with the input type(s) that the score applies
 /// to.
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct CreateModerationResponse_Results_Item_CategoryAppliedInputTypes {
+pub struct CreateModerationResponse_Results_CategoryAppliedInputTypes {
     /// The applied input type(s) for the category 'hate'.
     pub r#hate: Vec<String>,
 
@@ -3419,9 +3486,87 @@ pub struct CreateModerationResponse_Results_Item_CategoryAppliedInputTypes {
     pub r#violence_graphic: Vec<String>,
 }
 
+/// A list of the categories along with their scores as predicted by model.
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub struct CreateModerationResponse_Results_CategoryScores {
+    /// The score for the category 'hate'.
+    pub r#hate: f64,
+
+    /// The score for the category 'hate/threatening'.
+    pub r#hate_threatening: f64,
+
+    /// The score for the category 'harassment'.
+    pub r#harassment: f64,
+
+    /// The score for the category 'harassment/threatening'.
+    pub r#harassment_threatening: f64,
+
+    /// The score for the category 'illicit'.
+    pub r#illicit: f64,
+
+    /// The score for the category 'illicit/violent'.
+    pub r#illicit_violent: f64,
+
+    /// The score for the category 'self-harm'.
+    pub r#self_harm: f64,
+
+    /// The score for the category 'self-harm/intent'.
+    pub r#self_harm_intent: f64,
+
+    /// The score for the category 'self-harm/instructions'.
+    pub r#self_harm_instructions: f64,
+
+    /// The score for the category 'sexual'.
+    pub r#sexual: f64,
+
+    /// The score for the category 'sexual/minors'.
+    pub r#sexual_minors: f64,
+
+    /// The score for the category 'violence'.
+    pub r#violence: f64,
+
+    /// The score for the category 'violence/graphic'.
+    pub r#violence_graphic: f64,
+}
+
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct CreateResponse(pub (/*AllOf*/));
+
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub struct CreateResponse_Variant3 {
+    pub r#input: CreateResponse_Variant3_Input,
+
+    /// Specify additional output data to include in the model response.
+    pub r#include: Vec<Includable>,
+
+    /// Whether to allow the model to run tool calls in parallel.
+    pub r#parallel_tool_calls: bool,
+
+    /// Whether to store the generated model response for later retrieval via
+    /// API.
+    pub r#store: bool,
+
+    /// If set to true, the model response data will be streamed to the client
+    /// as it is generated using [server-sent
+    /// events](https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events#Event_stream_format).
+    pub r#stream: bool,
+}
+
+/// Text, image, or file inputs to the model, used to generate a response.
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub enum CreateResponse_Variant3_Input {
+    /// A text input to the model, equivalent to a text input with the `user`
+    /// role.
+    String(String),
+
+    /// A list of one or many input items to the model, containing different
+    /// content types.
+    Array(Vec<InputItem>),
+}
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
@@ -3430,8 +3575,6 @@ pub struct CreateRunRequest {
     /// execute this run.
     pub r#assistant_id: String,
 
-    /// The ID of the [Model](/docs/api-reference/models) to be used to execute
-    /// this run.
     pub r#model: CreateRunRequest_Model,
 
     pub r#reasoning_effort: ReasoningEffort,
@@ -3449,7 +3592,7 @@ pub struct CreateRunRequest {
     pub r#additional_messages: Vec<CreateMessageRequest>,
 
     /// Override the tools the assistant can use for this run.
-    pub r#tools: Vec<CreateRunRequest_Tools_Item>,
+    pub r#tools: Vec<CreateRunRequest_Tools>,
 
     pub r#metadata: Metadata,
 
@@ -3487,11 +3630,19 @@ pub struct CreateRunRequest {
 /// run.
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct CreateRunRequest_Model(pub (/*AnyOf*/));
+pub enum CreateRunRequest_Model {
+    String(String),
+
+    AssistantSupportedModels(AssistantSupportedModels),
+}
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub enum CreateRunRequest_Tools_Item {
+pub struct CreateRunRequest_ToolChoice(pub (/*AllOf*/));
+
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub enum CreateRunRequest_Tools {
     AssistantToolsCode(AssistantToolsCode),
 
     AssistantToolsFileSearch(AssistantToolsFileSearch),
@@ -3505,13 +3656,7 @@ pub struct CreateRunRequest_TruncationStrategy(pub (/*AllOf*/));
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct CreateRunRequest_ToolChoice(pub (/*AllOf*/));
-
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct CreateSpeechRequest {
-    /// One of the available [TTS models](/docs/models#tts): `tts-1`, `tts-1-hd`
-    /// or `gpt-4o-mini-tts`.
     pub r#model: CreateSpeechRequest_Model,
 
     /// The text to generate audio for.
@@ -3532,9 +3677,7 @@ pub struct CreateSpeechRequest {
 
 /// One of the available [TTS models](/docs/models#tts): `tts-1`, `tts-1-hd` or
 /// `gpt-4o-mini-tts`.
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct CreateSpeechRequest_Model(pub (/*AnyOf*/));
+pub type CreateSpeechRequest_Model = String;
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
@@ -3545,17 +3688,14 @@ pub struct CreateThreadAndRunRequest {
 
     pub r#thread: CreateThreadRequest,
 
-    /// The ID of the [Model](/docs/api-reference/models) to be used to execute
-    /// this run.
     pub r#model: CreateThreadAndRunRequest_Model,
 
     /// Override the default system message of the assistant.
     pub r#instructions: String,
 
     /// Override the tools the assistant can use for this run.
-    pub r#tools: Vec<CreateThreadAndRunRequest_Tools_Item>,
+    pub r#tools: Vec<CreateThreadAndRunRequest_Tools>,
 
-    /// A set of resources that are used by the assistant's tools.
     pub r#tool_resources: CreateThreadAndRunRequest_ToolResources,
 
     pub r#metadata: Metadata,
@@ -3592,19 +3732,11 @@ pub struct CreateThreadAndRunRequest {
 
 /// The ID of the [Model](/docs/api-reference/models) to be used to execute this
 /// run.
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct CreateThreadAndRunRequest_Model(pub (/*AnyOf*/));
+pub type CreateThreadAndRunRequest_Model = String;
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub enum CreateThreadAndRunRequest_Tools_Item {
-    AssistantToolsCode(AssistantToolsCode),
-
-    AssistantToolsFileSearch(AssistantToolsFileSearch),
-
-    AssistantToolsFunction(AssistantToolsFunction),
-}
+pub struct CreateThreadAndRunRequest_ToolChoice(pub (/*AllOf*/));
 
 /// A set of resources that are used by the assistant's tools.
 #[derive(Clone, Debug)]
@@ -3633,11 +3765,17 @@ pub struct CreateThreadAndRunRequest_ToolResources_FileSearch {
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct CreateThreadAndRunRequest_TruncationStrategy(pub (/*AllOf*/));
+pub enum CreateThreadAndRunRequest_Tools {
+    AssistantToolsCode(AssistantToolsCode),
+
+    AssistantToolsFileSearch(AssistantToolsFileSearch),
+
+    AssistantToolsFunction(AssistantToolsFunction),
+}
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct CreateThreadAndRunRequest_ToolChoice(pub (/*AllOf*/));
+pub struct CreateThreadAndRunRequest_TruncationStrategy(pub (/*AllOf*/));
 
 /// Options to create a new thread.
 #[derive(Clone, Debug)]
@@ -3647,8 +3785,6 @@ pub struct CreateThreadRequest {
     /// with.
     pub r#messages: Vec<CreateMessageRequest>,
 
-    /// A set of resources that are made available to the assistant's tools in
-    /// this thread.
     pub r#tool_resources: CreateThreadRequest_ToolResources,
 
     pub r#metadata: Metadata,
@@ -3710,7 +3846,6 @@ pub struct CreateTranscriptionRequest {
     /// formats: flac, mp3, mp4, mpeg, mpga, m4a, ogg, wav, or webm.
     pub r#file: String,
 
-    /// ID of the model to use.
     pub r#model: CreateTranscriptionRequest_Model,
 
     /// The language of the input audio.
@@ -3740,9 +3875,7 @@ pub struct CreateTranscriptionRequest {
 }
 
 /// ID of the model to use.
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct CreateTranscriptionRequest_Model(pub (/*AnyOf*/));
+pub type CreateTranscriptionRequest_Model = String;
 
 /// Represents a transcription response returned by model, based on the provided
 /// input.
@@ -3753,12 +3886,12 @@ pub struct CreateTranscriptionResponseJson {
     pub r#text: String,
 
     /// The log probabilities of the tokens in the transcription.
-    pub r#logprobs: Vec<CreateTranscriptionResponseJson_Logprobs_Item>,
+    pub r#logprobs: Vec<CreateTranscriptionResponseJson_Logprobs>,
 }
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct CreateTranscriptionResponseJson_Logprobs_Item {
+pub struct CreateTranscriptionResponseJson_Logprobs {
     /// The token in the transcription.
     pub r#token: String,
 
@@ -3771,7 +3904,11 @@ pub struct CreateTranscriptionResponseJson_Logprobs_Item {
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct CreateTranscriptionResponseStreamEvent(pub (/*AnyOf*/));
+pub enum CreateTranscriptionResponseStreamEvent {
+    TranscriptTextDeltaEvent(TranscriptTextDeltaEvent),
+
+    TranscriptTextDoneEvent(TranscriptTextDoneEvent),
+}
 
 /// Represents a verbose json transcription response returned by model, based on
 /// the provided input.
@@ -3801,7 +3938,6 @@ pub struct CreateTranslationRequest {
     /// formats: flac, mp3, mp4, mpeg, mpga, m4a, ogg, wav, or webm.
     pub r#file: String,
 
-    /// ID of the model to use.
     pub r#model: CreateTranslationRequest_Model,
 
     /// An optional text to guide the model's style or continue a previous audio
@@ -3817,9 +3953,7 @@ pub struct CreateTranslationRequest {
 }
 
 /// ID of the model to use.
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct CreateTranslationRequest_Model(pub (/*AnyOf*/));
+pub type CreateTranslationRequest_Model = String;
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
@@ -3894,7 +4028,6 @@ pub struct CreateVectorStoreRequest {
 
     pub r#expires_after: VectorStoreExpirationAfter,
 
-    /// The chunking strategy used to chunk the file(s).
     pub r#chunking_strategy: CreateVectorStoreRequest_ChunkingStrategy,
 
     pub r#metadata: Metadata,
@@ -4041,7 +4174,6 @@ pub struct EasyInputMessage {
     /// The role of the message input.
     pub r#role: String,
 
-    /// Text, image, or audio input to the model, used to generate a response.
     pub r#content: EasyInputMessage_Content,
 
     /// The type of the message input.
@@ -4112,35 +4244,15 @@ pub struct Eval {
     /// The name of the evaluation.
     pub r#name: String,
 
-    /// Configuration of data sources used in runs of the evaluation.
     pub r#data_source_config: Eval_DataSourceConfig,
 
     /// A list of testing criteria.
-    pub r#testing_criteria: Vec<Eval_TestingCriteria_Item>,
+    pub r#testing_criteria: Vec<Eval_TestingCriteria>,
 
     /// The Unix timestamp (in seconds) for when the eval was created.
     pub r#created_at: i64,
 
     pub r#metadata: Metadata,
-}
-
-/// Configuration of data sources used in runs of the evaluation.
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct Eval_DataSourceConfig;
-
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub enum Eval_TestingCriteria_Item {
-    EvalLabelModelGrader(EvalLabelModelGrader),
-
-    EvalStringCheckGrader(EvalStringCheckGrader),
-
-    EvalTextSimilarityGrader(EvalTextSimilarityGrader),
-
-    EvalPythonGrader(EvalPythonGrader),
-
-    EvalScoreModelGrader(EvalScoreModelGrader),
 }
 
 /// An object representing an error response from the Eval API.
@@ -4179,7 +4291,6 @@ pub struct EvalItem {
     /// The role of the message input.
     pub r#role: String,
 
-    /// Text inputs to the model - can contain template strings.
     pub r#content: EvalItem_Content,
 
     /// The type of the message input.
@@ -4195,14 +4306,13 @@ pub enum EvalItem_Content {
 
     InputTextContent(InputTextContent),
 
-    /// A text output from the model.
-    Object(EvalItem_Content_3),
+    EvalItem_Content_Variant3(EvalItem_Content_Variant3),
 }
 
 /// A text output from the model.
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct EvalItem_Content_3 {
+pub struct EvalItem_Content_Variant3 {
     /// The type of the output text.
     pub r#type: String,
 
@@ -4217,24 +4327,24 @@ pub struct EvalJsonlFileContentSource {
     pub r#type: String,
 
     /// The content of the jsonl file.
-    pub r#content: Vec<EvalJsonlFileContentSource_Content_Item>,
+    pub r#content: Vec<EvalJsonlFileContentSource_Content>,
 }
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct EvalJsonlFileContentSource_Content_Item {
-    pub r#item: EvalJsonlFileContentSource_Content_Item_Item,
+pub struct EvalJsonlFileContentSource_Content {
+    pub r#item: EvalJsonlFileContentSource_Content_Item,
 
-    pub r#sample: EvalJsonlFileContentSource_Content_Item_Sample,
+    pub r#sample: EvalJsonlFileContentSource_Content_Sample,
 }
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct EvalJsonlFileContentSource_Content_Item_Item;
+pub struct EvalJsonlFileContentSource_Content_Item;
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct EvalJsonlFileContentSource_Content_Item_Sample;
+pub struct EvalJsonlFileContentSource_Content_Sample;
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
@@ -4383,79 +4493,20 @@ pub struct EvalRun {
     /// The URL to the rendered evaluation run report on the UI dashboard.
     pub r#report_url: String,
 
-    /// Counters summarizing the outcomes of the evaluation run.
     pub r#result_counts: EvalRun_ResultCounts,
 
     /// Usage statistics for each model during the evaluation run.
-    pub r#per_model_usage: Vec<EvalRun_PerModelUsage_Item>,
+    pub r#per_model_usage: Vec<EvalRun_PerModelUsage>,
 
     /// Results per testing criteria applied during the evaluation run.
-    pub r#per_testing_criteria_results: Vec<EvalRun_PerTestingCriteriaResults_Item>,
+    pub r#per_testing_criteria_results: Vec<EvalRun_PerTestingCriteriaResults>,
 
-    /// Information about the run's data source.
     pub r#data_source: EvalRun_DataSource,
 
     pub r#metadata: Metadata,
 
     pub r#error: EvalApiError,
 }
-
-/// Counters summarizing the outcomes of the evaluation run.
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct EvalRun_ResultCounts {
-    /// Total number of executed output items.
-    pub r#total: i64,
-
-    /// Number of output items that resulted in an error.
-    pub r#errored: i64,
-
-    /// Number of output items that failed to pass the evaluation.
-    pub r#failed: i64,
-
-    /// Number of output items that passed the evaluation.
-    pub r#passed: i64,
-}
-
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct EvalRun_PerModelUsage_Item {
-    /// The name of the model.
-    pub r#model_name: String,
-
-    /// The number of invocations.
-    pub r#invocation_count: i64,
-
-    /// The number of prompt tokens used.
-    pub r#prompt_tokens: i64,
-
-    /// The number of completion tokens generated.
-    pub r#completion_tokens: i64,
-
-    /// The total number of tokens used.
-    pub r#total_tokens: i64,
-
-    /// The number of tokens retrieved from cache.
-    pub r#cached_tokens: i64,
-}
-
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct EvalRun_PerTestingCriteriaResults_Item {
-    /// A description of the testing criteria.
-    pub r#testing_criteria: String,
-
-    /// Number of tests passed for this criteria.
-    pub r#passed: i64,
-
-    /// Number of tests failed for this criteria.
-    pub r#failed: i64,
-}
-
-/// Information about the run's data source.
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct EvalRun_DataSource;
 
 /// An object representing a list of runs for an evaluation.
 #[derive(Clone, Debug)]
@@ -4508,7 +4559,6 @@ pub struct EvalRunOutputItem {
     /// A list of results from the evaluation run.
     pub r#results: Vec<EvalRunOutputItem_Results_Item>,
 
-    /// A sample containing the input and output of the evaluation run.
     pub r#sample: EvalRunOutputItem_Sample,
 }
 
@@ -4522,15 +4572,35 @@ pub struct EvalRunOutputItem_DatasourceItem;
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct EvalRunOutputItem_Results_Item;
 
+/// An object representing a list of output items for an evaluation run.
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub struct EvalRunOutputItemList {
+    /// The type of this object.
+    pub r#object: String,
+
+    /// An array of eval run output item objects.
+    pub r#data: Vec<EvalRunOutputItem>,
+
+    /// The identifier of the first eval run output item in the data array.
+    pub r#first_id: String,
+
+    /// The identifier of the last eval run output item in the data array.
+    pub r#last_id: String,
+
+    /// Indicates whether there are more eval run output items available.
+    pub r#has_more: bool,
+}
+
 /// A sample containing the input and output of the evaluation run.
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct EvalRunOutputItem_Sample {
     /// An array of input messages.
-    pub r#input: Vec<EvalRunOutputItem_Sample_Input_Item>,
+    pub r#input: Vec<EvalRunOutputItem_Sample_Input>,
 
     /// An array of output messages.
-    pub r#output: Vec<EvalRunOutputItem_Sample_Output_Item>,
+    pub r#output: Vec<EvalRunOutputItem_Sample_Output>,
 
     /// The reason why the sample generation was finished.
     pub r#finish_reason: String,
@@ -4538,7 +4608,6 @@ pub struct EvalRunOutputItem_Sample {
     /// The model used for generating the sample.
     pub r#model: String,
 
-    /// Token usage details for the sample.
     pub r#usage: EvalRunOutputItem_Sample_Usage,
 
     pub r#error: EvalApiError,
@@ -4559,7 +4628,7 @@ pub struct EvalRunOutputItem_Sample {
 /// An input message.
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct EvalRunOutputItem_Sample_Input_Item {
+pub struct EvalRunOutputItem_Sample_Input {
     /// The role of the message sender (e.g., system, user, developer).
     pub r#role: String,
 
@@ -4569,7 +4638,7 @@ pub struct EvalRunOutputItem_Sample_Input_Item {
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct EvalRunOutputItem_Sample_Output_Item {
+pub struct EvalRunOutputItem_Sample_Output {
     /// The role of the message (e.g.
     pub r#role: String,
 
@@ -4594,24 +4663,61 @@ pub struct EvalRunOutputItem_Sample_Usage {
     pub r#cached_tokens: i64,
 }
 
-/// An object representing a list of output items for an evaluation run.
+/// Information about the run's data source.
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct EvalRunOutputItemList {
-    /// The type of this object.
-    pub r#object: String,
+pub struct EvalRun_DataSource;
 
-    /// An array of eval run output item objects.
-    pub r#data: Vec<EvalRunOutputItem>,
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub struct EvalRun_PerModelUsage {
+    /// The name of the model.
+    pub r#model_name: String,
 
-    /// The identifier of the first eval run output item in the data array.
-    pub r#first_id: String,
+    /// The number of invocations.
+    pub r#invocation_count: i64,
 
-    /// The identifier of the last eval run output item in the data array.
-    pub r#last_id: String,
+    /// The number of prompt tokens used.
+    pub r#prompt_tokens: i64,
 
-    /// Indicates whether there are more eval run output items available.
-    pub r#has_more: bool,
+    /// The number of completion tokens generated.
+    pub r#completion_tokens: i64,
+
+    /// The total number of tokens used.
+    pub r#total_tokens: i64,
+
+    /// The number of tokens retrieved from cache.
+    pub r#cached_tokens: i64,
+}
+
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub struct EvalRun_PerTestingCriteriaResults {
+    /// A description of the testing criteria.
+    pub r#testing_criteria: String,
+
+    /// Number of tests passed for this criteria.
+    pub r#passed: i64,
+
+    /// Number of tests failed for this criteria.
+    pub r#failed: i64,
+}
+
+/// Counters summarizing the outcomes of the evaluation run.
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub struct EvalRun_ResultCounts {
+    /// Total number of executed output items.
+    pub r#total: i64,
+
+    /// Number of output items that resulted in an error.
+    pub r#errored: i64,
+
+    /// Number of output items that failed to pass the evaluation.
+    pub r#failed: i64,
+
+    /// Number of output items that passed the evaluation.
+    pub r#passed: i64,
 }
 
 /// A ScoreModelGrader object that uses a model to assign a score to the input.
@@ -4731,6 +4837,25 @@ pub struct EvalTextSimilarityGrader {
     pub r#evaluation_metric: String,
 }
 
+/// Configuration of data sources used in runs of the evaluation.
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub struct Eval_DataSourceConfig;
+
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub enum Eval_TestingCriteria {
+    EvalLabelModelGrader(EvalLabelModelGrader),
+
+    EvalStringCheckGrader(EvalStringCheckGrader),
+
+    EvalTextSimilarityGrader(EvalTextSimilarityGrader),
+
+    EvalPythonGrader(EvalPythonGrader),
+
+    EvalScoreModelGrader(EvalScoreModelGrader),
+}
+
 /// A citation to a file.
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
@@ -4793,10 +4918,6 @@ pub struct FileSearchTool {
     pub r#filters: FileSearchTool_Filters,
 }
 
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct FileSearchTool_Filters(pub (/*AnyOf*/));
-
 /// The results of a file search tool call.
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
@@ -4814,12 +4935,12 @@ pub struct FileSearchToolCall {
     pub r#queries: Vec<String>,
 
     /// The results of the file search tool call.
-    pub r#results: Vec<FileSearchToolCall_Results_Item>,
+    pub r#results: Vec<FileSearchToolCall_Results>,
 }
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct FileSearchToolCall_Results_Item {
+pub struct FileSearchToolCall_Results {
     /// The unique ID of the file.
     pub r#file_id: String,
 
@@ -4837,18 +4958,38 @@ pub struct FileSearchToolCall_Results_Item {
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct Filters(pub (/*AnyOf*/));
+pub enum FileSearchTool_Filters {
+    /// A filter to apply.
+    Filters(Filters),
+
+    Null(()),
+}
+
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub enum Filters {
+    ComparisonFilter(ComparisonFilter),
+
+    CompoundFilter(CompoundFilter),
+}
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct FineTuneChatCompletionRequestAssistantMessage(pub (/*AllOf*/));
+
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub struct FineTuneChatCompletionRequestAssistantMessage_Variant1 {
+    /// Controls whether the assistant message is trained against (0 or 1)
+    pub r#weight: i64,
+}
 
 /// The per-line training example of a fine-tuning input file for chat models
 /// using the supervised method.
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct FineTuneChatRequestInput {
-    pub r#messages: Vec<FineTuneChatRequestInput_Messages_Item>,
+    pub r#messages: Vec<FineTuneChatRequestInput_Messages>,
 
     /// A list of tools the model may generate JSON inputs for.
     pub r#tools: Vec<ChatCompletionTool>,
@@ -4861,7 +5002,7 @@ pub struct FineTuneChatRequestInput {
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub enum FineTuneChatRequestInput_Messages_Item {
+pub enum FineTuneChatRequestInput_Messages {
     ChatCompletionRequestSystemMessage(ChatCompletionRequestSystemMessage),
 
     ChatCompletionRequestUserMessage(ChatCompletionRequestUserMessage),
@@ -4889,7 +5030,6 @@ pub struct FineTuneCompletionRequestInput {
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct FineTuneDPOMethod {
-    /// The hyperparameters used for the fine-tuning job.
     pub r#hyperparameters: FineTuneDPOMethod_Hyperparameters,
 }
 
@@ -4897,26 +5037,13 @@ pub struct FineTuneDPOMethod {
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct FineTuneDPOMethod_Hyperparameters {
-    /// The beta value for the DPO method.
     pub r#beta: FineTuneDPOMethod_Hyperparameters_Beta,
 
-    /// Number of examples in each batch.
     pub r#batch_size: FineTuneDPOMethod_Hyperparameters_BatchSize,
 
-    /// Scaling factor for the learning rate.
     pub r#learning_rate_multiplier: FineTuneDPOMethod_Hyperparameters_LearningRateMultiplier,
 
-    /// The number of epochs to train the model for.
     pub r#n_epochs: FineTuneDPOMethod_Hyperparameters_NEpochs,
-}
-
-/// The beta value for the DPO method.
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub enum FineTuneDPOMethod_Hyperparameters_Beta {
-    String(String),
-
-    Number(f64),
 }
 
 /// Number of examples in each batch.
@@ -4926,6 +5053,15 @@ pub enum FineTuneDPOMethod_Hyperparameters_BatchSize {
     String(String),
 
     Integer(i64),
+}
+
+/// The beta value for the DPO method.
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub enum FineTuneDPOMethod_Hyperparameters_Beta {
+    String(String),
+
+    Number(f64),
 }
 
 /// Scaling factor for the learning rate.
@@ -4966,16 +5102,16 @@ pub struct FineTunePreferenceRequestInput {
     pub r#input: FineTunePreferenceRequestInput_Input,
 
     /// The preferred completion message for the output.
-    pub r#preferred_completion: Vec<FineTunePreferenceRequestInput_PreferredCompletion_Item>,
+    pub r#preferred_completion: Vec<ChatCompletionRequestAssistantMessage>,
 
     /// The non-preferred completion message for the output.
-    pub r#non_preferred_completion: Vec<FineTunePreferenceRequestInput_NonPreferredCompletion_Item>,
+    pub r#non_preferred_completion: Vec<ChatCompletionRequestAssistantMessage>,
 }
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct FineTunePreferenceRequestInput_Input {
-    pub r#messages: Vec<FineTunePreferenceRequestInput_Input_Messages_Item>,
+    pub r#messages: Vec<FineTunePreferenceRequestInput_Input_Messages>,
 
     /// A list of tools the model may generate JSON inputs for.
     pub r#tools: Vec<ChatCompletionTool>,
@@ -4985,7 +5121,7 @@ pub struct FineTunePreferenceRequestInput_Input {
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub enum FineTunePreferenceRequestInput_Input_Messages_Item {
+pub enum FineTunePreferenceRequestInput_Input_Messages {
     ChatCompletionRequestSystemMessage(ChatCompletionRequestSystemMessage),
 
     ChatCompletionRequestUserMessage(ChatCompletionRequestUserMessage),
@@ -4999,17 +5135,16 @@ pub enum FineTunePreferenceRequestInput_Input_Messages_Item {
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct FineTunePreferenceRequestInput_PreferredCompletion_Item(pub ChatCompletionRequestAssistantMessage);
+pub struct FineTunePreferenceRequestInput_NonPreferredCompletion(pub ChatCompletionRequestAssistantMessage);
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct FineTunePreferenceRequestInput_NonPreferredCompletion_Item(pub ChatCompletionRequestAssistantMessage);
+pub struct FineTunePreferenceRequestInput_PreferredCompletion(pub ChatCompletionRequestAssistantMessage);
 
 /// Configuration for the supervised fine-tuning method.
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct FineTuneSupervisedMethod {
-    /// The hyperparameters used for the fine-tuning job.
     pub r#hyperparameters: FineTuneSupervisedMethod_Hyperparameters,
 }
 
@@ -5017,13 +5152,10 @@ pub struct FineTuneSupervisedMethod {
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct FineTuneSupervisedMethod_Hyperparameters {
-    /// Number of examples in each batch.
     pub r#batch_size: FineTuneSupervisedMethod_Hyperparameters_BatchSize,
 
-    /// Scaling factor for the learning rate.
     pub r#learning_rate_multiplier: FineTuneSupervisedMethod_Hyperparameters_LearningRateMultiplier,
 
-    /// The number of epochs to train the model for.
     pub r#n_epochs: FineTuneSupervisedMethod_Hyperparameters_NEpochs,
 }
 
@@ -5078,7 +5210,6 @@ pub struct FineTuningIntegration {
     /// The type of the integration being enabled for the fine-tuning job
     pub r#type: String,
 
-    /// The settings for your integration with Weights and Biases.
     pub r#wandb: FineTuningIntegration_Wandb,
 }
 
@@ -5111,8 +5242,6 @@ pub struct FineTuningJob {
     /// created.
     pub r#created_at: i64,
 
-    /// For fine-tuning jobs that have `failed`, this will contain more
-    /// information on the cause of the failure.
     pub r#error: FineTuningJob_Error,
 
     /// The name of the fine-tuned model that is being created.
@@ -5122,7 +5251,6 @@ pub struct FineTuningJob {
     /// finished.
     pub r#finished_at: i64,
 
-    /// The hyperparameters used for the fine-tuning job.
     pub r#hyperparameters: FineTuningJob_Hyperparameters,
 
     /// The base model that is being fine-tuned.
@@ -5152,7 +5280,7 @@ pub struct FineTuningJob {
     pub r#validation_file: String,
 
     /// A list of integrations to enable for this fine-tuning job.
-    pub r#integrations: Vec<FineTuningJob_Integrations_Item>,
+    pub r#integrations: Vec<FineTuningIntegration>,
 
     /// The seed used for the fine-tuning job.
     pub r#seed: i64,
@@ -5165,67 +5293,6 @@ pub struct FineTuningJob {
 
     pub r#metadata: Metadata,
 }
-
-/// For fine-tuning jobs that have `failed`, this will contain more information
-/// on the cause of the failure.
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct FineTuningJob_Error {
-    /// A machine-readable error code.
-    pub r#code: String,
-
-    /// A human-readable error message.
-    pub r#message: String,
-
-    /// The parameter that was invalid, usually `training_file` or
-    /// `validation_file`.
-    pub r#param: String,
-}
-
-/// The hyperparameters used for the fine-tuning job.
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct FineTuningJob_Hyperparameters {
-    /// Number of examples in each batch.
-    pub r#batch_size: FineTuningJob_Hyperparameters_BatchSize,
-
-    /// Scaling factor for the learning rate.
-    pub r#learning_rate_multiplier: FineTuningJob_Hyperparameters_LearningRateMultiplier,
-
-    /// The number of epochs to train the model for.
-    pub r#n_epochs: FineTuningJob_Hyperparameters_NEpochs,
-}
-
-/// Number of examples in each batch.
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub enum FineTuningJob_Hyperparameters_BatchSize {
-    String(String),
-
-    Integer(i64),
-}
-
-/// Scaling factor for the learning rate.
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub enum FineTuningJob_Hyperparameters_LearningRateMultiplier {
-    String(String),
-
-    Number(f64),
-}
-
-/// The number of epochs to train the model for.
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub enum FineTuningJob_Hyperparameters_NEpochs {
-    String(String),
-
-    Integer(i64),
-}
-
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct FineTuningJob_Integrations_Item(pub FineTuningIntegration);
 
 /// The `fine_tuning.job.checkpoint` object represents a model checkpoint for a
 /// fine-tuning job that is ready to use.
@@ -5244,7 +5311,6 @@ pub struct FineTuningJobCheckpoint {
     /// The step number that the checkpoint was created at.
     pub r#step_number: i64,
 
-    /// Metrics at the step number during the fine-tuning job.
     pub r#metrics: FineTuningJobCheckpoint_Metrics,
 
     /// The name of the fine-tuning job that this checkpoint was created from.
@@ -5305,6 +5371,64 @@ pub struct FineTuningJobEvent {
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct FineTuningJobEvent_Data;
 
+/// For fine-tuning jobs that have `failed`, this will contain more information
+/// on the cause of the failure.
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub struct FineTuningJob_Error {
+    /// A machine-readable error code.
+    pub r#code: String,
+
+    /// A human-readable error message.
+    pub r#message: String,
+
+    /// The parameter that was invalid, usually `training_file` or
+    /// `validation_file`.
+    pub r#param: String,
+}
+
+/// The hyperparameters used for the fine-tuning job.
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub struct FineTuningJob_Hyperparameters {
+    pub r#batch_size: FineTuningJob_Hyperparameters_BatchSize,
+
+    pub r#learning_rate_multiplier: FineTuningJob_Hyperparameters_LearningRateMultiplier,
+
+    pub r#n_epochs: FineTuningJob_Hyperparameters_NEpochs,
+}
+
+/// Number of examples in each batch.
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub enum FineTuningJob_Hyperparameters_BatchSize {
+    String(String),
+
+    Integer(i64),
+}
+
+/// Scaling factor for the learning rate.
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub enum FineTuningJob_Hyperparameters_LearningRateMultiplier {
+    String(String),
+
+    Number(f64),
+}
+
+/// The number of epochs to train the model for.
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub enum FineTuningJob_Hyperparameters_NEpochs {
+    String(String),
+
+    Integer(i64),
+}
+
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub struct FineTuningJob_Integrations(pub FineTuningIntegration);
+
 /// The output of a function tool call.
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
@@ -5323,13 +5447,9 @@ pub struct FunctionCallOutputItemParam {
     pub r#status: FunctionCallOutputItemParam_Status,
 }
 
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct FunctionCallOutputItemParam_Id(pub (/*AnyOf*/));
+pub type FunctionCallOutputItemParam_Id = Option<String>;
 
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct FunctionCallOutputItemParam_Status(pub (/*AnyOf*/));
+pub type FunctionCallOutputItemParam_Status = Option<String>;
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
@@ -5369,18 +5489,6 @@ pub struct FunctionTool {
 
     pub r#strict: FunctionTool_Strict,
 }
-
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct FunctionTool_Description(pub (/*AnyOf*/));
-
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct FunctionTool_Parameters(pub (/*AnyOf*/));
-
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct FunctionTool_Strict(pub (/*AnyOf*/));
 
 /// A tool call to run a function.
 #[derive(Clone, Debug)]
@@ -5431,7 +5539,46 @@ pub struct FunctionToolCallOutputResource(pub (/*AllOf*/));
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub struct FunctionToolCallOutputResource_Variant2 {
+    /// The unique ID of the function call tool output.
+    pub r#id: String,
+}
+
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct FunctionToolCallResource(pub (/*AllOf*/));
+
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub struct FunctionToolCallResource_Variant2 {
+    /// The unique ID of the function tool call.
+    pub r#id: String,
+}
+
+pub type FunctionTool_Description = Option<String>;
+
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub enum FunctionTool_Parameters {
+    /// A JSON schema object describing the parameters of the function.
+    Object(FunctionTool_Parameters_1),
+
+    Null(()),
+}
+
+/// A JSON schema object describing the parameters of the function.
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub struct FunctionTool_Parameters_1;
+
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub enum FunctionTool_Strict {
+    /// Whether to enforce strict parameter validation.
+    Boolean(bool),
+
+    Null(()),
+}
 
 /// Represents the content or the URL of an image generated by the OpenAI API.
 #[derive(Clone, Debug)]
@@ -5459,8 +5606,6 @@ pub struct ImagesResponse {
     /// The list of generated images.
     pub r#data: Vec<Image>,
 
-    /// For `gpt-image-1` only, the token usage information for the image
-    /// generation.
     pub r#usage: ImagesResponse_Usage,
 }
 
@@ -5479,7 +5624,6 @@ pub struct ImagesResponse_Usage {
     /// The number of image tokens in the output image.
     pub r#output_tokens: i64,
 
-    /// The input tokens detailed information for the image generation.
     pub r#input_tokens_details: ImagesResponse_Usage_InputTokensDetails,
 }
 
@@ -5539,9 +5683,7 @@ pub struct InputFileContent {
     pub r#file_data: String,
 }
 
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct InputFileContent_FileId(pub (/*AnyOf*/));
+pub type InputFileContent_FileId = Option<String>;
 
 /// An image input to the model.
 #[derive(Clone, Debug)]
@@ -5558,13 +5700,9 @@ pub struct InputImageContent {
     pub r#detail: String,
 }
 
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct InputImageContent_ImageUrl(pub (/*AnyOf*/));
+pub type InputImageContent_FileId = Option<String>;
 
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct InputImageContent_FileId(pub (/*AnyOf*/));
+pub type InputImageContent_ImageUrl = Option<String>;
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
@@ -5604,6 +5742,13 @@ pub struct InputMessageContentList(pub Vec<InputContent>);
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct InputMessageResource(pub (/*AllOf*/));
+
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub struct InputMessageResource_Variant2 {
+    /// The unique ID of the message input.
+    pub r#id: String,
+}
 
 /// A text input to the model.
 #[derive(Clone, Debug)]
@@ -5645,17 +5790,7 @@ pub struct Invite {
     pub r#accepted_at: i64,
 
     /// The projects that were granted membership upon acceptance of the invite.
-    pub r#projects: Vec<Invite_Projects_Item>,
-}
-
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct Invite_Projects_Item {
-    /// Project's public ID
-    pub r#id: String,
-
-    /// Project membership role
-    pub r#role: String,
+    pub r#projects: Vec<Invite_Projects>,
 }
 
 #[derive(Clone, Debug)]
@@ -5699,12 +5834,22 @@ pub struct InviteRequest {
 
     /// An array of projects to which membership is granted at the same time the
     /// org invite is accepted.
-    pub r#projects: Vec<InviteRequest_Projects_Item>,
+    pub r#projects: Vec<InviteRequest_Projects>,
 }
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct InviteRequest_Projects_Item {
+pub struct InviteRequest_Projects {
+    /// Project's public ID
+    pub r#id: String,
+
+    /// Project membership role
+    pub r#role: String,
+}
+
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub struct Invite_Projects {
     /// Project's public ID
     pub r#id: String,
 
@@ -5727,9 +5872,7 @@ pub struct ItemReferenceParam {
     pub r#id: String,
 }
 
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct ItemReferenceParam_Type(pub (/*AnyOf*/));
+pub type ItemReferenceParam_Type = Option<String>;
 
 /// Content item used to generate a response.
 #[derive(Clone, Debug)]
@@ -6092,12 +6235,12 @@ pub struct MessageContentTextObject_Text {
     /// The data that makes up the text.
     pub r#value: String,
 
-    pub r#annotations: Vec<MessageContentTextObject_Text_Annotations_Item>,
+    pub r#annotations: Vec<MessageContentTextObject_Text_Annotations>,
 }
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub enum MessageContentTextObject_Text_Annotations_Item {
+pub enum MessageContentTextObject_Text_Annotations {
     MessageContentTextAnnotationsFileCitationObject(MessageContentTextAnnotationsFileCitationObject),
 
     MessageContentTextAnnotationsFilePathObject(MessageContentTextAnnotationsFilePathObject),
@@ -6243,12 +6386,12 @@ pub struct MessageDeltaContentTextObject_Text {
     /// The data that makes up the text.
     pub r#value: String,
 
-    pub r#annotations: Vec<MessageDeltaContentTextObject_Text_Annotations_Item>,
+    pub r#annotations: Vec<MessageDeltaContentTextObject_Text_Annotations>,
 }
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub enum MessageDeltaContentTextObject_Text_Annotations_Item {
+pub enum MessageDeltaContentTextObject_Text_Annotations {
     MessageDeltaContentTextAnnotationsFileCitationObject(MessageDeltaContentTextAnnotationsFileCitationObject),
 
     MessageDeltaContentTextAnnotationsFilePathObject(MessageDeltaContentTextAnnotationsFilePathObject),
@@ -6264,7 +6407,6 @@ pub struct MessageDeltaObject {
     /// The object type, which is always `thread.message.delta`.
     pub r#object: String,
 
-    /// The delta containing the fields that have changed on the Message.
     pub r#delta: MessageDeltaObject_Delta,
 }
 
@@ -6276,12 +6418,12 @@ pub struct MessageDeltaObject_Delta {
     pub r#role: String,
 
     /// The content of the message in array of text and/or images.
-    pub r#content: Vec<MessageDeltaObject_Delta_Content_Item>,
+    pub r#content: Vec<MessageDeltaObject_Delta_Content>,
 }
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub enum MessageDeltaObject_Delta_Content_Item {
+pub enum MessageDeltaObject_Delta_Content {
     MessageDeltaContentImageFileObject(MessageDeltaContentImageFileObject),
 
     MessageDeltaContentTextObject(MessageDeltaContentTextObject),
@@ -6312,7 +6454,6 @@ pub struct MessageObject {
     /// `incomplete`, or `completed`.
     pub r#status: String,
 
-    /// On an incomplete message, details about why the message is incomplete.
     pub r#incomplete_details: MessageObject_IncompleteDetails,
 
     /// The Unix timestamp (in seconds) for when the message was completed.
@@ -6326,7 +6467,7 @@ pub struct MessageObject {
     pub r#role: String,
 
     /// The content of the message in array of text and/or images.
-    pub r#content: Vec<MessageObject_Content_Item>,
+    pub r#content: Vec<MessageObject_Content>,
 
     /// If applicable, the ID of the [assistant](/docs/api-reference/assistants)
     /// that authored this message.
@@ -6338,22 +6479,32 @@ pub struct MessageObject {
 
     /// A list of files attached to the message, and the tools they were added
     /// to.
-    pub r#attachments: Vec<MessageObject_Attachments_Item>,
+    pub r#attachments: Vec<MessageObject_Attachments>,
 
     pub r#metadata: Metadata,
 }
 
-/// On an incomplete message, details about why the message is incomplete.
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct MessageObject_IncompleteDetails {
-    /// The reason the message is incomplete.
-    pub r#reason: String,
+pub struct MessageObject_Attachments {
+    /// The ID of the file to attach to the message.
+    pub r#file_id: String,
+
+    /// The tools to add this file to.
+    pub r#tools: Vec<MessageObject_Attachments_Tools>,
 }
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub enum MessageObject_Content_Item {
+pub enum MessageObject_Attachments_Tools {
+    AssistantToolsCode(AssistantToolsCode),
+
+    AssistantToolsFileSearchTypeOnly(AssistantToolsFileSearchTypeOnly),
+}
+
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub enum MessageObject_Content {
     MessageContentImageFileObject(MessageContentImageFileObject),
 
     MessageContentImageUrlObject(MessageContentImageUrlObject),
@@ -6363,22 +6514,12 @@ pub enum MessageObject_Content_Item {
     MessageContentRefusalObject(MessageContentRefusalObject),
 }
 
+/// On an incomplete message, details about why the message is incomplete.
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct MessageObject_Attachments_Item {
-    /// The ID of the file to attach to the message.
-    pub r#file_id: String,
-
-    /// The tools to add this file to.
-    pub r#tools: Vec<MessageObject_Attachments_Item_Tools_Item>,
-}
-
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub enum MessageObject_Attachments_Item_Tools_Item {
-    AssistantToolsCode(AssistantToolsCode),
-
-    AssistantToolsFileSearchTypeOnly(AssistantToolsFileSearchTypeOnly),
+pub struct MessageObject_IncompleteDetails {
+    /// The reason the message is incomplete.
+    pub r#reason: String,
 }
 
 /// The text content that is part of a message.
@@ -6397,7 +6538,7 @@ include!("components/message_stream_event.rs");
 /// Occurs when a [message](/docs/api-reference/messages/object) is created.
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct MessageStreamEvent_1 {
+pub struct MessageStreamEvent_Variant1 {
     pub r#event: String,
 
     pub r#data: MessageObject,
@@ -6407,7 +6548,7 @@ pub struct MessageStreamEvent_1 {
 /// `in_progress` state.
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct MessageStreamEvent_2 {
+pub struct MessageStreamEvent_Variant2 {
     pub r#event: String,
 
     pub r#data: MessageObject,
@@ -6417,7 +6558,7 @@ pub struct MessageStreamEvent_2 {
 /// being streamed.
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct MessageStreamEvent_3 {
+pub struct MessageStreamEvent_Variant3 {
     pub r#event: String,
 
     pub r#data: MessageDeltaObject,
@@ -6426,7 +6567,7 @@ pub struct MessageStreamEvent_3 {
 /// Occurs when a [message](/docs/api-reference/messages/object) is completed.
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct MessageStreamEvent_4 {
+pub struct MessageStreamEvent_Variant4 {
     pub r#event: String,
 
     pub r#data: MessageObject,
@@ -6436,7 +6577,7 @@ pub struct MessageStreamEvent_4 {
 /// is completed.
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct MessageStreamEvent_5 {
+pub struct MessageStreamEvent_Variant5 {
     pub r#event: String,
 
     pub r#data: MessageObject,
@@ -6466,15 +6607,21 @@ pub struct Model {
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct ModelIds(pub (/*AnyOf*/));
+pub enum ModelIds {
+    ModelIdsShared(ModelIdsShared),
+
+    ModelIdsResponses(ModelIdsResponses),
+}
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct ModelIdsResponses(pub (/*AnyOf*/));
+pub enum ModelIdsResponses {
+    ModelIdsShared(ModelIdsShared),
 
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct ModelIdsShared(pub (/*AnyOf*/));
+    String(String),
+}
+
+pub type ModelIdsShared = String;
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
@@ -6499,7 +6646,6 @@ pub struct ModelResponseProperties {
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct ModifyAssistantRequest {
-    /// ID of the model to use.
     pub r#model: ModifyAssistantRequest_Model,
 
     pub r#reasoning_effort: ReasoningEffort,
@@ -6514,9 +6660,8 @@ pub struct ModifyAssistantRequest {
     pub r#instructions: String,
 
     /// A list of tool enabled on the assistant.
-    pub r#tools: Vec<ModifyAssistantRequest_Tools_Item>,
+    pub r#tools: Vec<ModifyAssistantRequest_Tools>,
 
-    /// A set of resources that are used by the assistant's tools.
     pub r#tool_resources: ModifyAssistantRequest_ToolResources,
 
     pub r#metadata: Metadata,
@@ -6535,16 +6680,10 @@ pub struct ModifyAssistantRequest {
 /// ID of the model to use.
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct ModifyAssistantRequest_Model(pub (/*AnyOf*/));
+pub enum ModifyAssistantRequest_Model {
+    String(String),
 
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub enum ModifyAssistantRequest_Tools_Item {
-    AssistantToolsCode(AssistantToolsCode),
-
-    AssistantToolsFileSearch(AssistantToolsFileSearch),
-
-    AssistantToolsFunction(AssistantToolsFunction),
+    AssistantSupportedModels(AssistantSupportedModels),
 }
 
 /// A set of resources that are used by the assistant's tools.
@@ -6574,6 +6713,16 @@ pub struct ModifyAssistantRequest_ToolResources_FileSearch {
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub enum ModifyAssistantRequest_Tools {
+    AssistantToolsCode(AssistantToolsCode),
+
+    AssistantToolsFileSearch(AssistantToolsFileSearch),
+
+    AssistantToolsFunction(AssistantToolsFunction),
+}
+
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct ModifyCertificateRequest {
     /// The updated name for the certificate
     pub r#name: String,
@@ -6594,8 +6743,6 @@ pub struct ModifyRunRequest {
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct ModifyThreadRequest {
-    /// A set of resources that are made available to the assistant's tools in
-    /// this thread.
     pub r#tool_resources: ModifyThreadRequest_ToolResources,
 
     pub r#metadata: Metadata,
@@ -6705,7 +6852,19 @@ pub enum OutputContent {
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct OutputItem(pub (/*AnyOf*/));
+pub enum OutputItem {
+    OutputMessage(OutputMessage),
+
+    FileSearchToolCall(FileSearchToolCall),
+
+    FunctionToolCall(FunctionToolCall),
+
+    WebSearchToolCall(WebSearchToolCall),
+
+    ComputerToolCall(ComputerToolCall),
+
+    ReasoningItem(ReasoningItem),
+}
 
 /// An output message from the model.
 #[derive(Clone, Debug)]
@@ -6756,7 +6915,6 @@ pub struct PredictionContent {
     /// The type of the predicted content you want to provide.
     pub r#type: String,
 
-    /// The content that should be matched when generating a model response.
     pub r#content: PredictionContent_Content,
 }
 
@@ -6822,17 +6980,6 @@ pub struct ProjectApiKey {
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct ProjectApiKey_Owner {
-    /// `user` or `service_account`
-    pub r#type: String,
-
-    pub r#user: ProjectUser,
-
-    pub r#service_account: ProjectServiceAccount,
-}
-
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct ProjectApiKeyDeleteResponse {
     pub r#object: String,
 
@@ -6853,6 +7000,17 @@ pub struct ProjectApiKeyListResponse {
     pub r#last_id: String,
 
     pub r#has_more: bool,
+}
+
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub struct ProjectApiKey_Owner {
+    /// `user` or `service_account`
+    pub r#type: String,
+
+    pub r#user: ProjectUser,
+
+    pub r#service_account: ProjectServiceAccount,
 }
 
 #[derive(Clone, Debug)]
@@ -7112,7 +7270,31 @@ pub struct RankingOptions {
 /// A realtime client event.
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct RealtimeClientEvent(pub (/*AnyOf*/));
+pub enum RealtimeClientEvent {
+    RealtimeClientEventConversationItemCreate(RealtimeClientEventConversationItemCreate),
+
+    RealtimeClientEventConversationItemDelete(RealtimeClientEventConversationItemDelete),
+
+    RealtimeClientEventConversationItemRetrieve(RealtimeClientEventConversationItemRetrieve),
+
+    RealtimeClientEventConversationItemTruncate(RealtimeClientEventConversationItemTruncate),
+
+    RealtimeClientEventInputAudioBufferAppend(RealtimeClientEventInputAudioBufferAppend),
+
+    RealtimeClientEventInputAudioBufferClear(RealtimeClientEventInputAudioBufferClear),
+
+    RealtimeClientEventOutputAudioBufferClear(RealtimeClientEventOutputAudioBufferClear),
+
+    RealtimeClientEventInputAudioBufferCommit(RealtimeClientEventInputAudioBufferCommit),
+
+    RealtimeClientEventResponseCancel(RealtimeClientEventResponseCancel),
+
+    RealtimeClientEventResponseCreate(RealtimeClientEventResponseCreate),
+
+    RealtimeClientEventSessionUpdate(RealtimeClientEventSessionUpdate),
+
+    RealtimeClientEventTranscriptionSessionUpdate(RealtimeClientEventTranscriptionSessionUpdate),
+}
 
 /// Add a new Item to the Conversation's context, including messages, function
 /// calls, and function call responses.
@@ -7308,7 +7490,7 @@ pub struct RealtimeConversationItem {
     pub r#role: String,
 
     /// The content of the message, applicable for `message` items.
-    pub r#content: Vec<RealtimeConversationItem_Content_Item>,
+    pub r#content: Vec<RealtimeConversationItem_Content>,
 
     /// The ID of the function call (for `function_call` and
     /// `function_call_output` items).
@@ -7322,27 +7504,6 @@ pub struct RealtimeConversationItem {
 
     /// The output of the function call (for `function_call_output` items).
     pub r#output: String,
-}
-
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct RealtimeConversationItem_Content_Item {
-    /// The content type (`input_text`, `input_audio`, `item_reference`,
-    /// `text`).
-    pub r#type: String,
-
-    /// The text content, used for `input_text` and `text` content types.
-    pub r#text: String,
-
-    /// ID of a previous conversation item to reference (for `item_reference`
-    /// content types in `response.create` events).
-    pub r#id: String,
-
-    /// Base64-encoded audio bytes, used for `input_audio` content type.
-    pub r#audio: String,
-
-    /// The transcript of the audio, used for `input_audio` content type.
-    pub r#transcript: String,
 }
 
 /// The item to add to the conversation.
@@ -7369,7 +7530,7 @@ pub struct RealtimeConversationItemWithReference {
     pub r#role: String,
 
     /// The content of the message, applicable for `message` items.
-    pub r#content: Vec<RealtimeConversationItemWithReference_Content_Item>,
+    pub r#content: Vec<RealtimeConversationItemWithReference_Content>,
 
     /// The ID of the function call (for `function_call` and
     /// `function_call_output` items).
@@ -7387,7 +7548,28 @@ pub struct RealtimeConversationItemWithReference {
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct RealtimeConversationItemWithReference_Content_Item {
+pub struct RealtimeConversationItemWithReference_Content {
+    /// The content type (`input_text`, `input_audio`, `item_reference`,
+    /// `text`).
+    pub r#type: String,
+
+    /// The text content, used for `input_text` and `text` content types.
+    pub r#text: String,
+
+    /// ID of a previous conversation item to reference (for `item_reference`
+    /// content types in `response.create` events).
+    pub r#id: String,
+
+    /// Base64-encoded audio bytes, used for `input_audio` content type.
+    pub r#audio: String,
+
+    /// The transcript of the audio, used for `input_audio` content type.
+    pub r#transcript: String,
+}
+
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub struct RealtimeConversationItem_Content {
     /// The content type (`input_text`, `input_audio`, `item_reference`,
     /// `text`).
     pub r#type: String,
@@ -7420,7 +7602,6 @@ pub struct RealtimeResponse {
     /// `incomplete`).
     pub r#status: String,
 
-    /// Additional details about the status.
     pub r#status_details: RealtimeResponse_StatusDetails,
 
     /// The list of output items generated by the response.
@@ -7428,7 +7609,6 @@ pub struct RealtimeResponse {
 
     pub r#metadata: Metadata,
 
-    /// Usage statistics for the Response, this will correspond to billing.
     pub r#usage: RealtimeResponse_Usage,
 
     /// Which conversation the response is added to, determined by the
@@ -7447,9 +7627,88 @@ pub struct RealtimeResponse {
     /// Sampling temperature for the model, limited to [0.6, 1.2].
     pub r#temperature: f64,
 
-    /// Maximum number of output tokens for a single assistant response,
-    /// inclusive of tool calls, that was used in this response.
     pub r#max_output_tokens: RealtimeResponse_MaxOutputTokens,
+}
+
+/// Create a new Realtime response with these parameters
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub struct RealtimeResponseCreateParams {
+    /// The set of modalities the model can respond with.
+    pub r#modalities: Vec<String>,
+
+    /// The default system instructions (i.e.
+    pub r#instructions: String,
+
+    /// The voice the model uses to respond.
+    pub r#voice: VoiceIdsShared,
+
+    /// The format of output audio.
+    pub r#output_audio_format: String,
+
+    /// Tools (functions) available to the model.
+    pub r#tools: Vec<RealtimeResponseCreateParams_Tools>,
+
+    /// How the model chooses tools.
+    pub r#tool_choice: String,
+
+    /// Sampling temperature for the model, limited to [0.6, 1.2].
+    pub r#temperature: f64,
+
+    pub r#max_response_output_tokens: RealtimeResponseCreateParams_MaxResponseOutputTokens,
+
+    pub r#conversation: RealtimeResponseCreateParams_Conversation,
+
+    pub r#metadata: Metadata,
+
+    /// Input items to include in the prompt for the model.
+    pub r#input: Vec<RealtimeConversationItemWithReference>,
+}
+
+/// Controls which conversation the response is added to.
+pub type RealtimeResponseCreateParams_Conversation = String;
+
+/// Maximum number of output tokens for a single assistant response, inclusive
+/// of tool calls.
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub enum RealtimeResponseCreateParams_MaxResponseOutputTokens {
+    Integer(i64),
+
+    String(String),
+}
+
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub struct RealtimeResponseCreateParams_Tools {
+    /// The type of the tool, i.e.
+    pub r#type: String,
+
+    /// The name of the function.
+    pub r#name: String,
+
+    /// The description of the function, including guidance on when and how to
+    /// call it, and guidance about what to tell the user when calling (if
+    /// anything).
+    pub r#description: String,
+
+    /// Parameters of the function in JSON Schema.
+    pub r#parameters: RealtimeResponseCreateParams_Tools_Parameters,
+}
+
+/// Parameters of the function in JSON Schema.
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub struct RealtimeResponseCreateParams_Tools_Parameters;
+
+/// Maximum number of output tokens for a single assistant response, inclusive
+/// of tool calls, that was used in this response.
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub enum RealtimeResponse_MaxOutputTokens {
+    Integer(i64),
+
+    String(String),
 }
 
 /// Additional details about the status.
@@ -7463,8 +7722,6 @@ pub struct RealtimeResponse_StatusDetails {
     /// The reason the Response did not complete.
     pub r#reason: String,
 
-    /// A description of the error that caused the response to fail, populated
-    /// when the `status` is `failed`.
     pub r#error: RealtimeResponse_StatusDetails_Error,
 }
 
@@ -7496,10 +7753,8 @@ pub struct RealtimeResponse_Usage {
     /// audio tokens.
     pub r#output_tokens: i64,
 
-    /// Details about the input tokens used in the Response.
     pub r#input_token_details: RealtimeResponse_Usage_InputTokenDetails,
 
-    /// Details about the output tokens used in the Response.
     pub r#output_token_details: RealtimeResponse_Usage_OutputTokenDetails,
 }
 
@@ -7528,96 +7783,78 @@ pub struct RealtimeResponse_Usage_OutputTokenDetails {
     pub r#audio_tokens: i64,
 }
 
-/// Maximum number of output tokens for a single assistant response, inclusive
-/// of tool calls, that was used in this response.
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub enum RealtimeResponse_MaxOutputTokens {
-    Integer(i64),
-
-    String(String),
-}
-
-/// Create a new Realtime response with these parameters
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct RealtimeResponseCreateParams {
-    /// The set of modalities the model can respond with.
-    pub r#modalities: Vec<String>,
-
-    /// The default system instructions (i.e.
-    pub r#instructions: String,
-
-    /// The voice the model uses to respond.
-    pub r#voice: VoiceIdsShared,
-
-    /// The format of output audio.
-    pub r#output_audio_format: String,
-
-    /// Tools (functions) available to the model.
-    pub r#tools: Vec<RealtimeResponseCreateParams_Tools_Item>,
-
-    /// How the model chooses tools.
-    pub r#tool_choice: String,
-
-    /// Sampling temperature for the model, limited to [0.6, 1.2].
-    pub r#temperature: f64,
-
-    /// Maximum number of output tokens for a single assistant response,
-    /// inclusive of tool calls.
-    pub r#max_response_output_tokens: RealtimeResponseCreateParams_MaxResponseOutputTokens,
-
-    /// Controls which conversation the response is added to.
-    pub r#conversation: RealtimeResponseCreateParams_Conversation,
-
-    pub r#metadata: Metadata,
-
-    /// Input items to include in the prompt for the model.
-    pub r#input: Vec<RealtimeConversationItemWithReference>,
-}
-
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct RealtimeResponseCreateParams_Tools_Item {
-    /// The type of the tool, i.e.
-    pub r#type: String,
-
-    /// The name of the function.
-    pub r#name: String,
-
-    /// The description of the function, including guidance on when and how to
-    /// call it, and guidance about what to tell the user when calling (if
-    /// anything).
-    pub r#description: String,
-
-    /// Parameters of the function in JSON Schema.
-    pub r#parameters: RealtimeResponseCreateParams_Tools_Item_Parameters,
-}
-
-/// Parameters of the function in JSON Schema.
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct RealtimeResponseCreateParams_Tools_Item_Parameters;
-
-/// Maximum number of output tokens for a single assistant response, inclusive
-/// of tool calls.
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub enum RealtimeResponseCreateParams_MaxResponseOutputTokens {
-    Integer(i64),
-
-    String(String),
-}
-
-/// Controls which conversation the response is added to.
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct RealtimeResponseCreateParams_Conversation(pub String);
-
 /// A realtime server event.
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct RealtimeServerEvent(pub (/*AnyOf*/));
+pub enum RealtimeServerEvent {
+    RealtimeServerEventConversationCreated(RealtimeServerEventConversationCreated),
+
+    RealtimeServerEventConversationItemCreated(RealtimeServerEventConversationItemCreated),
+
+    RealtimeServerEventConversationItemDeleted(RealtimeServerEventConversationItemDeleted),
+
+    RealtimeServerEventConversationItemInputAudioTranscriptionCompleted(RealtimeServerEventConversationItemInputAudioTranscriptionCompleted),
+
+    RealtimeServerEventConversationItemInputAudioTranscriptionDelta(RealtimeServerEventConversationItemInputAudioTranscriptionDelta),
+
+    RealtimeServerEventConversationItemInputAudioTranscriptionFailed(RealtimeServerEventConversationItemInputAudioTranscriptionFailed),
+
+    RealtimeServerEventConversationItemRetrieved(RealtimeServerEventConversationItemRetrieved),
+
+    RealtimeServerEventConversationItemTruncated(RealtimeServerEventConversationItemTruncated),
+
+    RealtimeServerEventError(RealtimeServerEventError),
+
+    RealtimeServerEventInputAudioBufferCleared(RealtimeServerEventInputAudioBufferCleared),
+
+    RealtimeServerEventInputAudioBufferCommitted(RealtimeServerEventInputAudioBufferCommitted),
+
+    RealtimeServerEventInputAudioBufferSpeechStarted(RealtimeServerEventInputAudioBufferSpeechStarted),
+
+    RealtimeServerEventInputAudioBufferSpeechStopped(RealtimeServerEventInputAudioBufferSpeechStopped),
+
+    RealtimeServerEventRateLimitsUpdated(RealtimeServerEventRateLimitsUpdated),
+
+    RealtimeServerEventResponseAudioDelta(RealtimeServerEventResponseAudioDelta),
+
+    RealtimeServerEventResponseAudioDone(RealtimeServerEventResponseAudioDone),
+
+    RealtimeServerEventResponseAudioTranscriptDelta(RealtimeServerEventResponseAudioTranscriptDelta),
+
+    RealtimeServerEventResponseAudioTranscriptDone(RealtimeServerEventResponseAudioTranscriptDone),
+
+    RealtimeServerEventResponseContentPartAdded(RealtimeServerEventResponseContentPartAdded),
+
+    RealtimeServerEventResponseContentPartDone(RealtimeServerEventResponseContentPartDone),
+
+    RealtimeServerEventResponseCreated(RealtimeServerEventResponseCreated),
+
+    RealtimeServerEventResponseDone(RealtimeServerEventResponseDone),
+
+    RealtimeServerEventResponseFunctionCallArgumentsDelta(RealtimeServerEventResponseFunctionCallArgumentsDelta),
+
+    RealtimeServerEventResponseFunctionCallArgumentsDone(RealtimeServerEventResponseFunctionCallArgumentsDone),
+
+    RealtimeServerEventResponseOutputItemAdded(RealtimeServerEventResponseOutputItemAdded),
+
+    RealtimeServerEventResponseOutputItemDone(RealtimeServerEventResponseOutputItemDone),
+
+    RealtimeServerEventResponseTextDelta(RealtimeServerEventResponseTextDelta),
+
+    RealtimeServerEventResponseTextDone(RealtimeServerEventResponseTextDone),
+
+    RealtimeServerEventSessionCreated(RealtimeServerEventSessionCreated),
+
+    RealtimeServerEventSessionUpdated(RealtimeServerEventSessionUpdated),
+
+    RealtimeServerEventTranscriptionSessionUpdated(RealtimeServerEventTranscriptionSessionUpdated),
+
+    RealtimeServerEventOutputAudioBufferStarted(RealtimeServerEventOutputAudioBufferStarted),
+
+    RealtimeServerEventOutputAudioBufferStopped(RealtimeServerEventOutputAudioBufferStopped),
+
+    RealtimeServerEventOutputAudioBufferCleared(RealtimeServerEventOutputAudioBufferCleared),
+}
 
 /// Returned when a conversation is created.
 #[derive(Clone, Debug)]
@@ -7629,7 +7866,6 @@ pub struct RealtimeServerEventConversationCreated {
     /// The event type, must be `conversation.created`.
     pub r#type: String,
 
-    /// The conversation resource.
     pub r#conversation: RealtimeServerEventConversationCreated_Conversation,
 }
 
@@ -7744,7 +7980,6 @@ pub struct RealtimeServerEventConversationItemInputAudioTranscriptionFailed {
     /// The index of the content part containing the audio.
     pub r#content_index: i64,
 
-    /// Details of the transcription error.
     pub r#error: RealtimeServerEventConversationItemInputAudioTranscriptionFailed_Error,
 }
 
@@ -7811,7 +8046,6 @@ pub struct RealtimeServerEventError {
     /// The event type, must be `error`.
     pub r#type: String,
 
-    /// Details of the error.
     pub r#error: RealtimeServerEventError_Error,
 }
 
@@ -7957,12 +8191,12 @@ pub struct RealtimeServerEventRateLimitsUpdated {
     pub r#type: String,
 
     /// List of rate limit information.
-    pub r#rate_limits: Vec<RealtimeServerEventRateLimitsUpdated_RateLimits_Item>,
+    pub r#rate_limits: Vec<RealtimeServerEventRateLimitsUpdated_RateLimits>,
 }
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct RealtimeServerEventRateLimitsUpdated_RateLimits_Item {
+pub struct RealtimeServerEventRateLimitsUpdated_RateLimits {
     /// The name of the rate limit (`requests`, `tokens`).
     pub r#name: String,
 
@@ -8101,7 +8335,6 @@ pub struct RealtimeServerEventResponseContentPartAdded {
     /// The index of the content part in the item's content array.
     pub r#content_index: i64,
 
-    /// The content part that was added.
     pub r#part: RealtimeServerEventResponseContentPartAdded_Part,
 }
 
@@ -8144,7 +8377,6 @@ pub struct RealtimeServerEventResponseContentPartDone {
     /// The index of the content part in the item's content array.
     pub r#content_index: i64,
 
-    /// The content part that is done.
     pub r#part: RealtimeServerEventResponseContentPartDone_Part,
 }
 
@@ -8401,18 +8633,14 @@ pub struct RealtimeSession {
     /// The format of output audio.
     pub r#output_audio_format: String,
 
-    /// Configuration for input audio transcription, defaults to off and can be 
-    /// set to `null` to turn off once on.
     pub r#input_audio_transcription: RealtimeSession_InputAudioTranscription,
 
-    /// Configuration for turn detection, ether Server VAD or Semantic VAD.
     pub r#turn_detection: RealtimeSession_TurnDetection,
 
-    /// Configuration for input audio noise reduction.
     pub r#input_audio_noise_reduction: RealtimeSession_InputAudioNoiseReduction,
 
     /// Tools (functions) available to the model.
-    pub r#tools: Vec<RealtimeSession_Tools_Item>,
+    pub r#tools: Vec<RealtimeSession_Tools>,
 
     /// How the model chooses tools.
     pub r#tool_choice: String,
@@ -8420,95 +8648,7 @@ pub struct RealtimeSession {
     /// Sampling temperature for the model, limited to [0.6, 1.2].
     pub r#temperature: f64,
 
-    /// Maximum number of output tokens for a single assistant response,
-    /// inclusive of tool calls.
     pub r#max_response_output_tokens: RealtimeSession_MaxResponseOutputTokens,
-}
-
-/// Configuration for input audio transcription, defaults to off and can be  set
-/// to `null` to turn off once on.
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct RealtimeSession_InputAudioTranscription {
-    /// The model to use for transcription, current options are
-    /// `gpt-4o-transcribe`, `gpt-4o-mini-transcribe`, and `whisper-1`.
-    pub r#model: String,
-
-    /// The language of the input audio.
-    pub r#language: String,
-
-    /// An optional text to guide the model's style or continue a previous audio
-    /// segment.
-    pub r#prompt: String,
-}
-
-/// Configuration for turn detection, ether Server VAD or Semantic VAD.
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct RealtimeSession_TurnDetection {
-    /// Type of turn detection.
-    pub r#type: String,
-
-    /// Used only for `semantic_vad` mode.
-    pub r#eagerness: String,
-
-    /// Used only for `server_vad` mode.
-    pub r#threshold: f64,
-
-    /// Used only for `server_vad` mode.
-    pub r#prefix_padding_ms: i64,
-
-    /// Used only for `server_vad` mode.
-    pub r#silence_duration_ms: i64,
-
-    /// Whether or not to automatically generate a response when a VAD stop
-    /// event occurs.
-    pub r#create_response: bool,
-
-    /// Whether or not to automatically interrupt any ongoing response with
-    /// output to the default conversation (i.e.
-    pub r#interrupt_response: bool,
-}
-
-/// Configuration for input audio noise reduction.
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct RealtimeSession_InputAudioNoiseReduction {
-    /// Type of noise reduction.
-    pub r#type: String,
-}
-
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct RealtimeSession_Tools_Item {
-    /// The type of the tool, i.e.
-    pub r#type: String,
-
-    /// The name of the function.
-    pub r#name: String,
-
-    /// The description of the function, including guidance on when and how to
-    /// call it, and guidance about what to tell the user when calling (if
-    /// anything).
-    pub r#description: String,
-
-    /// Parameters of the function in JSON Schema.
-    pub r#parameters: RealtimeSession_Tools_Item_Parameters,
-}
-
-/// Parameters of the function in JSON Schema.
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct RealtimeSession_Tools_Item_Parameters;
-
-/// Maximum number of output tokens for a single assistant response, inclusive
-/// of tool calls.
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub enum RealtimeSession_MaxResponseOutputTokens {
-    Integer(i64),
-
-    String(String),
 }
 
 /// Realtime session object configuration.
@@ -8533,18 +8673,14 @@ pub struct RealtimeSessionCreateRequest {
     /// The format of output audio.
     pub r#output_audio_format: String,
 
-    /// Configuration for input audio transcription, defaults to off and can be 
-    /// set to `null` to turn off once on.
     pub r#input_audio_transcription: RealtimeSessionCreateRequest_InputAudioTranscription,
 
-    /// Configuration for turn detection, ether Server VAD or Semantic VAD.
     pub r#turn_detection: RealtimeSessionCreateRequest_TurnDetection,
 
-    /// Configuration for input audio noise reduction.
     pub r#input_audio_noise_reduction: RealtimeSessionCreateRequest_InputAudioNoiseReduction,
 
     /// Tools (functions) available to the model.
-    pub r#tools: Vec<RealtimeSessionCreateRequest_Tools_Item>,
+    pub r#tools: Vec<RealtimeSessionCreateRequest_Tools>,
 
     /// How the model chooses tools.
     pub r#tool_choice: String,
@@ -8552,9 +8688,15 @@ pub struct RealtimeSessionCreateRequest {
     /// Sampling temperature for the model, limited to [0.6, 1.2].
     pub r#temperature: f64,
 
-    /// Maximum number of output tokens for a single assistant response,
-    /// inclusive of tool calls.
     pub r#max_response_output_tokens: RealtimeSessionCreateRequest_MaxResponseOutputTokens,
+}
+
+/// Configuration for input audio noise reduction.
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub struct RealtimeSessionCreateRequest_InputAudioNoiseReduction {
+    /// Type of noise reduction.
+    pub r#type: String,
 }
 
 /// Configuration for input audio transcription, defaults to off and can be  set
@@ -8573,6 +8715,39 @@ pub struct RealtimeSessionCreateRequest_InputAudioTranscription {
     /// segment.
     pub r#prompt: String,
 }
+
+/// Maximum number of output tokens for a single assistant response, inclusive
+/// of tool calls.
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub enum RealtimeSessionCreateRequest_MaxResponseOutputTokens {
+    Integer(i64),
+
+    String(String),
+}
+
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub struct RealtimeSessionCreateRequest_Tools {
+    /// The type of the tool, i.e.
+    pub r#type: String,
+
+    /// The name of the function.
+    pub r#name: String,
+
+    /// The description of the function, including guidance on when and how to
+    /// call it, and guidance about what to tell the user when calling (if
+    /// anything).
+    pub r#description: String,
+
+    /// Parameters of the function in JSON Schema.
+    pub r#parameters: RealtimeSessionCreateRequest_Tools_Parameters,
+}
+
+/// Parameters of the function in JSON Schema.
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub struct RealtimeSessionCreateRequest_Tools_Parameters;
 
 /// Configuration for turn detection, ether Server VAD or Semantic VAD.
 #[derive(Clone, Debug)]
@@ -8602,52 +8777,10 @@ pub struct RealtimeSessionCreateRequest_TurnDetection {
     pub r#interrupt_response: bool,
 }
 
-/// Configuration for input audio noise reduction.
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct RealtimeSessionCreateRequest_InputAudioNoiseReduction {
-    /// Type of noise reduction.
-    pub r#type: String,
-}
-
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct RealtimeSessionCreateRequest_Tools_Item {
-    /// The type of the tool, i.e.
-    pub r#type: String,
-
-    /// The name of the function.
-    pub r#name: String,
-
-    /// The description of the function, including guidance on when and how to
-    /// call it, and guidance about what to tell the user when calling (if
-    /// anything).
-    pub r#description: String,
-
-    /// Parameters of the function in JSON Schema.
-    pub r#parameters: RealtimeSessionCreateRequest_Tools_Item_Parameters,
-}
-
-/// Parameters of the function in JSON Schema.
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct RealtimeSessionCreateRequest_Tools_Item_Parameters;
-
-/// Maximum number of output tokens for a single assistant response, inclusive
-/// of tool calls.
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub enum RealtimeSessionCreateRequest_MaxResponseOutputTokens {
-    Integer(i64),
-
-    String(String),
-}
-
 /// A new Realtime session configuration, with an ephermeral key.
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct RealtimeSessionCreateResponse {
-    /// Ephemeral key returned by the API.
     pub r#client_secret: RealtimeSessionCreateResponse_ClientSecret,
 
     /// The set of modalities the model can respond with.
@@ -8665,15 +8798,12 @@ pub struct RealtimeSessionCreateResponse {
     /// The format of output audio.
     pub r#output_audio_format: String,
 
-    /// Configuration for input audio transcription, defaults to off and can be
-    /// set to `null` to turn off once on.
     pub r#input_audio_transcription: RealtimeSessionCreateResponse_InputAudioTranscription,
 
-    /// Configuration for turn detection.
     pub r#turn_detection: RealtimeSessionCreateResponse_TurnDetection,
 
     /// Tools (functions) available to the model.
-    pub r#tools: Vec<RealtimeSessionCreateResponse_Tools_Item>,
+    pub r#tools: Vec<RealtimeSessionCreateResponse_Tools>,
 
     /// How the model chooses tools.
     pub r#tool_choice: String,
@@ -8681,8 +8811,6 @@ pub struct RealtimeSessionCreateResponse {
     /// Sampling temperature for the model, limited to [0.6, 1.2].
     pub r#temperature: f64,
 
-    /// Maximum number of output tokens for a single assistant response,
-    /// inclusive of tool calls.
     pub r#max_response_output_tokens: RealtimeSessionCreateResponse_MaxResponseOutputTokens,
 }
 
@@ -8708,6 +8836,39 @@ pub struct RealtimeSessionCreateResponse_InputAudioTranscription {
     pub r#model: String,
 }
 
+/// Maximum number of output tokens for a single assistant response, inclusive
+/// of tool calls.
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub enum RealtimeSessionCreateResponse_MaxResponseOutputTokens {
+    Integer(i64),
+
+    String(String),
+}
+
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub struct RealtimeSessionCreateResponse_Tools {
+    /// The type of the tool, i.e.
+    pub r#type: String,
+
+    /// The name of the function.
+    pub r#name: String,
+
+    /// The description of the function, including guidance on when and how to
+    /// call it, and guidance about what to tell the user when calling (if
+    /// anything).
+    pub r#description: String,
+
+    /// Parameters of the function in JSON Schema.
+    pub r#parameters: RealtimeSessionCreateResponse_Tools_Parameters,
+}
+
+/// Parameters of the function in JSON Schema.
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub struct RealtimeSessionCreateResponse_Tools_Parameters;
+
 /// Configuration for turn detection.
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
@@ -8726,9 +8887,44 @@ pub struct RealtimeSessionCreateResponse_TurnDetection {
     pub r#silence_duration_ms: i64,
 }
 
+/// Configuration for input audio noise reduction.
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct RealtimeSessionCreateResponse_Tools_Item {
+pub struct RealtimeSession_InputAudioNoiseReduction {
+    /// Type of noise reduction.
+    pub r#type: String,
+}
+
+/// Configuration for input audio transcription, defaults to off and can be  set
+/// to `null` to turn off once on.
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub struct RealtimeSession_InputAudioTranscription {
+    /// The model to use for transcription, current options are
+    /// `gpt-4o-transcribe`, `gpt-4o-mini-transcribe`, and `whisper-1`.
+    pub r#model: String,
+
+    /// The language of the input audio.
+    pub r#language: String,
+
+    /// An optional text to guide the model's style or continue a previous audio
+    /// segment.
+    pub r#prompt: String,
+}
+
+/// Maximum number of output tokens for a single assistant response, inclusive
+/// of tool calls.
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub enum RealtimeSession_MaxResponseOutputTokens {
+    Integer(i64),
+
+    String(String),
+}
+
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub struct RealtimeSession_Tools {
     /// The type of the tool, i.e.
     pub r#type: String,
 
@@ -8741,22 +8937,40 @@ pub struct RealtimeSessionCreateResponse_Tools_Item {
     pub r#description: String,
 
     /// Parameters of the function in JSON Schema.
-    pub r#parameters: RealtimeSessionCreateResponse_Tools_Item_Parameters,
+    pub r#parameters: RealtimeSession_Tools_Parameters,
 }
 
 /// Parameters of the function in JSON Schema.
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct RealtimeSessionCreateResponse_Tools_Item_Parameters;
+pub struct RealtimeSession_Tools_Parameters;
 
-/// Maximum number of output tokens for a single assistant response, inclusive
-/// of tool calls.
+/// Configuration for turn detection, ether Server VAD or Semantic VAD.
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub enum RealtimeSessionCreateResponse_MaxResponseOutputTokens {
-    Integer(i64),
+pub struct RealtimeSession_TurnDetection {
+    /// Type of turn detection.
+    pub r#type: String,
 
-    String(String),
+    /// Used only for `semantic_vad` mode.
+    pub r#eagerness: String,
+
+    /// Used only for `server_vad` mode.
+    pub r#threshold: f64,
+
+    /// Used only for `server_vad` mode.
+    pub r#prefix_padding_ms: i64,
+
+    /// Used only for `server_vad` mode.
+    pub r#silence_duration_ms: i64,
+
+    /// Whether or not to automatically generate a response when a VAD stop
+    /// event occurs.
+    pub r#create_response: bool,
+
+    /// Whether or not to automatically interrupt any ongoing response with
+    /// output to the default conversation (i.e.
+    pub r#interrupt_response: bool,
 }
 
 /// Realtime transcription session object configuration.
@@ -8769,17 +8983,22 @@ pub struct RealtimeTranscriptionSessionCreateRequest {
     /// The format of input audio.
     pub r#input_audio_format: String,
 
-    /// Configuration for input audio transcription.
     pub r#input_audio_transcription: RealtimeTranscriptionSessionCreateRequest_InputAudioTranscription,
 
-    /// Configuration for turn detection, ether Server VAD or Semantic VAD.
     pub r#turn_detection: RealtimeTranscriptionSessionCreateRequest_TurnDetection,
 
-    /// Configuration for input audio noise reduction.
     pub r#input_audio_noise_reduction: RealtimeTranscriptionSessionCreateRequest_InputAudioNoiseReduction,
 
     /// The set of items to include in the transcription.
     pub r#include: Vec<String>,
+}
+
+/// Configuration for input audio noise reduction.
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub struct RealtimeTranscriptionSessionCreateRequest_InputAudioNoiseReduction {
+    /// Type of noise reduction.
+    pub r#type: String,
 }
 
 /// Configuration for input audio transcription.
@@ -8826,19 +9045,10 @@ pub struct RealtimeTranscriptionSessionCreateRequest_TurnDetection {
     pub r#interrupt_response: bool,
 }
 
-/// Configuration for input audio noise reduction.
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct RealtimeTranscriptionSessionCreateRequest_InputAudioNoiseReduction {
-    /// Type of noise reduction.
-    pub r#type: String,
-}
-
 /// A new Realtime transcription session configuration.
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct RealtimeTranscriptionSessionCreateResponse {
-    /// Ephemeral key returned by the API.
     pub r#client_secret: RealtimeTranscriptionSessionCreateResponse_ClientSecret,
 
     /// The set of modalities the model can respond with.
@@ -8847,10 +9057,8 @@ pub struct RealtimeTranscriptionSessionCreateResponse {
     /// The format of input audio.
     pub r#input_audio_format: String,
 
-    /// Configuration of the transcription model.
     pub r#input_audio_transcription: RealtimeTranscriptionSessionCreateResponse_InputAudioTranscription,
 
-    /// Configuration for turn detection.
     pub r#turn_detection: RealtimeTranscriptionSessionCreateResponse_TurnDetection,
 }
 
@@ -8931,7 +9139,7 @@ pub struct ReasoningItem {
     pub r#id: String,
 
     /// Reasoning text contents.
-    pub r#summary: Vec<ReasoningItem_Summary_Item>,
+    pub r#summary: Vec<ReasoningItem_Summary>,
 
     /// The status of the item.
     pub r#status: String,
@@ -8939,7 +9147,7 @@ pub struct ReasoningItem {
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct ReasoningItem_Summary_Item {
+pub struct ReasoningItem_Summary {
     /// The type of the object.
     pub r#type: String,
 
@@ -9235,9 +9443,13 @@ pub struct ResponseFormatJsonSchema {
     /// The type of response format being defined.
     pub r#type: String,
 
-    /// Structured Outputs configuration options, including a JSON Schema.
     pub r#json_schema: ResponseFormatJsonSchema_JsonSchema,
 }
+
+/// The schema for the response format, described as a JSON Schema object.
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub struct ResponseFormatJsonSchemaSchema;
 
 /// Structured Outputs configuration options, including a JSON Schema.
 #[derive(Clone, Debug)]
@@ -9255,11 +9467,6 @@ pub struct ResponseFormatJsonSchema_JsonSchema {
     /// Whether to enable strict schema adherence when generating the output.
     pub r#strict: bool,
 }
-
-/// The schema for the response format, described as a JSON Schema object.
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct ResponseFormatJsonSchemaSchema;
 
 /// Default response format.
 #[derive(Clone, Debug)]
@@ -9399,14 +9606,11 @@ pub struct ResponseProperties {
     /// context.
     pub r#instructions: String,
 
-    /// Configuration options for a text response from the model.
     pub r#text: ResponseProperties_Text,
 
     /// An array of tools the model may call while generating a response.
     pub r#tools: Vec<Tool>,
 
-    /// How the model should select which tool (or tools) to use when generating
-    /// a response.
     pub r#tool_choice: ResponseProperties_ToolChoice,
 
     /// The truncation strategy to use for the model response.
@@ -9448,7 +9652,6 @@ pub struct ResponseReasoningSummaryPartAddedEvent {
     /// The index of the summary part within the reasoning summary.
     pub r#summary_index: i64,
 
-    /// The summary part that was added.
     pub r#part: ResponseReasoningSummaryPartAddedEvent_Part,
 }
 
@@ -9479,7 +9682,6 @@ pub struct ResponseReasoningSummaryPartDoneEvent {
     /// The index of the summary part within the reasoning summary.
     pub r#summary_index: i64,
 
-    /// The completed summary part.
     pub r#part: ResponseReasoningSummaryPartDoneEvent_Part,
 }
 
@@ -9576,7 +9778,79 @@ pub struct ResponseRefusalDoneEvent {
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct ResponseStreamEvent(pub (/*AnyOf*/));
+pub enum ResponseStreamEvent {
+    ResponseAudioDeltaEvent(ResponseAudioDeltaEvent),
+
+    ResponseAudioDoneEvent(ResponseAudioDoneEvent),
+
+    ResponseAudioTranscriptDeltaEvent(ResponseAudioTranscriptDeltaEvent),
+
+    ResponseAudioTranscriptDoneEvent(ResponseAudioTranscriptDoneEvent),
+
+    ResponseCodeInterpreterCallCodeDeltaEvent(ResponseCodeInterpreterCallCodeDeltaEvent),
+
+    ResponseCodeInterpreterCallCodeDoneEvent(ResponseCodeInterpreterCallCodeDoneEvent),
+
+    ResponseCodeInterpreterCallCompletedEvent(ResponseCodeInterpreterCallCompletedEvent),
+
+    ResponseCodeInterpreterCallInProgressEvent(ResponseCodeInterpreterCallInProgressEvent),
+
+    ResponseCodeInterpreterCallInterpretingEvent(ResponseCodeInterpreterCallInterpretingEvent),
+
+    ResponseCompletedEvent(ResponseCompletedEvent),
+
+    ResponseContentPartAddedEvent(ResponseContentPartAddedEvent),
+
+    ResponseContentPartDoneEvent(ResponseContentPartDoneEvent),
+
+    ResponseCreatedEvent(ResponseCreatedEvent),
+
+    ResponseErrorEvent(ResponseErrorEvent),
+
+    ResponseFileSearchCallCompletedEvent(ResponseFileSearchCallCompletedEvent),
+
+    ResponseFileSearchCallInProgressEvent(ResponseFileSearchCallInProgressEvent),
+
+    ResponseFileSearchCallSearchingEvent(ResponseFileSearchCallSearchingEvent),
+
+    ResponseFunctionCallArgumentsDeltaEvent(ResponseFunctionCallArgumentsDeltaEvent),
+
+    ResponseFunctionCallArgumentsDoneEvent(ResponseFunctionCallArgumentsDoneEvent),
+
+    ResponseInProgressEvent(ResponseInProgressEvent),
+
+    ResponseFailedEvent(ResponseFailedEvent),
+
+    ResponseIncompleteEvent(ResponseIncompleteEvent),
+
+    ResponseOutputItemAddedEvent(ResponseOutputItemAddedEvent),
+
+    ResponseOutputItemDoneEvent(ResponseOutputItemDoneEvent),
+
+    ResponseReasoningSummaryPartAddedEvent(ResponseReasoningSummaryPartAddedEvent),
+
+    ResponseReasoningSummaryPartDoneEvent(ResponseReasoningSummaryPartDoneEvent),
+
+    ResponseReasoningSummaryTextDeltaEvent(ResponseReasoningSummaryTextDeltaEvent),
+
+    ResponseReasoningSummaryTextDoneEvent(ResponseReasoningSummaryTextDoneEvent),
+
+    ResponseRefusalDeltaEvent(ResponseRefusalDeltaEvent),
+
+    ResponseRefusalDoneEvent(ResponseRefusalDoneEvent),
+
+    ResponseTextAnnotationDeltaEvent(ResponseTextAnnotationDeltaEvent),
+
+    ResponseTextDeltaEvent(ResponseTextDeltaEvent),
+
+    ResponseTextDoneEvent(ResponseTextDoneEvent),
+
+    ResponseWebSearchCallCompletedEvent(ResponseWebSearchCallCompletedEvent),
+
+    ResponseWebSearchCallInProgressEvent(ResponseWebSearchCallInProgressEvent),
+
+    ResponseWebSearchCallSearchingEvent(ResponseWebSearchCallSearchingEvent),
+}
 
 /// Emitted when a text annotation is added.
 #[derive(Clone, Debug)]
@@ -9648,13 +9922,11 @@ pub struct ResponseUsage {
     /// The number of input tokens.
     pub r#input_tokens: i64,
 
-    /// A detailed breakdown of the input tokens.
     pub r#input_tokens_details: ResponseUsage_InputTokensDetails,
 
     /// The number of output tokens.
     pub r#output_tokens: i64,
 
-    /// A detailed breakdown of the output tokens.
     pub r#output_tokens_details: ResponseUsage_OutputTokensDetails,
 
     /// The total number of tokens used.
@@ -9722,6 +9994,46 @@ pub struct ResponseWebSearchCallSearchingEvent {
     pub r#item_id: String,
 }
 
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub struct Response_Variant3 {
+    /// Unique identifier for this Response.
+    pub r#id: String,
+
+    /// The object type of this resource - always set to `response`.
+    pub r#object: String,
+
+    /// The status of the response generation.
+    pub r#status: String,
+
+    /// Unix timestamp (in seconds) of when this Response was created.
+    pub r#created_at: f64,
+
+    pub r#error: ResponseError,
+
+    pub r#incomplete_details: Response_Variant3_IncompleteDetails,
+
+    /// An array of content items generated by the model.
+    pub r#output: Vec<OutputItem>,
+
+    /// SDK-only convenience property that contains the aggregated text output
+    /// from all `output_text` items in the `output` array, if any are present.
+    pub r#output_text: String,
+
+    pub r#usage: ResponseUsage,
+
+    /// Whether to allow the model to run tool calls in parallel.
+    pub r#parallel_tool_calls: bool,
+}
+
+/// Details about why the response is incomplete.
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub struct Response_Variant3_IncompleteDetails {
+    /// The reason why the response is incomplete.
+    pub r#reason: String,
+}
+
 /// Usage statistics related to the run.
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
@@ -9762,10 +10074,8 @@ pub struct RunObject {
     /// `incomplete`, or `expired`.
     pub r#status: String,
 
-    /// Details on the action required to continue the run.
     pub r#required_action: RunObject_RequiredAction,
 
-    /// The last error associated with this run.
     pub r#last_error: RunObject_LastError,
 
     /// The Unix timestamp (in seconds) for when the run will expire.
@@ -9783,7 +10093,6 @@ pub struct RunObject {
     /// The Unix timestamp (in seconds) for when the run was completed.
     pub r#completed_at: i64,
 
-    /// Details on why the run is incomplete.
     pub r#incomplete_details: RunObject_IncompleteDetails,
 
     /// The model that the [assistant](/docs/api-reference/assistants) used for
@@ -9796,7 +10105,7 @@ pub struct RunObject {
 
     /// The list of tools that the [assistant](/docs/api-reference/assistants)
     /// used for this run.
-    pub r#tools: Vec<RunObject_Tools_Item>,
+    pub r#tools: Vec<RunObject_Tools>,
 
     pub r#metadata: Metadata,
 
@@ -9825,23 +10134,12 @@ pub struct RunObject {
     pub r#response_format: AssistantsApiResponseFormatOption,
 }
 
-/// Details on the action required to continue the run.
+/// Details on why the run is incomplete.
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct RunObject_RequiredAction {
-    /// For now, this is always `submit_tool_outputs`.
-    pub r#type: String,
-
-    /// Details on the tool outputs needed for this run to continue.
-    pub r#submit_tool_outputs: RunObject_RequiredAction_SubmitToolOutputs,
-}
-
-/// Details on the tool outputs needed for this run to continue.
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct RunObject_RequiredAction_SubmitToolOutputs {
-    /// A list of the relevant tool calls.
-    pub r#tool_calls: Vec<RunToolCallObject>,
+pub struct RunObject_IncompleteDetails {
+    /// The reason why the run is incomplete.
+    pub r#reason: String,
 }
 
 /// The last error associated with this run.
@@ -9855,17 +10153,31 @@ pub struct RunObject_LastError {
     pub r#message: String,
 }
 
-/// Details on why the run is incomplete.
+/// Details on the action required to continue the run.
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct RunObject_IncompleteDetails {
-    /// The reason why the run is incomplete.
-    pub r#reason: String,
+pub struct RunObject_RequiredAction {
+    /// For now, this is always `submit_tool_outputs`.
+    pub r#type: String,
+
+    pub r#submit_tool_outputs: RunObject_RequiredAction_SubmitToolOutputs,
+}
+
+/// Details on the tool outputs needed for this run to continue.
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub struct RunObject_RequiredAction_SubmitToolOutputs {
+    /// A list of the relevant tool calls.
+    pub r#tool_calls: Vec<RunToolCallObject>,
 }
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub enum RunObject_Tools_Item {
+pub struct RunObject_ToolChoice(pub (/*AllOf*/));
+
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub enum RunObject_Tools {
     AssistantToolsCode(AssistantToolsCode),
 
     AssistantToolsFileSearch(AssistantToolsFileSearch),
@@ -9876,10 +10188,6 @@ pub enum RunObject_Tools_Item {
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct RunObject_TruncationStrategy(pub (/*AllOf*/));
-
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct RunObject_ToolChoice(pub (/*AllOf*/));
 
 /// Usage statistics related to the run step.
 #[derive(Clone, Debug)]
@@ -9906,7 +10214,6 @@ pub struct RunStepDeltaObject {
     /// The object type, which is always `thread.run.step.delta`.
     pub r#object: String,
 
-    /// The delta containing the fields that have changed on the run step.
     pub r#delta: RunStepDeltaObject_Delta,
 }
 
@@ -9914,7 +10221,6 @@ pub struct RunStepDeltaObject {
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct RunStepDeltaObject_Delta {
-    /// The details of the run step.
     pub r#step_details: RunStepDeltaObject_Delta_StepDetails,
 }
 
@@ -9953,7 +10259,6 @@ pub struct RunStepDeltaStepDetailsToolCallsCodeObject {
     /// The type of tool call.
     pub r#type: String,
 
-    /// The Code Interpreter tool call definition.
     pub r#code_interpreter: RunStepDeltaStepDetailsToolCallsCodeObject_CodeInterpreter,
 }
 
@@ -9965,12 +10270,12 @@ pub struct RunStepDeltaStepDetailsToolCallsCodeObject_CodeInterpreter {
     pub r#input: String,
 
     /// The outputs from the Code Interpreter tool call.
-    pub r#outputs: Vec<RunStepDeltaStepDetailsToolCallsCodeObject_CodeInterpreter_Outputs_Item>,
+    pub r#outputs: Vec<RunStepDeltaStepDetailsToolCallsCodeObject_CodeInterpreter_Outputs>,
 }
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct RunStepDeltaStepDetailsToolCallsCodeObject_CodeInterpreter_Outputs_Item;
+pub struct RunStepDeltaStepDetailsToolCallsCodeObject_CodeInterpreter_Outputs;
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
@@ -10038,7 +10343,6 @@ pub struct RunStepDeltaStepDetailsToolCallsFunctionObject {
     /// The type of tool call.
     pub r#type: String,
 
-    /// The definition of the function that was called.
     pub r#function: RunStepDeltaStepDetailsToolCallsFunctionObject_Function,
 }
 
@@ -10064,12 +10368,12 @@ pub struct RunStepDeltaStepDetailsToolCallsObject {
     pub r#type: String,
 
     /// An array of tool calls the run step was involved in.
-    pub r#tool_calls: Vec<RunStepDeltaStepDetailsToolCallsObject_ToolCalls_Item>,
+    pub r#tool_calls: Vec<RunStepDeltaStepDetailsToolCallsObject_ToolCalls>,
 }
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub enum RunStepDeltaStepDetailsToolCallsObject_ToolCalls_Item {
+pub enum RunStepDeltaStepDetailsToolCallsObject_ToolCalls {
     RunStepDeltaStepDetailsToolCallsCodeObject(RunStepDeltaStepDetailsToolCallsCodeObject),
 
     RunStepDeltaStepDetailsToolCallsFileSearchObject(RunStepDeltaStepDetailsToolCallsFileSearchObject),
@@ -10104,7 +10408,6 @@ pub struct RunStepDetailsToolCallsCodeObject {
     /// The type of tool call.
     pub r#type: String,
 
-    /// The Code Interpreter tool call definition.
     pub r#code_interpreter: RunStepDetailsToolCallsCodeObject_CodeInterpreter,
 }
 
@@ -10116,12 +10419,12 @@ pub struct RunStepDetailsToolCallsCodeObject_CodeInterpreter {
     pub r#input: String,
 
     /// The outputs from the Code Interpreter tool call.
-    pub r#outputs: Vec<RunStepDetailsToolCallsCodeObject_CodeInterpreter_Outputs_Item>,
+    pub r#outputs: Vec<RunStepDetailsToolCallsCodeObject_CodeInterpreter_Outputs>,
 }
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct RunStepDetailsToolCallsCodeObject_CodeInterpreter_Outputs_Item;
+pub struct RunStepDetailsToolCallsCodeObject_CodeInterpreter_Outputs;
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
@@ -10159,7 +10462,6 @@ pub struct RunStepDetailsToolCallsFileSearchObject {
     /// The type of tool call.
     pub r#type: String,
 
-    /// For now, this is always going to be an empty object.
     pub r#file_search: RunStepDetailsToolCallsFileSearchObject_FileSearch,
 }
 
@@ -10197,12 +10499,12 @@ pub struct RunStepDetailsToolCallsFileSearchResultObject {
     pub r#score: f64,
 
     /// The content of the result that was found.
-    pub r#content: Vec<RunStepDetailsToolCallsFileSearchResultObject_Content_Item>,
+    pub r#content: Vec<RunStepDetailsToolCallsFileSearchResultObject_Content>,
 }
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct RunStepDetailsToolCallsFileSearchResultObject_Content_Item {
+pub struct RunStepDetailsToolCallsFileSearchResultObject_Content {
     /// The type of the content.
     pub r#type: String,
 
@@ -10219,7 +10521,6 @@ pub struct RunStepDetailsToolCallsFunctionObject {
     /// The type of tool call.
     pub r#type: String,
 
-    /// The definition of the function that was called.
     pub r#function: RunStepDetailsToolCallsFunctionObject_Function,
 }
 
@@ -10245,12 +10546,12 @@ pub struct RunStepDetailsToolCallsObject {
     pub r#type: String,
 
     /// An array of tool calls the run step was involved in.
-    pub r#tool_calls: Vec<RunStepDetailsToolCallsObject_ToolCalls_Item>,
+    pub r#tool_calls: Vec<RunStepDetailsToolCallsObject_ToolCalls>,
 }
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub enum RunStepDetailsToolCallsObject_ToolCalls_Item {
+pub enum RunStepDetailsToolCallsObject_ToolCalls {
     RunStepDetailsToolCallsCodeObject(RunStepDetailsToolCallsCodeObject),
 
     RunStepDetailsToolCallsFileSearchObject(RunStepDetailsToolCallsFileSearchObject),
@@ -10291,10 +10592,8 @@ pub struct RunStepObject {
     /// `cancelled`, `failed`, `completed`, or `expired`.
     pub r#status: String,
 
-    /// The details of the run step.
     pub r#step_details: RunStepObject_StepDetails,
 
-    /// The last error associated with this run step.
     pub r#last_error: RunStepObject_LastError,
 
     /// The Unix timestamp (in seconds) for when the run step expired.
@@ -10314,11 +10613,6 @@ pub struct RunStepObject {
     pub r#usage: RunStepCompletionUsage,
 }
 
-/// The details of the run step.
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct RunStepObject_StepDetails;
-
 /// The last error associated with this run step.
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
@@ -10330,13 +10624,18 @@ pub struct RunStepObject_LastError {
     pub r#message: String,
 }
 
+/// The details of the run step.
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub struct RunStepObject_StepDetails;
+
 include!("components/run_step_stream_event.rs");
 
 /// Occurs when a [run step](/docs/api-reference/run-steps/step-object) is
 /// created.
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct RunStepStreamEvent_1 {
+pub struct RunStepStreamEvent_Variant1 {
     pub r#event: String,
 
     pub r#data: RunStepObject,
@@ -10346,7 +10645,7 @@ pub struct RunStepStreamEvent_1 {
 /// an `in_progress` state.
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct RunStepStreamEvent_2 {
+pub struct RunStepStreamEvent_Variant2 {
     pub r#event: String,
 
     pub r#data: RunStepObject,
@@ -10356,7 +10655,7 @@ pub struct RunStepStreamEvent_2 {
 /// are being streamed.
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct RunStepStreamEvent_3 {
+pub struct RunStepStreamEvent_Variant3 {
     pub r#event: String,
 
     pub r#data: RunStepDeltaObject,
@@ -10366,7 +10665,7 @@ pub struct RunStepStreamEvent_3 {
 /// completed.
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct RunStepStreamEvent_4 {
+pub struct RunStepStreamEvent_Variant4 {
     pub r#event: String,
 
     pub r#data: RunStepObject,
@@ -10375,7 +10674,7 @@ pub struct RunStepStreamEvent_4 {
 /// Occurs when a [run step](/docs/api-reference/run-steps/step-object) fails.
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct RunStepStreamEvent_5 {
+pub struct RunStepStreamEvent_Variant5 {
     pub r#event: String,
 
     pub r#data: RunStepObject,
@@ -10385,7 +10684,7 @@ pub struct RunStepStreamEvent_5 {
 /// cancelled.
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct RunStepStreamEvent_6 {
+pub struct RunStepStreamEvent_Variant6 {
     pub r#event: String,
 
     pub r#data: RunStepObject,
@@ -10394,7 +10693,7 @@ pub struct RunStepStreamEvent_6 {
 /// Occurs when a [run step](/docs/api-reference/run-steps/step-object) expires.
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct RunStepStreamEvent_7 {
+pub struct RunStepStreamEvent_Variant7 {
     pub r#event: String,
 
     pub r#data: RunStepObject,
@@ -10405,7 +10704,16 @@ include!("components/run_stream_event.rs");
 /// Occurs when a new [run](/docs/api-reference/runs/object) is created.
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct RunStreamEvent_1 {
+pub struct RunStreamEvent_Variant1 {
+    pub r#event: String,
+
+    pub r#data: RunObject,
+}
+
+/// Occurs when a [run](/docs/api-reference/runs/object) expires.
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub struct RunStreamEvent_Variant10 {
     pub r#event: String,
 
     pub r#data: RunObject,
@@ -10415,7 +10723,7 @@ pub struct RunStreamEvent_1 {
 /// status.
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct RunStreamEvent_2 {
+pub struct RunStreamEvent_Variant2 {
     pub r#event: String,
 
     pub r#data: RunObject,
@@ -10425,7 +10733,7 @@ pub struct RunStreamEvent_2 {
 /// `in_progress` status.
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct RunStreamEvent_3 {
+pub struct RunStreamEvent_Variant3 {
     pub r#event: String,
 
     pub r#data: RunObject,
@@ -10435,7 +10743,7 @@ pub struct RunStreamEvent_3 {
 /// `requires_action` status.
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct RunStreamEvent_4 {
+pub struct RunStreamEvent_Variant4 {
     pub r#event: String,
 
     pub r#data: RunObject,
@@ -10444,7 +10752,7 @@ pub struct RunStreamEvent_4 {
 /// Occurs when a [run](/docs/api-reference/runs/object) is completed.
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct RunStreamEvent_5 {
+pub struct RunStreamEvent_Variant5 {
     pub r#event: String,
 
     pub r#data: RunObject,
@@ -10454,7 +10762,7 @@ pub struct RunStreamEvent_5 {
 /// `incomplete`.
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct RunStreamEvent_6 {
+pub struct RunStreamEvent_Variant6 {
     pub r#event: String,
 
     pub r#data: RunObject,
@@ -10463,7 +10771,7 @@ pub struct RunStreamEvent_6 {
 /// Occurs when a [run](/docs/api-reference/runs/object) fails.
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct RunStreamEvent_7 {
+pub struct RunStreamEvent_Variant7 {
     pub r#event: String,
 
     pub r#data: RunObject,
@@ -10473,7 +10781,7 @@ pub struct RunStreamEvent_7 {
 /// status.
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct RunStreamEvent_8 {
+pub struct RunStreamEvent_Variant8 {
     pub r#event: String,
 
     pub r#data: RunObject,
@@ -10482,16 +10790,7 @@ pub struct RunStreamEvent_8 {
 /// Occurs when a [run](/docs/api-reference/runs/object) is cancelled.
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct RunStreamEvent_9 {
-    pub r#event: String,
-
-    pub r#data: RunObject,
-}
-
-/// Occurs when a [run](/docs/api-reference/runs/object) expires.
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct RunStreamEvent_10 {
+pub struct RunStreamEvent_Variant9 {
     pub r#event: String,
 
     pub r#data: RunObject,
@@ -10507,7 +10806,6 @@ pub struct RunToolCallObject {
     /// The type of tool call the output is required for.
     pub r#type: String,
 
-    /// The function definition.
     pub r#function: RunToolCallObject_Function,
 }
 
@@ -10600,7 +10898,7 @@ pub enum StopConfiguration {
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct SubmitToolOutputsRunRequest {
     /// A list of tools for which the outputs are being submitted.
-    pub r#tool_outputs: Vec<SubmitToolOutputsRunRequest_ToolOutputs_Item>,
+    pub r#tool_outputs: Vec<SubmitToolOutputsRunRequest_ToolOutputs>,
 
     /// If `true`, returns a stream of events that happen during the Run as
     /// server-sent events, terminating when the Run enters a terminal state
@@ -10610,7 +10908,7 @@ pub struct SubmitToolOutputsRunRequest {
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct SubmitToolOutputsRunRequest_ToolOutputs_Item {
+pub struct SubmitToolOutputsRunRequest_ToolOutputs {
     /// The ID of the tool call in the `required_action` object within the run
     /// object the output is being submitted for.
     pub r#tool_call_id: String,
@@ -10663,8 +10961,6 @@ pub struct ThreadObject {
     /// The Unix timestamp (in seconds) for when the thread was created.
     pub r#created_at: i64,
 
-    /// A set of resources that are made available to the assistant's tools in
-    /// this thread.
     pub r#tool_resources: ThreadObject_ToolResources,
 
     pub r#metadata: Metadata,
@@ -10751,12 +11047,12 @@ pub struct TranscriptTextDeltaEvent {
     pub r#delta: String,
 
     /// The log probabilities of the delta.
-    pub r#logprobs: Vec<TranscriptTextDeltaEvent_Logprobs_Item>,
+    pub r#logprobs: Vec<TranscriptTextDeltaEvent_Logprobs>,
 }
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct TranscriptTextDeltaEvent_Logprobs_Item {
+pub struct TranscriptTextDeltaEvent_Logprobs {
     /// The token that was used to generate the log probability.
     pub r#token: String,
 
@@ -10778,12 +11074,12 @@ pub struct TranscriptTextDoneEvent {
     pub r#text: String,
 
     /// The log probabilities of the individual tokens in the transcription.
-    pub r#logprobs: Vec<TranscriptTextDoneEvent_Logprobs_Item>,
+    pub r#logprobs: Vec<TranscriptTextDoneEvent_Logprobs>,
 }
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct TranscriptTextDoneEvent_Logprobs_Item {
+pub struct TranscriptTextDoneEvent_Logprobs {
     /// The token that was used to generate the log probability.
     pub r#token: String,
 
@@ -10922,10 +11218,6 @@ pub struct Upload {
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct Upload_File(pub (/*AllOf*/));
-
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct UploadCertificateRequest {
     /// An optional name for the certificate
     pub r#name: String,
@@ -10951,6 +11243,10 @@ pub struct UploadPart {
     /// The object type, which is always `upload.part`.
     pub r#object: String,
 }
+
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub struct Upload_File(pub (/*AllOf*/));
 
 /// A citation for a web resource used to generate a model response.
 #[derive(Clone, Debug)]
@@ -11211,12 +11507,12 @@ pub struct UsageTimeBucket {
 
     pub r#end_time: i64,
 
-    pub r#result: Vec<UsageTimeBucket_Result_Item>,
+    pub r#result: Vec<UsageTimeBucket_Result>,
 }
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub enum UsageTimeBucket_Result_Item {
+pub enum UsageTimeBucket_Result {
     UsageCompletionsResult(UsageCompletionsResult),
 
     UsageEmbeddingsResult(UsageEmbeddingsResult),
@@ -11373,7 +11669,7 @@ pub struct VectorStoreFileContentResponse {
     pub r#object: String,
 
     /// Parsed content of the file.
-    pub r#data: Vec<VectorStoreFileContentResponse_Data_Item>,
+    pub r#data: Vec<VectorStoreFileContentResponse_Data>,
 
     /// Indicates if there are more content pages to fetch.
     pub r#has_more: bool,
@@ -11384,7 +11680,7 @@ pub struct VectorStoreFileContentResponse {
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct VectorStoreFileContentResponse_Data_Item {
+pub struct VectorStoreFileContentResponse_Data {
     /// The content type (currently only `"text"`)
     pub r#type: String,
 
@@ -11417,14 +11713,17 @@ pub struct VectorStoreFileObject {
     /// `completed`, `cancelled`, or `failed`.
     pub r#status: String,
 
-    /// The last error associated with this vector store file.
     pub r#last_error: VectorStoreFileObject_LastError,
 
-    /// The strategy used to chunk the file.
     pub r#chunking_strategy: VectorStoreFileObject_ChunkingStrategy,
 
     pub r#attributes: VectorStoreFileAttributes,
 }
+
+/// The strategy used to chunk the file.
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub struct VectorStoreFileObject_ChunkingStrategy;
 
 /// The last error associated with this vector store file.
 #[derive(Clone, Debug)]
@@ -11436,11 +11735,6 @@ pub struct VectorStoreFileObject_LastError {
     /// A human-readable description of the error.
     pub r#message: String,
 }
-
-/// The strategy used to chunk the file.
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct VectorStoreFileObject_ChunkingStrategy;
 
 /// A vector store is a collection of processed files can be used by the
 /// `file_search` tool.
@@ -11502,7 +11796,6 @@ pub struct VectorStoreObject_FileCounts {
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct VectorStoreSearchRequest {
-    /// A query string for a search
     pub r#query: VectorStoreSearchRequest_Query,
 
     /// Whether to rewrite the natural language query for vector search.
@@ -11511,20 +11804,9 @@ pub struct VectorStoreSearchRequest {
     /// The maximum number of results to return.
     pub r#max_num_results: i64,
 
-    /// A filter to apply based on file attributes.
     pub r#filters: VectorStoreSearchRequest_Filters,
 
-    /// Ranking options for search.
     pub r#ranking_options: VectorStoreSearchRequest_RankingOptions,
-}
-
-/// A query string for a search
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub enum VectorStoreSearchRequest_Query {
-    String(String),
-
-    ArrayOfStrings(Vec<String>),
 }
 
 /// A filter to apply based on file attributes.
@@ -11534,6 +11816,15 @@ pub enum VectorStoreSearchRequest_Filters {
     ComparisonFilter(ComparisonFilter),
 
     CompoundFilter(CompoundFilter),
+}
+
+/// A query string for a search
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub enum VectorStoreSearchRequest_Query {
+    String(String),
+
+    ArrayOfStrings(Vec<String>),
 }
 
 /// Ranking options for search.
@@ -11591,9 +11882,7 @@ pub struct VectorStoreSearchResultsPage {
     pub r#next_page: String,
 }
 
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct VoiceIdsShared(pub (/*AnyOf*/));
+pub type VoiceIdsShared = String;
 
 /// A wait action.
 #[derive(Clone, Debug)]
@@ -11644,7 +11933,12 @@ pub struct WebSearchPreviewTool {
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct WebSearchPreviewTool_UserLocation(pub (/*AnyOf*/));
+pub enum WebSearchPreviewTool_UserLocation {
+    /// The user's location.
+    ApproximateLocation(ApproximateLocation),
+
+    Null(()),
+}
 
 /// The results of a web search tool call.
 #[derive(Clone, Debug)]

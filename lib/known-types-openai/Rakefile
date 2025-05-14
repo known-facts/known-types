@@ -4,8 +4,10 @@ require 'yaml'
 
 require 'codify/rust' # https://rubygems.org/gems/codify.rb
 
-HEADER = "This is free and unencumbered software released into the public domain."
+FILE_HEADER = "This is free and unencumbered software released into the public domain."
 BASE_URL = 'https://platform.openai.com'
+OPENAPI_FILE = 'openapi.yaml'
+DEFAULT_ARRAY_TYPE = { 'type': 'integer' }
 
 Rust = Codify::Rust
 OneOf = Rust::Types::Tuple0.new(:OneOf)
@@ -16,9 +18,23 @@ task default: %w(codegen)
 task codegen: %w(codegen:components codegen:groups)
 
 namespace :codegen do
-  task debug: %w(openapi.yaml) do |t|
+  task flatten: [OPENAPI_FILE] do |t|
     spec = OpenAI::Spec.parse(t.prerequisites.first)
-    spec.schemas.each do |schema|
+    output = {}
+    spec.schemas_raw.each do |schema_ref, schema|
+      flatten_definition(schema_ref, schema, output)
+    end
+    output.each do |schema_ref, schema|
+      puts
+      puts "// #{schema_ref}:"
+      puts JSON.pretty_generate(schema)
+    end
+    p [spec.schemas_raw.keys.size, output.keys.size]
+  end
+
+  task debug: [OPENAPI_FILE] do |t|
+    spec = OpenAI::Spec.parse(t.prerequisites.first)
+    spec.schemas_flattened.each do |schema|
       #puts JSON.pretty_generate(schema.to_h)
       definition = schema.to_rust
       p [definition.name, definition]
@@ -29,11 +45,11 @@ namespace :codegen do
     end
   end
 
-  task components: %w(openapi.yaml) do |t|
+  task components: [OPENAPI_FILE] do |t|
     spec = OpenAI::Spec.parse(t.prerequisites.first)
 
     File.open('src/components.rs', 'w') do |out|
-      out.puts "// #{HEADER}"
+      out.puts "// #{FILE_HEADER}"
       out.puts
       out.puts "//! OpenAI API components"
       out.puts
@@ -41,7 +57,7 @@ namespace :codegen do
       out.puts
       out.puts "use crate::prelude::{String, Vec};"
 
-      definitions = spec.schemas.map(&:to_rust)
+      definitions = spec.schemas_flattened.map(&:to_rust)
       definitions.each do |definition|
         module_name = camel_to_snake(definition.name)
         module_path = Pathname("components/#{module_name}.rs")
@@ -62,11 +78,11 @@ namespace :codegen do
     end
   end # :components
 
-  task groups: %w(openapi.yaml) do |t|
+  task groups: [OPENAPI_FILE] do |t|
     spec = OpenAI::Spec.parse(t.prerequisites.first)
 
     File.open('src/groups.rs', 'w') do |out|
-      out.puts "// #{HEADER}"
+      out.puts "// #{FILE_HEADER}"
       out.puts
       out.puts "//! OpenAI API types organized by group"
       out.puts
@@ -80,7 +96,7 @@ namespace :codegen do
       module_name = group.snake_case_id
       module_path = Pathname("src/groups/#{module_name}.rs")
       File.open(module_path, 'w') do |out|
-        out.puts "// #{HEADER}"
+        out.puts "// #{FILE_HEADER}"
         out.puts
         out.puts "//! **OpenAI API: #{group.title}**"
 
@@ -184,6 +200,7 @@ module OpenAPI
         when self.any_of? then 'AnyOf'
         when self.all_of? then 'AllOf'
         else case @type
+          when :null then 'Null'
           when :boolean then 'Boolean'
           when :integer then 'Integer'
           when :number then 'Number'
@@ -215,16 +232,23 @@ module OpenAPI
           # Only 4 top-level schemas are `type: "array"`.
           item_type = self.items.to_rust(level + 1) rescue Rust::Types::String
           Rust::Types::Vec.new(item_type)
-        when self.one_of?
-          # Some 23 top-level schemas are `oneOf`.
-          schemas = self.one_of
+        when self.one_of? || self.any_of?
+          # Some 23 top-level schemas are `oneOf`. Only 10 top-level schemas are `anyOf`.
+          schemas = self.one_of? ? self.one_of : self.any_of
           if schemas.size == 1
             schemas.first.to_rust
           elsif schemas.all? { |t| t.type == :string }
             # e.g. RealtimeResponseCreateParams_Conversation
-            Rust::Newtype.new(self.id, Rust::Types::String, derives: %i(Clone Debug), cfg_derives: %i(serde)) do |definition|
+            Rust::TypeAlias.new(self.id, Rust::Types::String) do |definition|
               definition.comment = self.summary
             end
+            # TODO: Rust::Types::String
+          elsif schemas.all? { |t| t.type == :string || t.type == :null }
+            # e.g. ApproximateLocation_City
+            Rust::TypeAlias.new(self.id, Rust::Types::Option.new(Rust::Types::String)) do |definition|
+              definition.comment = self.summary
+            end
+            # TODO: Rust::Types::Option.new(Rust::Types::String)
           elsif schemas.all? { |t| t.type == :object && t.properties.size == 2 && t.properties.any? { |k, _| k.to_sym == :type } }
             # e.g. CreateEvalCompletionsRunDataSource, CreateEvalResponsesRunDataSource
             Rust::Enum.new(self.id, derives: %i(Clone Debug), cfg_derives: %i(serde)) do |definition|
@@ -251,16 +275,6 @@ module OpenAPI
               end
             end
           end
-        when self.any_of?
-          # Only 10 top-level schemas are `anyOf`.
-          schemas = self.any_of
-          if schemas.size == 1
-            schemas.first.to_rust
-          else
-            Rust::Newtype.new(self.id, AnyOf, derives: %i(Clone Debug), cfg_derives: %i(serde)) do |definition|
-              definition.comment = self.summary
-            end
-          end
         when self.all_of?
           # Only 9 top-level schemas are `allOf`.
           schemas = self.all_of
@@ -274,6 +288,7 @@ module OpenAPI
         else case @type
           # Only `ParallelToolCalls` has `type: "boolean"`.
           # TODO: spec['default'] if self.type == :boolean
+          when :null then Rust::Types::Unit
           when :boolean then Rust::Types::Bool
           when :integer then Rust::Types::I64
           when :number then Rust::Types::F64
@@ -322,7 +337,19 @@ module OpenAI
     end
 
     def schemas
-      @spec['components']['schemas'].map { |k, v| OpenAPI::Schema.new(k, v) }.sort_by(&:id)
+      self.schemas_raw.map { |k, v| OpenAPI::Schema.new(k, v) }.sort_by(&:id)
+    end
+
+    def schemas_flattened
+      output = {}
+      self.schemas_raw.each do |schema_ref, schema|
+        flatten_definition(schema_ref, schema, output)
+      end
+      output.map { |k, v| OpenAPI::Schema.new(k, v) }.sort_by(&:id)
+    end
+
+    def schemas_raw
+      @spec['components']['schemas']
     end
   end # Spec
 
@@ -361,4 +388,68 @@ end
 
 def snake_to_camel(name)
   name.to_s.gsub(/[_.]/, ' ').split.map(&:capitalize).join
+end
+
+def flatten_definition(schema_ref, schema, output = {})
+  #p [:flatten_definition, schema_ref, schema]
+  case
+    when schema['$ref']
+      output[schema_ref] = schema
+    when schema['oneOf'], schema['anyOf'], schema['allOf']
+      # TODO: allOf
+      variants = schema['oneOf'] || schema['anyOf'] || schema['allOf']
+      return flatten_definition(schema_ref, variants.first, output) if variants.size == 1
+      variants.map!.with_index do |variant, i|
+        variant_ref = [schema_ref, "Variant#{i + 1}"].join('_')
+        flatten_schema(variant_ref, variant, output)
+      end
+      output[schema_ref] = schema
+    when schema['properties'] || schema['type'] == 'object'
+      # TODO: additionalProperties
+      properties = schema['properties'] || {}
+      properties.each do |property_id, property|
+        property_ref = [schema_ref, snake_to_camel(property_id)].join('_')
+        properties[property_id] = flatten_schema(property_ref, property, output)
+      end
+      output[schema_ref] = schema
+    when schema['items'] || schema['type'] == 'array'
+      schema['items'] = flatten_schema(schema_ref, schema['items'], output)
+      output[schema_ref] = schema
+    else
+      output[schema_ref] = schema
+  end
+end
+
+def flatten_schema(schema_ref, schema, output = {}, level = 1)
+  #p [:flatten_schema, schema_ref, schema]
+  case
+    when schema['$ref']
+      schema
+    when schema['oneOf'], schema['anyOf'], schema['allOf']
+      # TODO: allOf
+      variants = schema['oneOf'] || schema['anyOf'] || schema['allOf']
+      return flatten_definition(schema_ref, variants.first, output) if variants.size == 1
+      variants.map!.with_index do |variant, i|
+        variant_ref = [schema_ref, "Variant#{i + 1}"].join('_')
+        flatten_schema(variant_ref, variant, output)
+      end
+      nullable = schema.delete('nullable')
+      output[schema_ref] = schema
+      { '$ref' => "#/components/schemas/#{schema_ref}", nullable: nullable }.compact
+      # TODO: description is lost
+    when schema['properties'] || schema['type'] == 'object'
+      return schema if !schema['properties']
+      properties = schema['properties']
+      properties.each do |property_id, property|
+        property_ref = [schema_ref, snake_to_camel(property_id)].join('_')
+        properties[property_id] = flatten_schema(property_ref, property, output, level + 1)
+      end
+      output[schema_ref] = schema
+      { '$ref' => "#/components/schemas/#{schema_ref}" }
+    when schema['items'] || schema['type'] == 'array'
+      schema['items'] = schema['items'] ? flatten_schema(schema_ref, schema['items'], output) : DEFAULT_ARRAY_TYPE
+      schema
+    else
+      schema # nothing needed for primitive types
+  end
 end
