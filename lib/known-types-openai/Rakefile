@@ -1,12 +1,13 @@
 require 'json'
 require 'pathname'
-require 'yaml'
 
 require 'codify/rust' # https://rubygems.org/gems/codify.rb
 
 FILE_HEADER = "This is free and unencumbered software released into the public domain."
 BASE_URL = 'https://platform.openai.com'
 OPENAPI_FILE = 'openapi.yaml'
+DERIVES = %i(Clone Debug)
+CFG_DERIVES = %i(serde)
 
 Rust = Codify::Rust
 OneOf = Rust::Types::Tuple0.new(:OneOf)
@@ -16,10 +17,13 @@ AllOf = Rust::Types::Tuple0.new(:AllOf)
 task default: %w(codegen)
 task codegen: %w(codegen:components codegen:groups)
 
-require_relative '.rake/flatten_openapi'
-require_relative '.rake/hoist_nullables'
-include FlattenOpenAPI
-include HoistNullables
+require_relative '.rake/openapi_helpers'
+require_relative '.rake/openapi_flattener'
+require_relative '.rake/openapi_hoister'
+
+include OpenAPIHelpers
+include OpenAPIFlattener
+include OpenAPIHoister
 
 namespace :codegen do
   task flatten: [OPENAPI_FILE] do |t|
@@ -136,19 +140,19 @@ module OpenAPI
     def initialize(id, spec)
       spec = spec.dup || {}
       @id = id ? id.to_sym : nil
-      @ref = spec.delete('$ref')
-      @type = spec['type'] ? spec.delete('type').to_sym : nil
-      @nullable = spec.delete('nullable')
-      @default = spec.delete('default')
-      @title = spec.delete('title')
-      @description = spec.delete('description')
+      @ref = spec.delete(:'$ref')
+      @type = spec[:type] ? spec.delete(:type).to_sym : nil
+      @nullable = spec.delete(:nullable)
+      @default = spec.delete(:default)
+      @title = spec.delete(:title)
+      @description = spec.delete(:description)
       @spec = spec
     end
 
     def to_h
       @spec.dup.merge!({
         id: @id,
-        '$ref': @ref,
+        :'$ref' => @ref,
         type: @type,
         nullable: @nullable,
         title: @title,
@@ -161,24 +165,24 @@ module OpenAPI
     def summary() first_sentence(self.description) end
 
     def ref?() !!@ref end
-    def recursive_ref?() !!@spec['$recursiveRef'] end
-    def one_of?() !!@spec['oneOf'] end
-    def any_of?() !!@spec['anyOf'] end
-    def all_of?() !!@spec['allOf'] end
-    def items?() !!@spec['items'] end
-    def items() Schema.new("#{self.id}_Item", @spec['items']) end
-    def properties?() !!@spec['properties'] end
+    def recursive_ref?() !!@spec[:'$recursiveRef'] end
+    def one_of?() !!@spec[:oneOf] end
+    def any_of?() !!@spec[:anyOf] end
+    def all_of?() !!@spec[:allOf] end
+    def items?() !!@spec[:items] end
+    def items() Schema.new("#{self.id}_Item", @spec[:items]) end
+    def properties?() !!@spec[:properties] end
 
     def one_of
-      make_enums(@spec['oneOf'])
+      make_enums(@spec[:oneOf])
     end
 
     def any_of
-      make_enums(@spec['anyOf'])
+      make_enums(@spec[:anyOf])
     end
 
     def all_of
-      make_enums(@spec['allOf'])
+      make_enums(@spec[:allOf])
     end
 
     def make_enums(inputs)
@@ -190,7 +194,7 @@ module OpenAPI
     end
 
     def properties
-      (@spec['properties'] || {}).inject({}) do |result, (k, v)|
+      (@spec[:properties] || {}).inject({}) do |result, (k, v)|
         result[Identifier.new(k.to_sym)] = Schema.new("#{self.id}_#{snake_to_camel(k)}", v) # FIXME
         result
       end
@@ -229,7 +233,12 @@ module OpenAPI
           type
         when self.properties? || @type == :object
           # Some 414 top-level schemas are `type: "object"`.
-          Rust::Struct.new(self.id, derives: %i(Clone Debug), cfg_derives: %i(serde)) do |definition|
+          derive_default = self.properties.values.all? do |property|
+            #p self if property.type.nil?
+            %i(null boolean integer number string).include?(property.type)
+          end
+          derives = DERIVES + (derive_default ? %i(Default) : [])
+          Rust::Struct.new(self.id, derives: derives, cfg_derives: CFG_DERIVES) do |definition|
             definition.comment = self.summary
             self.properties.each do |(property_id, property_type)|
               field_type = property_type.to_rust(level + 1)
@@ -263,11 +272,11 @@ module OpenAPI
             # TODO: Rust::Types::Option.new(Rust::Types::String)
           elsif schemas.all? { |t| t.type == :object && t.properties.size == 2 && t.properties.any? { |k, _| k.to_sym == :type } }
             # e.g. CreateEvalCompletionsRunDataSource, CreateEvalResponsesRunDataSource
-            Rust::Enum.new(self.id, derives: %i(Clone Debug), cfg_derives: %i(serde)) do |definition|
+            Rust::Enum.new(self.id, derives: DERIVES, cfg_derives: CFG_DERIVES) do |definition|
               definition.comment = self.summary
               schemas.each do |t|
                 property1, property2 = t.properties.values
-                variant_name = snake_to_camel(property1.to_h['enum'].first)
+                variant_name = snake_to_camel(property1.to_h[:enum].first)
                 variant_type = property2.to_rust(level + 1)
                 variant = Rust::EnumVariant.new(variant_name, variant_type)
                 variant.comment = t.summary
@@ -275,7 +284,7 @@ module OpenAPI
               end
             end
           else
-            Rust::Enum.new(self.id, derives: %i(Clone Debug), cfg_derives: %i(serde)) do |definition|
+            Rust::Enum.new(self.id, derives: DERIVES, cfg_derives: CFG_DERIVES) do |definition|
               definition.comment = self.summary
               definition.variants << Rust::EnumVariant.new(:Null) if self.nullable?
               #out.puts "#[default]" if self.nullable? # TODO: && self.default == 'null'
@@ -293,13 +302,13 @@ module OpenAPI
           if schemas.size == 1
             schemas.first.to_rust
           else
-            Rust::Newtype.new(self.id, AllOf, derives: %i(Clone Debug), cfg_derives: %i(serde)) do |definition|
+            Rust::Newtype.new(self.id, AllOf, derives: DERIVES + %i(Default), cfg_derives: CFG_DERIVES) do |definition|
               definition.comment = self.summary
             end
           end
         else case @type
           # Only `ParallelToolCalls` has `type: "boolean"`.
-          # TODO: spec['default'] if self.type == :boolean
+          # TODO: spec[:default] if self.type == :boolean
           when :null then Rust::Types::Unit
           when :boolean then Rust::Types::Bool
           when :integer then Rust::Types::I64
@@ -311,7 +320,8 @@ module OpenAPI
       end
 
       if level.zero? && !type.definition?
-        type = Rust::Newtype.new(self.id, type, derives: %i(Clone Debug), cfg_derives: %i(serde)) do |definition|
+        # TODO: DERIVES + %i(Default)
+        type = Rust::Newtype.new(self.id, type, derives: DERIVES, cfg_derives: CFG_DERIVES) do |definition|
           definition.comment = self.summary
         end
       end
@@ -339,13 +349,13 @@ end
 module OpenAI
   class Spec
     def self.parse(path)
-      self.new(YAML.load_file(path, aliases: true))
+      self.new(OpenAPIHelpers.load_file(path))
     end
 
     def initialize(spec) @spec = spec end
 
     def groups
-      @spec['x-oaiMeta']['groups'].map { |g| Group.new(g) }.sort_by(&:snake_case_id)
+      @spec[:'x-oaiMeta'][:groups].map { |g| Group.new(g) }.sort_by(&:snake_case_id)
     end
 
     def schemas
@@ -355,7 +365,7 @@ module OpenAI
     end
 
     def schemas_raw
-      @spec['components']['schemas']
+      @spec[:components][:schemas]
     end
   end # Spec
 
@@ -363,9 +373,9 @@ module OpenAI
     attr_reader :spec
 
     def initialize(spec) @spec = spec end
-    def snake_case_id() @spec['id'].gsub('-', '_') end
-    def title() @spec['title'] end
-    def description() @spec['description'] end
+    def snake_case_id() @spec[:id].gsub('-', '_') end
+    def title() @spec[:title] end
+    def description() @spec[:description] end
   end
 end # OpenAI
 

@@ -1,6 +1,6 @@
 # This is free and unencumbered software released into the public domain.
 
-module HoistNullables
+module OpenAPIHoister
   ##
   # @param  [Hash] The flattened `openapi.components.schemas` map
   # @return [void]
@@ -19,23 +19,23 @@ module HoistNullables
     raise ArgumentError, schema.inspect unless schema.is_a?(Hash)
     raise ArgumentError, schemas.inspect unless schemas.is_a?(Hash)
     case
-      when schema['$ref']
-        ref = schema['$ref'].split('/').last
-        #p [ref, schema['nullable'], schemas[ref]['nullable']]
-        schema['nullable'] = true if schemas[ref]['nullable']
-      when schema['oneOf'], schema['anyOf'], schema['allOf']
-        variants = schema['oneOf'] || schema['anyOf'] || schema['allOf'] || []
+      when schema[:'$ref']
+        ref = schema[:'$ref'].split('/').last.to_sym
+        #p [ref, schema[:nullable], schemas[ref][:nullable]]
+        schema[:nullable] = true if schemas[ref][:nullable]
+      when schema[:oneOf], schema[:anyOf], schema[:allOf]
+        variants = schema[:oneOf] || schema[:anyOf] || schema[:allOf] || []
         variants.each do |variant|
           hoist_nullable!(variant, schemas)
         end
-      when schema['properties'] || schema['type'] == 'object'
-        properties = schema['properties'] || {}
+      when schema[:properties] || schema[:type] == 'object'
+        properties = schema[:properties] || {}
         properties.each_value do |property|
           hoist_nullable!(property, schemas)
         end
-      when schema['items'] || schema['type'] == 'array'
-        hoist_nullable!(schema['items'], schemas) if schema['items']
+      when schema[:items] || schema[:type] == 'array'
+        hoist_nullable!(schema[:items], schemas) if schema[:items]
       else # nothing to do
     end
   end # hoist_nullable!
-end # HoistNullables
+end # OpenAPIHoister
