@@ -65,6 +65,7 @@ pub struct AdminApiKey_Owner {
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", serde(untagged))]
 pub enum Annotation {
     FileCitationBody(FileCitationBody),
 
@@ -180,6 +181,7 @@ pub struct AssistantObject_ToolResources_FileSearch {
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", serde(untagged))]
 pub enum AssistantObject_Tools {
     AssistantToolsCode(AssistantToolsCode),
 
@@ -191,6 +193,7 @@ pub enum AssistantObject_Tools {
 /// Represents an event emitted when streaming a Run.
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", serde(untagged))]
 pub enum AssistantStreamEvent {
     ThreadStreamEvent(ThreadStreamEvent),
 
@@ -254,6 +257,7 @@ pub struct AssistantToolsFunction {
 /// Specifies the format that the model must output.
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", serde(untagged))]
 pub enum AssistantsApiResponseFormatOption {
     /// `auto` is the default value
     String(String),
@@ -268,6 +272,7 @@ pub enum AssistantsApiResponseFormatOption {
 /// Controls which (if any) tool is called by the model.
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", serde(untagged))]
 pub enum AssistantsApiToolChoiceOption {
     /// `none` means the model will not call any tools and instead generates a
     /// message.
@@ -1276,6 +1281,7 @@ pub struct ChatCompletionRequestAssistantMessage {
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", serde(untagged))]
 pub enum ChatCompletionRequestAssistantMessageContentPart {
     ChatCompletionRequestMessageContentPartText(ChatCompletionRequestMessageContentPartText),
 
@@ -1293,6 +1299,7 @@ pub struct ChatCompletionRequestAssistantMessage_Audio {
 /// The contents of the assistant message.
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", serde(untagged))]
 pub enum ChatCompletionRequestAssistantMessage_Content {
     /// The contents of the assistant message.
     String(String),
@@ -1330,6 +1337,7 @@ pub struct ChatCompletionRequestDeveloperMessage {
 /// The contents of the developer message.
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", serde(untagged))]
 pub enum ChatCompletionRequestDeveloperMessage_Content {
     /// The contents of the developer message.
     String(String),
@@ -1353,6 +1361,7 @@ pub struct ChatCompletionRequestFunctionMessage {
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", serde(untagged))]
 pub enum ChatCompletionRequestMessage {
     ChatCompletionRequestDeveloperMessage(ChatCompletionRequestDeveloperMessage),
 
@@ -1474,6 +1483,7 @@ pub struct ChatCompletionRequestSystemMessageContentPart(pub ChatCompletionReque
 /// The contents of the system message.
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", serde(untagged))]
 pub enum ChatCompletionRequestSystemMessage_Content {
     /// The contents of the system message.
     String(String),
@@ -1501,6 +1511,7 @@ pub struct ChatCompletionRequestToolMessageContentPart(pub ChatCompletionRequest
 /// The contents of the tool message.
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", serde(untagged))]
 pub enum ChatCompletionRequestToolMessage_Content {
     /// The contents of the tool message.
     String(String),
@@ -1525,6 +1536,7 @@ pub struct ChatCompletionRequestUserMessage {
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", serde(untagged))]
 pub enum ChatCompletionRequestUserMessageContentPart {
     ChatCompletionRequestMessageContentPartText(ChatCompletionRequestMessageContentPartText),
 
@@ -1538,6 +1550,7 @@ pub enum ChatCompletionRequestUserMessageContentPart {
 /// The contents of the user message.
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", serde(untagged))]
 pub enum ChatCompletionRequestUserMessage_Content {
     /// The text contents of the message.
     String(String),
@@ -1719,6 +1732,7 @@ pub struct ChatCompletionTool {
 /// Controls which (if any) tool is called by the model.
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", serde(untagged))]
 pub enum ChatCompletionToolChoiceOption {
     /// `none` means the model will not call any tool and instead generates a
     /// message.
@@ -1802,6 +1816,7 @@ pub struct CodeInterpreterToolCall {
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", serde(untagged))]
 pub enum CodeInterpreterToolOutput {
     CodeInterpreterTextOutput(CodeInterpreterTextOutput),
 
@@ -1826,6 +1841,7 @@ pub struct ComparisonFilter {
 /// boolean types.
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", serde(untagged))]
 pub enum ComparisonFilter_Value {
     String(String),
 
@@ -1906,12 +1922,14 @@ pub struct CompoundFilter {
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", serde(untagged))]
 pub enum CompoundFilter_Filters {
     ComparisonFilter(ComparisonFilter),
 }
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", serde(untagged))]
 pub enum ComputerAction {
     Click(Click),
 
@@ -1953,6 +1971,7 @@ pub struct ComputerCallOutputItemParam {
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", serde(untagged))]
 pub enum ComputerCallOutputItemParam_AcknowledgedSafetyChecks {
     /// The safety checks reported by the API that have been acknowledged by the
     /// developer.
@@ -2085,6 +2104,7 @@ pub struct ComputerUsePreviewTool {
 /// Multi-modal input and output contents.
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", serde(untagged))]
 pub enum Content {
     InputContent(InputContent),
 
@@ -2167,6 +2187,7 @@ pub struct CreateAssistantRequest {
 /// ID of the model to use.
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", serde(untagged))]
 pub enum CreateAssistantRequest_Model {
     String(String),
 
@@ -2223,6 +2244,7 @@ pub struct CreateAssistantRequest_ToolResources_FileSearch_VectorStores_Item_Chu
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", serde(untagged))]
 pub enum CreateAssistantRequest_Tools {
     AssistantToolsCode(AssistantToolsCode),
 
@@ -2334,6 +2356,7 @@ pub struct CreateChatCompletionRequest_Variant2_Audio {
 /// Deprecated in favor of `tool_choice`.
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", serde(untagged))]
 pub enum CreateChatCompletionRequest_Variant2_FunctionCall {
     /// `none` means the model will not call a function and instead generates a
     /// message.
@@ -2349,6 +2372,7 @@ pub struct CreateChatCompletionRequest_Variant2_Prediction(pub PredictionContent
 /// An object specifying the format that the model must output.
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", serde(untagged))]
 pub enum CreateChatCompletionRequest_Variant2_ResponseFormat {
     ResponseFormatText(ResponseFormatText),
 
@@ -2560,6 +2584,7 @@ pub type CreateCompletionRequest_Model = String;
 /// strings, array of tokens, or array of token arrays.
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", serde(untagged))]
 pub enum CreateCompletionRequest_Prompt {
     String(String),
 
@@ -2646,6 +2671,7 @@ pub struct CreateEmbeddingRequest {
 /// Input text to embed, encoded as a string or array of tokens.
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", serde(untagged))]
 pub enum CreateEmbeddingRequest_Input {
     /// The string that will be turned into an embedding.
     String(String),
@@ -2709,6 +2735,7 @@ pub struct CreateEvalCompletionsRunDataSource {
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", serde(untagged))]
 pub enum CreateEvalCompletionsRunDataSource_InputMessages {
     CreateEvalCompletionsRunDataSource_InputMessages_Variant1(CreateEvalCompletionsRunDataSource_InputMessages_Variant1),
 
@@ -2727,6 +2754,7 @@ pub struct CreateEvalCompletionsRunDataSource_InputMessages_Variant1 {
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", serde(untagged))]
 pub enum CreateEvalCompletionsRunDataSource_InputMessages_Variant1_Template {
     EasyInputMessage(EasyInputMessage),
 
@@ -2762,6 +2790,7 @@ pub struct CreateEvalCompletionsRunDataSource_SamplingParams {
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", serde(untagged))]
 pub enum CreateEvalCompletionsRunDataSource_Source {
     EvalJsonlFileContentSource(EvalJsonlFileContentSource),
 
@@ -2819,6 +2848,7 @@ pub struct CreateEvalJsonlRunDataSource {
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", serde(untagged))]
 pub enum CreateEvalJsonlRunDataSource_Source {
     EvalJsonlFileContentSource(EvalJsonlFileContentSource),
 
@@ -2887,6 +2917,7 @@ pub struct CreateEvalRequest_DataSourceConfig;
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", serde(untagged))]
 pub enum CreateEvalRequest_TestingCriteria {
     CreateEvalLabelModelGrader(CreateEvalLabelModelGrader),
 
@@ -2918,6 +2949,7 @@ pub struct CreateEvalResponsesRunDataSource {
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", serde(untagged))]
 pub enum CreateEvalResponsesRunDataSource_InputMessages {
     CreateEvalResponsesRunDataSource_InputMessages_Variant1(CreateEvalResponsesRunDataSource_InputMessages_Variant1),
 
@@ -2936,6 +2968,7 @@ pub struct CreateEvalResponsesRunDataSource_InputMessages_Variant1 {
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", serde(untagged))]
 pub enum CreateEvalResponsesRunDataSource_InputMessages_Variant1_Template {
     CreateEvalResponsesRunDataSource_InputMessages_Variant1_Template_Variant1(CreateEvalResponsesRunDataSource_InputMessages_Variant1_Template_Variant1),
 
@@ -2981,6 +3014,7 @@ pub struct CreateEvalResponsesRunDataSource_SamplingParams {
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", serde(untagged))]
 pub enum CreateEvalResponsesRunDataSource_Source {
     EvalJsonlFileContentSource(EvalJsonlFileContentSource),
 
@@ -3064,6 +3098,7 @@ pub struct CreateFineTuningJobRequest_Hyperparameters {
 /// Number of examples in each batch.
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", serde(untagged))]
 pub enum CreateFineTuningJobRequest_Hyperparameters_BatchSize {
     String(String),
 
@@ -3073,6 +3108,7 @@ pub enum CreateFineTuningJobRequest_Hyperparameters_BatchSize {
 /// Scaling factor for the learning rate.
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", serde(untagged))]
 pub enum CreateFineTuningJobRequest_Hyperparameters_LearningRateMultiplier {
     String(String),
 
@@ -3082,6 +3118,7 @@ pub enum CreateFineTuningJobRequest_Hyperparameters_LearningRateMultiplier {
 /// The number of epochs to train the model for.
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", serde(untagged))]
 pub enum CreateFineTuningJobRequest_Hyperparameters_NEpochs {
     String(String),
 
@@ -3153,6 +3190,7 @@ pub struct CreateImageEditRequest {
 /// The image(s) to edit.
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", serde(untagged))]
 pub enum CreateImageEditRequest_Image {
     String(String),
 
@@ -3259,6 +3297,7 @@ pub struct CreateMessageRequest_Attachments {
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", serde(untagged))]
 pub enum CreateMessageRequest_Attachments_Tools {
     AssistantToolsCode(AssistantToolsCode),
 
@@ -3267,6 +3306,7 @@ pub enum CreateMessageRequest_Attachments_Tools {
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", serde(untagged))]
 pub enum CreateMessageRequest_Content {
     /// The text contents of the message.
     String(String),
@@ -3278,6 +3318,7 @@ pub enum CreateMessageRequest_Content {
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", serde(untagged))]
 pub enum CreateMessageRequest_Content_Variant2 {
     MessageContentImageFileObject(MessageContentImageFileObject),
 
@@ -3301,6 +3342,7 @@ pub struct CreateModerationRequest {
 /// Input (or inputs) to classify.
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", serde(untagged))]
 pub enum CreateModerationRequest_Input {
     /// A string of text to classify for moderation.
     String(String),
@@ -3314,6 +3356,7 @@ pub enum CreateModerationRequest_Input {
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", serde(untagged))]
 pub enum CreateModerationRequest_Input_Variant3 {
     CreateModerationRequest_Input_Variant3_Variant1(CreateModerationRequest_Input_Variant3_Variant1),
 
@@ -3558,6 +3601,7 @@ pub struct CreateResponse_Variant3 {
 /// Text, image, or file inputs to the model, used to generate a response.
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", serde(untagged))]
 pub enum CreateResponse_Variant3_Input {
     /// A text input to the model, equivalent to a text input with the `user`
     /// role.
@@ -3630,6 +3674,7 @@ pub struct CreateRunRequest {
 /// run.
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", serde(untagged))]
 pub enum CreateRunRequest_Model {
     String(String),
 
@@ -3642,6 +3687,7 @@ pub struct CreateRunRequest_ToolChoice(pub (/*AllOf*/));
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", serde(untagged))]
 pub enum CreateRunRequest_Tools {
     AssistantToolsCode(AssistantToolsCode),
 
@@ -3765,6 +3811,7 @@ pub struct CreateThreadAndRunRequest_ToolResources_FileSearch {
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", serde(untagged))]
 pub enum CreateThreadAndRunRequest_Tools {
     AssistantToolsCode(AssistantToolsCode),
 
@@ -3904,6 +3951,7 @@ pub struct CreateTranscriptionResponseJson_Logprobs {
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", serde(untagged))]
 pub enum CreateTranscriptionResponseStreamEvent {
     TranscriptTextDeltaEvent(TranscriptTextDeltaEvent),
 
@@ -4183,6 +4231,7 @@ pub struct EasyInputMessage {
 /// Text, image, or audio input to the model, used to generate a response.
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", serde(untagged))]
 pub enum EasyInputMessage_Content {
     /// A text input to the model.
     String(String),
@@ -4300,6 +4349,7 @@ pub struct EvalItem {
 /// Text inputs to the model - can contain template strings.
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", serde(untagged))]
 pub enum EvalItem_Content {
     /// A text input to the model.
     String(String),
@@ -4844,6 +4894,7 @@ pub struct Eval_DataSourceConfig;
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", serde(untagged))]
 pub enum Eval_TestingCriteria {
     EvalLabelModelGrader(EvalLabelModelGrader),
 
@@ -4958,6 +5009,7 @@ pub struct FileSearchToolCall_Results {
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", serde(untagged))]
 pub enum FileSearchTool_Filters {
     /// A filter to apply.
     Filters(Filters),
@@ -4967,6 +5019,7 @@ pub enum FileSearchTool_Filters {
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", serde(untagged))]
 pub enum Filters {
     ComparisonFilter(ComparisonFilter),
 
@@ -5002,6 +5055,7 @@ pub struct FineTuneChatRequestInput {
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", serde(untagged))]
 pub enum FineTuneChatRequestInput_Messages {
     ChatCompletionRequestSystemMessage(ChatCompletionRequestSystemMessage),
 
@@ -5049,6 +5103,7 @@ pub struct FineTuneDPOMethod_Hyperparameters {
 /// Number of examples in each batch.
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", serde(untagged))]
 pub enum FineTuneDPOMethod_Hyperparameters_BatchSize {
     String(String),
 
@@ -5058,6 +5113,7 @@ pub enum FineTuneDPOMethod_Hyperparameters_BatchSize {
 /// The beta value for the DPO method.
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", serde(untagged))]
 pub enum FineTuneDPOMethod_Hyperparameters_Beta {
     String(String),
 
@@ -5067,6 +5123,7 @@ pub enum FineTuneDPOMethod_Hyperparameters_Beta {
 /// Scaling factor for the learning rate.
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", serde(untagged))]
 pub enum FineTuneDPOMethod_Hyperparameters_LearningRateMultiplier {
     String(String),
 
@@ -5076,6 +5133,7 @@ pub enum FineTuneDPOMethod_Hyperparameters_LearningRateMultiplier {
 /// The number of epochs to train the model for.
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", serde(untagged))]
 pub enum FineTuneDPOMethod_Hyperparameters_NEpochs {
     String(String),
 
@@ -5121,6 +5179,7 @@ pub struct FineTunePreferenceRequestInput_Input {
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", serde(untagged))]
 pub enum FineTunePreferenceRequestInput_Input_Messages {
     ChatCompletionRequestSystemMessage(ChatCompletionRequestSystemMessage),
 
@@ -5162,6 +5221,7 @@ pub struct FineTuneSupervisedMethod_Hyperparameters {
 /// Number of examples in each batch.
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", serde(untagged))]
 pub enum FineTuneSupervisedMethod_Hyperparameters_BatchSize {
     String(String),
 
@@ -5171,6 +5231,7 @@ pub enum FineTuneSupervisedMethod_Hyperparameters_BatchSize {
 /// Scaling factor for the learning rate.
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", serde(untagged))]
 pub enum FineTuneSupervisedMethod_Hyperparameters_LearningRateMultiplier {
     String(String),
 
@@ -5180,6 +5241,7 @@ pub enum FineTuneSupervisedMethod_Hyperparameters_LearningRateMultiplier {
 /// The number of epochs to train the model for.
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", serde(untagged))]
 pub enum FineTuneSupervisedMethod_Hyperparameters_NEpochs {
     String(String),
 
@@ -5401,6 +5463,7 @@ pub struct FineTuningJob_Hyperparameters {
 /// Number of examples in each batch.
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", serde(untagged))]
 pub enum FineTuningJob_Hyperparameters_BatchSize {
     String(String),
 
@@ -5410,6 +5473,7 @@ pub enum FineTuningJob_Hyperparameters_BatchSize {
 /// Scaling factor for the learning rate.
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", serde(untagged))]
 pub enum FineTuningJob_Hyperparameters_LearningRateMultiplier {
     String(String),
 
@@ -5419,6 +5483,7 @@ pub enum FineTuningJob_Hyperparameters_LearningRateMultiplier {
 /// The number of epochs to train the model for.
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", serde(untagged))]
 pub enum FineTuningJob_Hyperparameters_NEpochs {
     String(String),
 
@@ -5559,6 +5624,7 @@ pub type FunctionTool_Description = Option<String>;
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", serde(untagged))]
 pub enum FunctionTool_Parameters {
     /// A JSON schema object describing the parameters of the function.
     Object(FunctionTool_Parameters_1),
@@ -5573,6 +5639,7 @@ pub struct FunctionTool_Parameters_1;
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", serde(untagged))]
 pub enum FunctionTool_Strict {
     /// Whether to enforce strict parameter validation.
     Boolean(bool),
@@ -5659,6 +5726,7 @@ pub struct InputAudio {
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", serde(untagged))]
 pub enum InputContent {
     InputTextContent(InputTextContent),
 
@@ -5706,6 +5774,7 @@ pub type InputImageContent_ImageUrl = Option<String>;
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", serde(untagged))]
 pub enum InputItem {
     EasyInputMessage(EasyInputMessage),
 
@@ -5877,6 +5946,7 @@ pub type ItemReferenceParam_Type = Option<String>;
 /// Content item used to generate a response.
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", serde(untagged))]
 pub enum ItemResource {
     InputMessageResource(InputMessageResource),
 
@@ -6240,6 +6310,7 @@ pub struct MessageContentTextObject_Text {
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", serde(untagged))]
 pub enum MessageContentTextObject_Text_Annotations {
     MessageContentTextAnnotationsFileCitationObject(MessageContentTextAnnotationsFileCitationObject),
 
@@ -6391,6 +6462,7 @@ pub struct MessageDeltaContentTextObject_Text {
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", serde(untagged))]
 pub enum MessageDeltaContentTextObject_Text_Annotations {
     MessageDeltaContentTextAnnotationsFileCitationObject(MessageDeltaContentTextAnnotationsFileCitationObject),
 
@@ -6423,6 +6495,7 @@ pub struct MessageDeltaObject_Delta {
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", serde(untagged))]
 pub enum MessageDeltaObject_Delta_Content {
     MessageDeltaContentImageFileObject(MessageDeltaContentImageFileObject),
 
@@ -6496,6 +6569,7 @@ pub struct MessageObject_Attachments {
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", serde(untagged))]
 pub enum MessageObject_Attachments_Tools {
     AssistantToolsCode(AssistantToolsCode),
 
@@ -6504,6 +6578,7 @@ pub enum MessageObject_Attachments_Tools {
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", serde(untagged))]
 pub enum MessageObject_Content {
     MessageContentImageFileObject(MessageContentImageFileObject),
 
@@ -6607,6 +6682,7 @@ pub struct Model {
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", serde(untagged))]
 pub enum ModelIds {
     ModelIdsShared(ModelIdsShared),
 
@@ -6615,6 +6691,7 @@ pub enum ModelIds {
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", serde(untagged))]
 pub enum ModelIdsResponses {
     ModelIdsShared(ModelIdsShared),
 
@@ -6680,6 +6757,7 @@ pub struct ModifyAssistantRequest {
 /// ID of the model to use.
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", serde(untagged))]
 pub enum ModifyAssistantRequest_Model {
     String(String),
 
@@ -6713,6 +6791,7 @@ pub struct ModifyAssistantRequest_ToolResources_FileSearch {
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", serde(untagged))]
 pub enum ModifyAssistantRequest_Tools {
     AssistantToolsCode(AssistantToolsCode),
 
@@ -6844,6 +6923,7 @@ pub struct OutputAudio {
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", serde(untagged))]
 pub enum OutputContent {
     OutputTextContent(OutputTextContent),
 
@@ -6852,6 +6932,7 @@ pub enum OutputContent {
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", serde(untagged))]
 pub enum OutputItem {
     OutputMessage(OutputMessage),
 
@@ -6921,6 +7002,7 @@ pub struct PredictionContent {
 /// The content that should be matched when generating a model response.
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", serde(untagged))]
 pub enum PredictionContent_Content {
     /// The content used for a Predicted Output.
     String(String),
@@ -7270,6 +7352,7 @@ pub struct RankingOptions {
 /// A realtime client event.
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", serde(untagged))]
 pub enum RealtimeClientEvent {
     RealtimeClientEventConversationItemCreate(RealtimeClientEventConversationItemCreate),
 
@@ -7672,6 +7755,7 @@ pub type RealtimeResponseCreateParams_Conversation = String;
 /// of tool calls.
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", serde(untagged))]
 pub enum RealtimeResponseCreateParams_MaxResponseOutputTokens {
     Integer(i64),
 
@@ -7705,6 +7789,7 @@ pub struct RealtimeResponseCreateParams_Tools_Parameters;
 /// of tool calls, that was used in this response.
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", serde(untagged))]
 pub enum RealtimeResponse_MaxOutputTokens {
     Integer(i64),
 
@@ -7786,6 +7871,7 @@ pub struct RealtimeResponse_Usage_OutputTokenDetails {
 /// A realtime server event.
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", serde(untagged))]
 pub enum RealtimeServerEvent {
     RealtimeServerEventConversationCreated(RealtimeServerEventConversationCreated),
 
@@ -8720,6 +8806,7 @@ pub struct RealtimeSessionCreateRequest_InputAudioTranscription {
 /// of tool calls.
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", serde(untagged))]
 pub enum RealtimeSessionCreateRequest_MaxResponseOutputTokens {
     Integer(i64),
 
@@ -8840,6 +8927,7 @@ pub struct RealtimeSessionCreateResponse_InputAudioTranscription {
 /// of tool calls.
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", serde(untagged))]
 pub enum RealtimeSessionCreateResponse_MaxResponseOutputTokens {
     Integer(i64),
 
@@ -8916,6 +9004,7 @@ pub struct RealtimeSession_InputAudioTranscription {
 /// of tool calls.
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", serde(untagged))]
 pub enum RealtimeSession_MaxResponseOutputTokens {
     Integer(i64),
 
@@ -9628,6 +9717,7 @@ pub struct ResponseProperties_Text {
 /// response.
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", serde(untagged))]
 pub enum ResponseProperties_ToolChoice {
     ToolChoiceOptions(ToolChoiceOptions),
 
@@ -9778,6 +9868,7 @@ pub struct ResponseRefusalDoneEvent {
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", serde(untagged))]
 pub enum ResponseStreamEvent {
     ResponseAudioDeltaEvent(ResponseAudioDeltaEvent),
 
@@ -10177,6 +10268,7 @@ pub struct RunObject_ToolChoice(pub (/*AllOf*/));
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", serde(untagged))]
 pub enum RunObject_Tools {
     AssistantToolsCode(AssistantToolsCode),
 
@@ -10373,6 +10465,7 @@ pub struct RunStepDeltaStepDetailsToolCallsObject {
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", serde(untagged))]
 pub enum RunStepDeltaStepDetailsToolCallsObject_ToolCalls {
     RunStepDeltaStepDetailsToolCallsCodeObject(RunStepDeltaStepDetailsToolCallsCodeObject),
 
@@ -10551,6 +10644,7 @@ pub struct RunStepDetailsToolCallsObject {
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", serde(untagged))]
 pub enum RunStepDetailsToolCallsObject_ToolCalls {
     RunStepDetailsToolCallsCodeObject(RunStepDetailsToolCallsCodeObject),
 
@@ -10886,6 +10980,7 @@ pub struct StaticChunkingStrategyResponseParam {
 /// Not supported with latest reasoning models `o3` and `o4-mini`.
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", serde(untagged))]
 pub enum StopConfiguration {
     Null,
 
@@ -10920,6 +11015,7 @@ pub struct SubmitToolOutputsRunRequest_ToolOutputs {
 /// An object specifying the format that the model must output.
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", serde(untagged))]
 pub enum TextResponseFormatConfiguration {
     ResponseFormatText(ResponseFormatText),
 
@@ -11002,6 +11098,7 @@ pub struct ToggleCertificatesRequest {
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", serde(untagged))]
 pub enum Tool {
     FileSearchTool(FileSearchTool),
 
@@ -11512,6 +11609,7 @@ pub struct UsageTimeBucket {
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", serde(untagged))]
 pub enum UsageTimeBucket_Result {
     UsageCompletionsResult(UsageCompletionsResult),
 
@@ -11812,6 +11910,7 @@ pub struct VectorStoreSearchRequest {
 /// A filter to apply based on file attributes.
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", serde(untagged))]
 pub enum VectorStoreSearchRequest_Filters {
     ComparisonFilter(ComparisonFilter),
 
@@ -11821,6 +11920,7 @@ pub enum VectorStoreSearchRequest_Filters {
 /// A query string for a search
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", serde(untagged))]
 pub enum VectorStoreSearchRequest_Query {
     String(String),
 
@@ -11933,6 +12033,7 @@ pub struct WebSearchPreviewTool {
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", serde(untagged))]
 pub enum WebSearchPreviewTool_UserLocation {
     /// The user's location.
     ApproximateLocation(ApproximateLocation),
