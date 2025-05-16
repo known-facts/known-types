@@ -313,7 +313,15 @@ module OpenAPI
           # Only `ParallelToolCalls` has `type: "boolean"`.
           # TODO: spec[:default] if self.type == :boolean
           when :null then Rust::Types::Unit
-          when :boolean then Rust::Types::Bool
+          when :boolean
+            if level == 0
+              # TODO: self.default
+              Rust::TypeAlias.new(self.id, Rust::Types::Bool) do |definition|
+                definition.comment = self.summary
+              end
+            else
+              Rust::Types::Bool
+            end
           when :integer then Rust::Types::I64
           when :number then Rust::Types::F64
           # Some 12 schemas are `type: "string"`.

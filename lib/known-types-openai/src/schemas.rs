@@ -6984,9 +6984,7 @@ pub struct OutputTextContent {
 /// Whether to enable [parallel function
 /// calling](/docs/guides/function-calling#configuring-parallel-function-calling)
 /// during tool use.
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct ParallelToolCalls(pub bool);
+pub type ParallelToolCalls = bool;
 
 /// Static predicted output content, such as the content of a text file that is
 /// being regenerated.
