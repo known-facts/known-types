@@ -1,6 +1,6 @@
 // This is free and unencumbered software released into the public domain.
 
-//! OpenAI API components
+//! OpenAI API schemas
 
 #![allow(non_camel_case_types)]
 
@@ -6608,7 +6608,7 @@ pub struct MessageRequestContentTextObject {
     pub r#text: String,
 }
 
-include!("components/message_stream_event.rs");
+include!("schemas/message_stream_event.rs");
 
 /// Occurs when a [message](/docs/api-reference/messages/object) is created.
 #[derive(Clone, Debug)]
@@ -10723,7 +10723,7 @@ pub struct RunStepObject_LastError {
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct RunStepObject_StepDetails;
 
-include!("components/run_step_stream_event.rs");
+include!("schemas/run_step_stream_event.rs");
 
 /// Occurs when a [run step](/docs/api-reference/run-steps/step-object) is
 /// created.
@@ -10793,7 +10793,7 @@ pub struct RunStepStreamEvent_Variant7 {
     pub r#data: RunStepObject,
 }
 
-include!("components/run_stream_event.rs");
+include!("schemas/run_stream_event.rs");
 
 /// Occurs when a new [run](/docs/api-reference/runs/object) is created.
 #[derive(Clone, Debug)]
@@ -11088,7 +11088,7 @@ pub struct ThreadObject_ToolResources_FileSearch {
     pub r#vector_store_ids: Vec<String>,
 }
 
-include!("components/thread_stream_event.rs");
+include!("schemas/thread_stream_event.rs");
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]

@@ -18,5 +18,5 @@ pub struct ReadmeDoctests;
 
 mod prelude;
 
-pub mod components;
 pub mod groups;
+pub mod schemas;

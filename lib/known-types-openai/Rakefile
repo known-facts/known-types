@@ -15,7 +15,7 @@ AnyOf = Rust::Types::Tuple0.new(:AnyOf)
 AllOf = Rust::Types::Tuple0.new(:AllOf)
 
 task default: %w(codegen)
-task codegen: %w(codegen:components codegen:groups)
+task codegen: %w(codegen:schemas codegen:groups)
 
 require_relative '.rake/openapi_helpers'
 require_relative '.rake/openapi_flattener'
@@ -60,13 +60,13 @@ namespace :codegen do
     end
   end
 
-  task components: [OPENAPI_FILE] do |t|
+  task schemas: [OPENAPI_FILE] do |t|
     spec = OpenAI::Spec.parse(t.prerequisites.first)
 
-    File.open('src/components.rs', 'w') do |out|
+    File.open('src/schemas.rs', 'w') do |out|
       out.puts "// #{FILE_HEADER}"
       out.puts
-      out.puts "//! OpenAI API components"
+      out.puts "//! OpenAI API schemas"
       out.puts
       out.puts "#![allow(non_camel_case_types)]"
       out.puts
@@ -75,7 +75,7 @@ namespace :codegen do
       definitions = spec.schemas.map(&:to_rust)
       definitions.each do |definition|
         module_name = camel_to_snake(definition.name)
-        module_path = Pathname("components/#{module_name}.rs")
+        module_path = Pathname("schemas/#{module_name}.rs")
         if (Pathname('src') / module_path).exist?
           out.puts
           out.puts "include!(\"#{module_path}\");"
@@ -91,7 +91,7 @@ namespace :codegen do
         end
       end
     end
-  end # :components
+  end # :schemas
 
   task groups: [OPENAPI_FILE] do |t|
     spec = OpenAI::Spec.parse(t.prerequisites.first)
