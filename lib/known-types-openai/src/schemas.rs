@@ -1466,9 +1466,7 @@ pub struct ChatCompletionRequestSystemMessage {
     pub r#name: Option<String>,
 }
 
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct ChatCompletionRequestSystemMessageContentPart(pub ChatCompletionRequestMessageContentPartText);
+pub type ChatCompletionRequestSystemMessageContentPart = ChatCompletionRequestMessageContentPartText;
 
 /// The contents of the system message.
 #[derive(Clone, Debug)]
@@ -1494,9 +1492,7 @@ pub struct ChatCompletionRequestToolMessage {
     pub r#tool_call_id: String,
 }
 
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct ChatCompletionRequestToolMessageContentPart(pub ChatCompletionRequestMessageContentPartText);
+pub type ChatCompletionRequestToolMessageContentPart = ChatCompletionRequestMessageContentPartText;
 
 /// The contents of the tool message.
 #[derive(Clone, Debug)]
@@ -1913,12 +1909,7 @@ pub struct CompoundFilter {
     pub r#filters: Vec<CompoundFilter_Filters>,
 }
 
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-#[cfg_attr(feature = "serde", serde(untagged))]
-pub enum CompoundFilter_Filters {
-    ComparisonFilter(ComparisonFilter),
-}
+pub type CompoundFilter_Filters = ComparisonFilter;
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
@@ -2345,9 +2336,7 @@ pub enum CreateChatCompletionRequest_Variant2_FunctionCall {
     ChatCompletionFunctionCallOption(ChatCompletionFunctionCallOption),
 }
 
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct CreateChatCompletionRequest_Variant2_Prediction(pub PredictionContent);
+pub type CreateChatCompletionRequest_Variant2_Prediction = PredictionContent;
 
 /// An object specifying the format that the model must output.
 #[derive(Clone, Debug)]
@@ -3322,9 +3311,7 @@ pub enum CreateMessageRequest_Content_Variant2 {
     MessageRequestContentTextObject(MessageRequestContentTextObject),
 }
 
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct CreateModelResponseProperties(pub ModelResponseProperties);
+pub type CreateModelResponseProperties = ModelResponseProperties;
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
@@ -5012,9 +4999,7 @@ pub struct FileSearchToolCall_Results {
 pub type FileSearchTool_Filters = Option<FileSearchTool_Filters_1>;
 
 /// A filter to apply.
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct FileSearchTool_Filters_1(pub Filters);
+pub type FileSearchTool_Filters_1 = Filters;
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
@@ -5191,13 +5176,9 @@ pub enum FineTunePreferenceRequestInput_Input_Messages {
     ChatCompletionRequestFunctionMessage(ChatCompletionRequestFunctionMessage),
 }
 
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct FineTunePreferenceRequestInput_NonPreferredCompletion(pub ChatCompletionRequestAssistantMessage);
+pub type FineTunePreferenceRequestInput_NonPreferredCompletion = ChatCompletionRequestAssistantMessage;
 
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct FineTunePreferenceRequestInput_PreferredCompletion(pub ChatCompletionRequestAssistantMessage);
+pub type FineTunePreferenceRequestInput_PreferredCompletion = ChatCompletionRequestAssistantMessage;
 
 /// Configuration for the supervised fine-tuning method.
 #[derive(Clone, Debug)]
@@ -5489,9 +5470,7 @@ pub enum FineTuningJob_Hyperparameters_NEpochs {
     Integer(i64),
 }
 
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct FineTuningJob_Integrations(pub FineTuningIntegration);
+pub type FineTuningJob_Integrations = FineTuningIntegration;
 
 /// The output of a function tool call.
 #[derive(Clone, Debug)]
@@ -12044,9 +12023,7 @@ pub struct WebSearchPreviewTool {
 pub type WebSearchPreviewTool_UserLocation = Option<WebSearchPreviewTool_UserLocation_1>;
 
 /// The user's location.
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct WebSearchPreviewTool_UserLocation_1(pub ApproximateLocation);
+pub type WebSearchPreviewTool_UserLocation_1 = ApproximateLocation;
 
 /// The results of a web search tool call.
 #[derive(Clone, Debug, Default)]
