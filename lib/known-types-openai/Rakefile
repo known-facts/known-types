@@ -10,9 +10,6 @@ DERIVES = %i(Clone Debug)
 CFG_DERIVES = %i(serde)
 
 Rust = Codify::Rust
-OneOf = Rust::Types::Tuple0.new(:OneOf)
-AnyOf = Rust::Types::Tuple0.new(:AnyOf)
-AllOf = Rust::Types::Tuple0.new(:AllOf)
 
 task default: %w(codegen)
 task codegen: %w(codegen:schemas codegen:groups)
@@ -136,10 +133,36 @@ namespace :codegen do
 end # :codegen
 
 module OpenAPI
-  class Base
+  class Schema
     attr_reader :type, :id
     attr_reader :default
     attr_reader :title, :description
+
+    ##
+    # @param [Symbol, String] id
+    # @param [Hash] spec
+    def self.new(id, spec)
+      raise ArgumentError, id.inspect unless id.is_a?(Symbol) || id.is_a?(String)
+      raise ArgumentError, spec.inspect unless spec.is_a?(Hash)
+      klass = case
+        when spec[:'$recursiveRef'] then return nil
+        when spec[:'$ref'] then Ref
+        when spec[:properties] then Object
+        when spec[:oneOf] || spec[:anyOf]
+          choices = spec[:oneOf] || spec[:anyOf]
+          return nil unless choices.is_a?(::Array) && choices.all? { it.is_a?(::Hash) } # FIXME
+          OneOf
+        when spec[:allOf] then AllOf
+        when spec[:type] == 'object' || spec[:properties] then Object
+        when spec[:type] == 'array' || spec[:items] then Array
+        when spec[:type] == 'string' && spec[:enum] then EnumString
+        when spec[:type] && %i(null boolean integer number string).include?(spec[:type].to_sym) then Primitive
+        else raise NotImplementedError, [id, spec].inspect
+      end
+      instance = klass.allocate
+      instance.send(:initialize, id, spec)
+      instance
+    end
 
     def initialize(type, id, spec)
       spec.delete(:type)
@@ -159,14 +182,15 @@ module OpenAPI
     def summary?() !self.summary.to_s.empty? end
     def summary() first_sentence(self.description) end
     def recursive_ref?() false end
-  end # Base
+  end # Schema
 
-  class Ref < Base
+  class Ref < Schema
     attr_reader :ref
 
     def initialize(id, spec)
       spec = spec.dup || {}
       super(:ref, id, spec)
+      raise ArgumentError, [:Ref, spec[:'$ref']].inspect unless spec[:'$ref']
       @ref = spec.delete(:'$ref').split('/').last
     end
 
@@ -187,12 +211,14 @@ module OpenAPI
     end
   end # Ref
 
-  class EnumString < Base
+  ##
+  # Schema of `type: "string"` with `enum: [...]` and (sometimes) `default: "..."`.
+  class EnumString < Schema
     def initialize(id, spec)
       spec = spec.dup || {}
       super(:string, id, spec)
       @enum = spec.delete(:enum)
-      raise ArgumentError, @enum.inspect unless @enum.is_a?(Array) && @enum.all? { |s| s.is_a?(String) }
+      raise ArgumentError, [:EnumString, @enum].inspect unless @enum.is_a?(::Array) && @enum.all? { |s| s.is_a?(String) }
     end
 
     def to_rust_variant
@@ -210,7 +236,7 @@ module OpenAPI
     end
   end # EnumString
 
-  class Primitive < Base
+  class Primitive < Schema
     def initialize(id, spec)
       spec = spec.dup || {}
       super(spec.delete(:type), id, spec)
@@ -218,11 +244,11 @@ module OpenAPI
 
     def to_rust_variant
       case @type
-        when :null then 'Null'
-        when :boolean then 'Boolean'
-        when :integer then 'Integer'
-        when :number then 'Number'
-        when :string then 'String'
+        when :null then :Null
+        when :boolean then :Boolean
+        when :integer then :Integer
+        when :number then :Number
+        when :string then :String
         else raise NotImplementedError, self.inspect
       end
     end
@@ -250,169 +276,191 @@ module OpenAPI
     end
   end # EnumString
 
-  class Schema < Base
-    attr_reader :ref
-
-    def self.new(id, spec)
-      klass = case
-        when spec[:'$ref'] then Ref
-        when spec[:type] == 'string' && spec[:enum] then EnumString
-        when spec[:type] && %i(null boolean integer number string).include?(spec[:type].to_sym) then Primitive
-        else Schema
-      end
-      instance = klass.allocate
-      instance.send(:initialize, id, spec)
-      instance
-    end
-
+  ##
+  # Schema of `type: "object"` with `properties: {...}`.
+  class Object < Schema
     def initialize(id, spec)
       spec = spec.dup || {}
-      super(spec.delete(:type), id, spec)
-      @ref = spec.delete(:'$ref')
-      @spec = spec
-    end
-
-    def to_h
-      @spec.dup.merge!({
-        id: @id,
-        :'$ref' => @ref,
-        type: @type,
-        nullable: @nullable,
-        title: @title,
-        description: @description,
-      })
-    end
-
-    def recursive_ref?() !!@spec[:'$recursiveRef'] end
-    def one_of?() !!@spec[:oneOf] end
-    def any_of?() !!@spec[:anyOf] end
-    def all_of?() !!@spec[:allOf] end
-    def items?() !!@spec[:items] end
-    def items() Schema.new("#{self.id}_Item", @spec[:items]) end
-    def properties?() !!@spec[:properties] end
-
-    def one_of
-      make_enums(@spec[:oneOf])
-    end
-
-    def any_of
-      make_enums(@spec[:anyOf])
-    end
-
-    def all_of
-      make_enums(@spec[:allOf])
-    end
-
-    def make_enums(inputs)
-      if inputs && inputs.size == 1
-        [Schema.new(self.id, inputs.first)]
-      else
-        (inputs || []).map.with_index { |x, i| Schema.new("#{self.id}_#{i + 1}", x) }
-      end
+      super(:object, id, spec)
+      @properties = spec.delete(:properties) || {}
+      @additional_properties = spec.delete(:additionalProperties)
+      raise ArgumentError, [:Object, @properties].inspect unless @properties.is_a?(Hash)
+      @required = spec.delete(:required)
+      @required = @required ? @required.map(&:to_sym) : @required
+      raise ArgumentError, [:Object, @required].inspect unless @required.nil? || @required.is_a?(::Array)
     end
 
     def properties
-      (@spec[:properties] || {}).inject({}) do |result, (k, v)|
+      @properties.inject({}) do |result, (k, v)|
         result[Identifier.new(k.to_sym)] = Schema.new("#{self.id}_#{snake_to_camel(k)}", v) # FIXME
         result
       end
     end
 
     def to_rust_variant
-      case
-        when self.properties? || @type == :object
-          'Object'
-        when self.items? || @type == :array
-          case self.items.type
-            when :integer then 'ArrayOfIntegers'
-            when :string then 'ArrayOfStrings'
-            else 'Array'
-          end
-        when self.one_of? then 'OneOf'
-        when self.any_of? then 'AnyOf'
-        when self.all_of? then 'AllOf'
-        else raise NotImplementedError, self.inspect
+      :Object # FIXME
+      "Object_#{(rand * 100).to_i}"
+    end
+
+    def to_rust(level = 0)
+      # Some 414 top-level schemas are `type: "object"`.
+      derive_default = self.properties.values.all? do |property|
+        #p self if property.type.nil?
+        %i(null boolean integer number string).include?(property.type.to_sym)
+      end
+      derives = DERIVES + (derive_default ? %i(Default) : [])
+      Rust::Struct.new(self.id, derives: derives, cfg_derives: CFG_DERIVES) do |definition|
+        definition.comment = self.summary
+        self.properties.each do |(property_id, property_type)|
+          next if property_type.nil? # skip problematic properties (FIXME)
+          is_required = @required&.include?(property_id.to_sym)
+          field_type = property_type.to_rust(level + 1)
+          field_type = Rust::Types::Option.new(field_type).flatten if !is_required || property_type.nullable?
+          field = Rust::StructField.new(property_id.to_rust, field_type)
+          field.comment = property_type.summary
+          field.rename = property_id.id if property_id.needs_rename?
+          definition.fields << field
+        end
+      end
+    end
+  end # Object
+
+  ##
+  # Schema of `type: "array"` with `items: [...]`.
+  class Array < Schema
+    def initialize(id, spec)
+      spec = spec.dup || {}
+      super(:array, id, spec)
+      @items = spec.delete(:items)
+      raise ArgumentError, [:Array, @items].inspect unless @items.is_a?(Hash)
+    end
+
+    def items?() !!@items end
+    def items() Schema.new(self.id, @items) end
+
+    def to_rust_variant
+      case self.items.type
+        when :integer then :ArrayOfIntegers
+        when :string then :ArrayOfStrings
+        else :Array
       end
     end
 
     def to_rust(level = 0)
-      type = case
-        when self.properties? || @type == :object
-          # Some 414 top-level schemas are `type: "object"`.
-          derive_default = self.properties.values.all? do |property|
-            #p self if property.type.nil?
-            %i(null boolean integer number string).include?(property.type)
+      # Only 4 top-level schemas are `type: "array"`.
+      item_type = self.items.to_rust(level + 1) #rescue Rust::Types::String # FIXME
+      type = Rust::Types::Vec.new(item_type)
+      if level.zero?
+        Rust::TypeAlias.new(self.id, type) do |definition|
+          definition.comment = self.summary
+        end
+      else
+        type
+      end
+    end
+  end # Array
+
+  class Choices < Schema
+    attr_reader :choices
+  end
+
+  ##
+  # Schema of `allOf: [...]`.
+  class AllOf < Choices
+    TYPE = Rust::Types::Tuple0.new(:AllOf)
+
+    def initialize(id, spec)
+      spec = spec.dup || {}
+      super(:all_of, id, spec)
+      @choices = spec.delete(:allOf)
+      raise ArgumentError, [:AllOf, @choices].inspect unless @choices.is_a?(::Array) && @choices.all? { it.is_a?(::Hash) }
+    end
+
+    def to_rust_variant
+      :AllOf
+    end
+
+    def to_rust(level = 0)
+      # Only 9 top-level schemas are `allOf`.
+      schemas = self.choices
+      if schemas.size == 1
+        schemas.first.to_rust(level + 1)
+      else
+        Rust::Newtype.new(self.id, TYPE, derives: DERIVES + %i(Default), cfg_derives: CFG_DERIVES) do |definition|
+          definition.comment = self.summary
+        end
+      end
+    end
+  end # AllOf
+
+  ##
+  # Schema of `oneOf: [...]` or `anyOf: [...]`.
+  class OneOf < Choices
+    TYPE = Rust::Types::Tuple0.new(:OneOf)
+
+    def initialize(id, spec)
+      spec = spec.dup || {}
+      super(:one_of, id, spec)
+      @choices = spec.delete(:oneOf) || spec.delete(:anyOf)
+      raise ArgumentError, [:OneOf, @choices].inspect unless @choices.is_a?(::Array) && @choices.all? { it.is_a?(::Hash) }
+      if @choices.size == 1
+        @choices = [Schema.new(self.id, @choices.first)]
+      else
+        @choices.map!.with_index { |x, i| Schema.new("#{self.id}_#{i + 1}", x) }
+      end
+    end
+
+    def to_rust_variant
+      :OneOf
+    end
+
+    def to_rust(level = 0)
+      # Some 23 top-level schemas are `oneOf`. Only 10 top-level schemas are `anyOf`.
+      schemas = self.choices
+      type = if schemas.size == 1
+        schemas.first.to_rust
+      elsif schemas.all? { |t| t.type.to_sym == :string }
+        # e.g. RealtimeResponseCreateParams_Conversation
+        Rust::TypeAlias.new(self.id, Rust::Types::String) do |definition|
+          definition.comment = self.summary
+        end
+        # TODO: Rust::Types::String
+      elsif schemas.all? { |t| t.type.to_sym == :string || t.type == :null }
+        # e.g. ApproximateLocation_City
+        Rust::TypeAlias.new(self.id, Rust::Types::Option.new(Rust::Types::String)) do |definition|
+          definition.comment = self.summary
+        end
+      elsif schemas.size == 2 && schemas.any? { |t| t && t.type.to_sym == :null }
+        type = schemas.find { |t| t.type.to_sym != :null }
+        Rust::TypeAlias.new(self.id, Rust::Types::Option.new(type.to_rust)) do |definition|
+          definition.comment = self.summary
+        end
+        # TODO: Rust::Types::Option.new(Rust::Types::String)
+      # elsif schemas.all? { |t| t.type.to_sym == :object && t.properties.size == 2 && t.properties.any? { |k, _| k.to_sym == :type } }
+      #   # e.g. CreateEvalCompletionsRunDataSource, CreateEvalResponsesRunDataSource
+      #   Rust::Enum.new(self.id, derives: DERIVES, cfg_derives: CFG_DERIVES) do |definition|
+      #     definition.comment = self.summary
+      #     schemas.each do |t|
+      #       property1, property2 = t.properties.values
+      #       variant_name = snake_to_camel(property1.to_h[:enum].first) # FIXME!
+      #       variant_type = property2.to_rust(level + 1)
+      #       variant = Rust::EnumVariant.new(variant_name, variant_type)
+      #       variant.comment = t.summary
+      #       definition.variants << variant
+      #     end
+      #   end
+      else
+        Rust::Enum.new(self.id, derives: DERIVES, cfg_derives: CFG_DERIVES) do |definition|
+          definition.comment = self.summary
+          definition.variants << Rust::EnumVariant.new(:Null) if self.nullable?
+          #out.puts "#[default]" if self.nullable? # TODO: && self.default == 'null'
+          schemas.each do |t|
+            next if t.nil? # skip $recursiveRef
+            variant = Rust::EnumVariant.new(t.to_rust_variant, t.to_rust(level + 1))
+            variant.comment = t.summary
+            definition.variants << variant
           end
-          derives = DERIVES + (derive_default ? %i(Default) : [])
-          Rust::Struct.new(self.id, derives: derives, cfg_derives: CFG_DERIVES) do |definition|
-            definition.comment = self.summary
-            self.properties.each do |(property_id, property_type)|
-              field_type = property_type.to_rust(level + 1)
-              field_type = Rust::Types::Option.new(field_type).flatten if property_type.nullable?
-              field = Rust::StructField.new(property_id.to_rust, field_type)
-              field.comment = property_type.summary
-              field.rename = property_id.id if property_id.needs_rename?
-              definition.fields << field
-            end
-          end
-        when self.items? || self.type == :array
-          # Only 4 top-level schemas are `type: "array"`.
-          item_type = self.items.to_rust(level + 1) rescue Rust::Types::String
-          Rust::Types::Vec.new(item_type)
-        when self.one_of? || self.any_of?
-          # Some 23 top-level schemas are `oneOf`. Only 10 top-level schemas are `anyOf`.
-          schemas = self.one_of? ? self.one_of : self.any_of
-          if schemas.size == 1
-            schemas.first.to_rust
-          elsif schemas.all? { |t| t.type == :string }
-            # e.g. RealtimeResponseCreateParams_Conversation
-            Rust::TypeAlias.new(self.id, Rust::Types::String) do |definition|
-              definition.comment = self.summary
-            end
-            # TODO: Rust::Types::String
-          elsif schemas.all? { |t| t.type == :string || t.type == :null }
-            # e.g. ApproximateLocation_City
-            Rust::TypeAlias.new(self.id, Rust::Types::Option.new(Rust::Types::String)) do |definition|
-              definition.comment = self.summary
-            end
-            # TODO: Rust::Types::Option.new(Rust::Types::String)
-          elsif schemas.all? { |t| t.type == :object && t.properties.size == 2 && t.properties.any? { |k, _| k.to_sym == :type } }
-            # e.g. CreateEvalCompletionsRunDataSource, CreateEvalResponsesRunDataSource
-            Rust::Enum.new(self.id, derives: DERIVES, cfg_derives: CFG_DERIVES) do |definition|
-              definition.comment = self.summary
-              schemas.each do |t|
-                property1, property2 = t.properties.values
-                variant_name = snake_to_camel(property1.to_h[:enum].first)
-                variant_type = property2.to_rust(level + 1)
-                variant = Rust::EnumVariant.new(variant_name, variant_type)
-                variant.comment = t.summary
-                definition.variants << variant
-              end
-            end
-          else
-            Rust::Enum.new(self.id, derives: DERIVES, cfg_derives: CFG_DERIVES) do |definition|
-              definition.comment = self.summary
-              definition.variants << Rust::EnumVariant.new(:Null) if self.nullable?
-              #out.puts "#[default]" if self.nullable? # TODO: && self.default == 'null'
-              schemas.each do |t|
-                next if t.recursive_ref? # skip $recursiveRef
-                variant = Rust::EnumVariant.new(t.to_rust_variant, t.to_rust(level + 1))
-                variant.comment = t.summary
-                definition.variants << variant
-              end
-            end
-          end
-        when self.all_of?
-          # Only 9 top-level schemas are `allOf`.
-          schemas = self.all_of
-          if schemas.size == 1
-            schemas.first.to_rust
-          else
-            Rust::Newtype.new(self.id, AllOf, derives: DERIVES + %i(Default), cfg_derives: CFG_DERIVES) do |definition|
-              definition.comment = self.summary
-            end
-          end
-        else raise NotImplementedError, self.inspect
+        end
       end
 
       if level.zero? && !type.definition?
@@ -421,10 +469,9 @@ module OpenAPI
           definition.comment = self.summary
         end
       end
-      #type = @nullable ? Rust::Types::Option.new(type) : type # FIXME
       type
     end
-  end # Schema
+  end # OneOf
 
   class Identifier
     include Comparable

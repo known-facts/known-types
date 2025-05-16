@@ -25,28 +25,29 @@ impl ChatCompletionRequestMessage {
     }
 
     pub fn name(&self) -> Option<&str> {
-        let result = match self {
+        match self {
             ChatCompletionRequestMessage::ChatCompletionRequestDeveloperMessage(
                 ChatCompletionRequestDeveloperMessage { name, .. },
-            ) => name.as_str(),
+            ) => name.as_ref().map(|s| s.as_str()),
             ChatCompletionRequestMessage::ChatCompletionRequestSystemMessage(
                 ChatCompletionRequestSystemMessage { name, .. },
-            ) => name.as_str(),
+            ) => name.as_ref().map(|s| s.as_str()),
             ChatCompletionRequestMessage::ChatCompletionRequestUserMessage(
                 ChatCompletionRequestUserMessage { name, .. },
-            ) => name.as_str(),
+            ) => name.as_ref().map(|s| s.as_str()),
             ChatCompletionRequestMessage::ChatCompletionRequestAssistantMessage(
                 ChatCompletionRequestAssistantMessage { name, .. },
-            ) => name.as_str(),
+            ) => name.as_ref().map(|s| s.as_str()),
             ChatCompletionRequestMessage::ChatCompletionRequestToolMessage(..) => return None,
             ChatCompletionRequestMessage::ChatCompletionRequestFunctionMessage(
                 ChatCompletionRequestFunctionMessage { name, .. },
-            ) => name.as_str(),
-        };
-        if result.is_empty() {
-            None
-        } else {
-            Some(result)
+            ) => {
+                if name.as_str().is_empty() {
+                    None
+                } else {
+                    Some(name.as_str())
+                }
+            }
         }
     }
 
