@@ -136,19 +136,139 @@ namespace :codegen do
 end # :codegen
 
 module OpenAPI
-  class Schema
-    attr_reader :id, :ref, :type, :nullable, :default
+  class Base
+    attr_reader :type, :id
+    attr_reader :default
     attr_reader :title, :description
+
+    def initialize(type, id, spec)
+      spec.delete(:type)
+      @type = type ? type.to_sym : nil
+      @id = id ? id.to_sym : nil
+      @default = spec.delete(:default)
+      @nullable = spec.delete(:nullable)
+      @title = spec.delete(:title)
+      @description = spec.delete(:description)
+      @deprecated = spec.delete(:deprecated)
+      spec.delete(:example)
+    end
+
+    def nullable?() !!@nullable end
+    def deprecated() !!@deprecated end
+
+    def summary?() !self.summary.to_s.empty? end
+    def summary() first_sentence(self.description) end
+    def recursive_ref?() false end
+  end # Base
+
+  class Ref < Base
+    attr_reader :ref
 
     def initialize(id, spec)
       spec = spec.dup || {}
-      @id = id ? id.to_sym : nil
+      super(:ref, id, spec)
+      @ref = spec.delete(:'$ref').split('/').last
+    end
+
+    def to_rust_variant
+      self.ref
+    end
+
+    def to_rust(level = 0)
+      type = Rust::Types::Named.new(self.ref)
+      type = Rust::Types::Option.new(type) if self.nullable?
+      if level.zero?
+        Rust::Newtype.new(self.id, type, derives: DERIVES, cfg_derives: CFG_DERIVES) do |definition|
+          definition.comment = self.summary
+        end
+      else
+        type
+      end
+    end
+  end # Ref
+
+  class EnumString < Base
+    def initialize(id, spec)
+      spec = spec.dup || {}
+      super(:string, id, spec)
+      @enum = spec.delete(:enum)
+      raise ArgumentError, @enum.inspect unless @enum.is_a?(Array) && @enum.all? { |s| s.is_a?(String) }
+    end
+
+    def to_rust_variant
+      :String
+    end
+
+    def to_rust(level = 0)
+      if level.zero?
+        Rust::TypeAlias.new(self.id, Rust::Types::String) do |definition|
+          definition.comment = self.summary
+        end
+      else
+        Rust::Types::String
+      end
+    end
+  end # EnumString
+
+  class Primitive < Base
+    def initialize(id, spec)
+      spec = spec.dup || {}
+      super(spec.delete(:type), id, spec)
+     end
+
+    def to_rust_variant
+      case @type
+        when :null then 'Null'
+        when :boolean then 'Boolean'
+        when :integer then 'Integer'
+        when :number then 'Number'
+        when :string then 'String'
+        else raise NotImplementedError, self.inspect
+      end
+    end
+
+    def to_rust(level = 0)
+      type = case @type
+        # Only `ParallelToolCalls` has `type: "boolean"`.
+        when :null then Rust::Types::Unit
+        when :boolean then Rust::Types::Bool
+        when :integer then Rust::Types::I64
+        when :number then Rust::Types::F64
+        # Some 12 schemas are `type: "string"`.
+        when :string then Rust::Types::String
+        else raise NotImplementedError, self.inspect
+      end
+
+      if level == 0
+        # TODO: self.default
+        Rust::TypeAlias.new(self.id, type) do |definition|
+          definition.comment = self.summary
+        end
+      else
+        type
+      end
+    end
+  end # EnumString
+
+  class Schema < Base
+    attr_reader :ref
+
+    def self.new(id, spec)
+      klass = case
+        when spec[:'$ref'] then Ref
+        when spec[:type] == 'string' && spec[:enum] then EnumString
+        when spec[:type] && %i(null boolean integer number string).include?(spec[:type].to_sym) then Primitive
+        else Schema
+      end
+      instance = klass.allocate
+      instance.send(:initialize, id, spec)
+      instance
+    end
+
+    def initialize(id, spec)
+      spec = spec.dup || {}
+      super(spec.delete(:type), id, spec)
       @ref = spec.delete(:'$ref')
-      @type = spec[:type] ? spec.delete(:type).to_sym : nil
-      @nullable = spec.delete(:nullable)
-      @default = spec.delete(:default)
-      @title = spec.delete(:title)
-      @description = spec.delete(:description)
       @spec = spec
     end
 
@@ -163,11 +283,6 @@ module OpenAPI
       })
     end
 
-    def nullable?() !!@nullable end
-    def summary?() !self.summary.to_s.empty? end
-    def summary() first_sentence(self.description) end
-
-    def ref?() !!@ref end
     def recursive_ref?() !!@spec[:'$recursiveRef'] end
     def one_of?() !!@spec[:oneOf] end
     def any_of?() !!@spec[:anyOf] end
@@ -205,7 +320,6 @@ module OpenAPI
 
     def to_rust_variant
       case
-        when self.ref? then self.ref.split('/').last
         when self.properties? || @type == :object
           'Object'
         when self.items? || @type == :array
@@ -217,23 +331,12 @@ module OpenAPI
         when self.one_of? then 'OneOf'
         when self.any_of? then 'AnyOf'
         when self.all_of? then 'AllOf'
-        else case @type
-          when :null then 'Null'
-          when :boolean then 'Boolean'
-          when :integer then 'Integer'
-          when :number then 'Number'
-          when :string then 'String'
-          else raise NotImplementedError, self.inspect
-        end
+        else raise NotImplementedError, self.inspect
       end
     end
 
     def to_rust(level = 0)
       type = case
-        when self.ref?
-          type = Rust::Types::Named.new(self.ref.split('/').last)
-          type = Rust::Types::Option.new(type) if self.nullable?
-          type
         when self.properties? || @type == :object
           # Some 414 top-level schemas are `type: "object"`.
           derive_default = self.properties.values.all? do |property|
@@ -309,25 +412,7 @@ module OpenAPI
               definition.comment = self.summary
             end
           end
-        else case @type
-          # Only `ParallelToolCalls` has `type: "boolean"`.
-          # TODO: spec[:default] if self.type == :boolean
-          when :null then Rust::Types::Unit
-          when :boolean
-            if level == 0
-              # TODO: self.default
-              Rust::TypeAlias.new(self.id, Rust::Types::Bool) do |definition|
-                definition.comment = self.summary
-              end
-            else
-              Rust::Types::Bool
-            end
-          when :integer then Rust::Types::I64
-          when :number then Rust::Types::F64
-          # Some 12 schemas are `type: "string"`.
-          when :string then Rust::Types::String
-          else Rust::Types::String #raise NotImplementedError, self.inspect
-        end
+        else raise NotImplementedError, self.inspect
       end
 
       if level.zero? && !type.definition?

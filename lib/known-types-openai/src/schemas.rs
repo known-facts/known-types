@@ -208,9 +208,7 @@ pub enum AssistantStreamEvent {
     DoneEvent(DoneEvent),
 }
 
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct AssistantSupportedModels(pub String);
+pub type AssistantSupportedModels = String;
 
 #[derive(Clone, Debug, Default)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
@@ -300,9 +298,7 @@ pub struct AssistantsNamedToolChoice_Function {
 
 /// The format of the output, in one of these options: `json`, `text`, `srt`,
 /// `verbose_json`, or `vtt`.
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct AudioResponseFormat(pub String);
+pub type AudioResponseFormat = String;
 
 /// A log of a user action or configuration change within this organization.
 #[derive(Clone, Debug)]
@@ -459,9 +455,7 @@ pub struct AuditLogActorUser {
 }
 
 /// The event type.
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct AuditLogEventType(pub String);
+pub type AuditLogEventType = String;
 
 /// The details for events with this `type`.
 #[derive(Clone, Debug)]
@@ -1643,9 +1637,7 @@ pub struct ChatCompletionResponseMessage_FunctionCall {
 }
 
 /// The role of the author of a message
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct ChatCompletionRole(pub String);
+pub type ChatCompletionRole = String;
 
 /// Options for streaming response.
 #[derive(Clone, Debug, Default)]
@@ -3133,9 +3125,7 @@ pub struct CreateFineTuningJobRequest_Integrations {
     pub r#wandb: CreateFineTuningJobRequest_Integrations_Wandb,
 }
 
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct CreateFineTuningJobRequest_Integrations_Type(pub String);
+pub type CreateFineTuningJobRequest_Integrations_Type = String;
 
 /// The settings for your integration with Weights and Biases.
 #[derive(Clone, Debug)]
@@ -4936,9 +4926,7 @@ pub struct FilePath {
 }
 
 /// The ranker to use for the file search.
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct FileSearchRanker(pub String);
+pub type FileSearchRanker = String;
 
 /// The ranking options for the file search.
 #[derive(Clone, Debug)]
@@ -5706,9 +5694,7 @@ pub struct ImagesResponse_Usage_InputTokensDetails {
 }
 
 /// Specify additional output data to include in the model response.
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct Includable(pub String);
+pub type Includable = String;
 
 /// An audio input to the model.
 #[derive(Clone, Debug, Default)]
@@ -9210,9 +9196,7 @@ pub struct Reasoning {
 
 /// **o-series models only** Constrains effort on reasoning for [reasoning
 /// models](https://platform.openai.com/docs/guides/reasoning).
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct ReasoningEffort(pub String);
+pub type ReasoningEffort = String;
 
 /// A description of the chain of thought used by a reasoning model while
 /// generating a response.
@@ -9441,9 +9425,7 @@ pub struct ResponseError {
 }
 
 /// The error code for the response.
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct ResponseErrorCode(pub String);
+pub type ResponseErrorCode = String;
 
 /// Emitted when an error occurs.
 #[derive(Clone, Debug, Default)]
@@ -10941,9 +10923,7 @@ pub struct Scroll {
 }
 
 /// Specifies the latency tier to use for processing the request.
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct ServiceTier(pub String);
+pub type ServiceTier = String;
 
 #[derive(Clone, Debug, Default)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
@@ -11119,9 +11099,7 @@ pub struct ToolChoiceFunction {
 }
 
 /// Controls which (if any) tool is called by the model.
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct ToolChoiceOptions(pub String);
+pub type ToolChoiceOptions = String;
 
 /// Indicates that the model should use a built-in tool to generate a response.
 #[derive(Clone, Debug, Default)]
@@ -11185,9 +11163,7 @@ pub struct TranscriptTextDoneEvent_Logprobs {
     pub r#bytes: Vec<i64>,
 }
 
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct TranscriptionInclude(pub String);
+pub type TranscriptionInclude = String;
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
@@ -11992,9 +11968,7 @@ pub struct Wait {
 
 /// High level guidance for the amount of context window space to use for the
 /// search.
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct WebSearchContextSize(pub String);
+pub type WebSearchContextSize = String;
 
 /// Approximate location parameters for the search.
 #[derive(Clone, Debug, Default)]
