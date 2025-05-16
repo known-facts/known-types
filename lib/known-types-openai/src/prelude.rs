@@ -6,4 +6,4 @@
 extern crate alloc;
 
 #[cfg(feature = "alloc")]
-pub use alloc::{string::String, vec::Vec};
+pub use alloc::{borrow::Cow, string::String, vec::Vec};

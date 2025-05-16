@@ -90,6 +90,9 @@ namespace :codegen do
           definition.write(out)
         end
       end
+
+      out.puts
+      out.puts "include!(\"schemas/footer.rs\");"
     end
   end # :schemas
 

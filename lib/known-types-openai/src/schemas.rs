@@ -12054,3 +12054,5 @@ pub struct WebSearchToolCall {
     /// The status of the web search tool call.
     pub r#status: String,
 }
+
+include!("schemas/footer.rs");
