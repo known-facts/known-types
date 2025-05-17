@@ -5,6 +5,8 @@ module OpenAPI::Transforms; end
 
 ##
 # Combines `allOf: [...]` schemas into a single schema.
+#
+# This should be done *after* the `DerefAliases` transformation.
 module OpenAPI::Transforms::CombineAllOfs
   ##
   # @param  [Hash] The flattened `openapi.components.schemas` map
@@ -27,7 +29,18 @@ module OpenAPI::Transforms::CombineAllOfs
     raise ArgumentError, schemas.inspect unless schemas.is_a?(Hash)
     case
       when schema[:allOf]
-        # TODO
+        variants = schema.delete(:allOf)
+        raise ArgumentError, variants.inspect unless variants.is_a?(Array)
+        raise ArgumentError, variants.inspect unless variants.all? { it.is_a?(Hash) && it[:'$ref'] }
+        schema[:properties] ||= {}
+        schema[:required] ||= []
+        variants.each do |variant|
+          target_ref = variant[:'$ref'].split('/').last.to_sym
+          target = schemas[target_ref]
+          raise ArgumentError, variants.inspect unless target[:type]&.to_sym == :object
+          schema[:properties].merge!(target[:properties] || {})
+          schema[:required] += target[:required] || []
+        end
       else # nothing to do
     end
   end # transform_schema!

@@ -29,7 +29,7 @@ namespace :codegen do
       # puts; puts JSON.pretty_generate(output)
       #break if schema_ref == 'AssistantObject'
     end
-    [HoistNullables, RemoveRedundantCombines, CombineAllOfs, DerefAliases].each do |transform|
+    [HoistNullables, RemoveRedundantCombines, DerefAliases, CombineAllOfs].each do |transform|
       transform.transform_schemas!(schemas)
     end
     output.each do |schema_ref, schema|
@@ -142,14 +142,16 @@ module OpenAPI
       raise ArgumentError, id.inspect unless id.is_a?(Symbol) || id.is_a?(String)
       raise ArgumentError, spec.inspect unless spec.is_a?(Hash)
       klass = case
-        when spec[:'$recursiveRef'] then return nil
+        when spec[:'$recursiveRef']
+          raise ArgumentError, "missing RemoveRedundantCombines transform: #{spec.inspect}"
+        when spec[:allOf]
+          raise ArgumentError, "missing CombineAllOfs transform: #{spec.inspect}"
         when spec[:'$ref'] then Ref
         when spec[:properties] then Object
         when spec[:oneOf] || spec[:anyOf]
           choices = spec[:oneOf] || spec[:anyOf]
           return nil unless choices.is_a?(::Array) && choices.all? { it.is_a?(::Hash) } # FIXME
           OneOf
-        when spec[:allOf] then AllOf
         when spec[:type] == 'object' || spec[:properties] then Object
         when spec[:type] == 'array' || spec[:items] then Array
         when spec[:type] == 'string' && spec[:enum] then EnumString
@@ -427,32 +429,6 @@ module OpenAPI
     end
   end # OneOf
 
-  ##
-  # Schema of `allOf: [...]`.
-  class AllOf < Combine
-    TYPE = Rust::Types::Tuple0.new(:AllOf)
-
-    def initialize(id, spec)
-      spec = spec.dup || {}
-      super(:all_of, id, spec)
-      @choices = spec.delete(:allOf)
-      raise ArgumentError, [:AllOf, @choices].inspect unless @choices.is_a?(::Array) && @choices.all? { it.is_a?(::Hash) }
-      raise ArgumentError, [:AllOf, @choices].inspect unless @choices.size > 1
-    end
-
-    def to_rust_variant
-      :AllOf
-    end
-
-    def to_rust(level = 0)
-      # Only 9 top-level schemas, and 17 any-level schemas (before flattening), are `allOf`.
-      schemas = self.choices
-      Rust::Newtype.new(self.id, TYPE, derives: DERIVES + %i(Default), cfg_derives: CFG_DERIVES) do |definition|
-        definition.comment = self.summary
-      end
-    end
-  end # AllOf
-
   class Identifier
     include Comparable
 
@@ -483,7 +459,7 @@ module OpenAI
 
     def schemas
       schemas = flatten_openapi_schemas(self.schemas_raw)
-      [HoistNullables, RemoveRedundantCombines, CombineAllOfs, DerefAliases].each do |transform|
+      [HoistNullables, RemoveRedundantCombines, DerefAliases, CombineAllOfs].each do |transform|
         transform.transform_schemas!(schemas)
       end
       schemas.map { |k, v| OpenAPI::Schema.new(k, v) }.sort_by(&:id)
