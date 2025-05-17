@@ -147,7 +147,6 @@ module OpenAPI
         when spec[:allOf]
           raise ArgumentError, "missing CombineAllOfs transform: #{spec.inspect}"
         when spec[:'$ref'] then Ref
-        when spec[:properties] then Object
         when spec[:oneOf] || spec[:anyOf]
           choices = spec[:oneOf] || spec[:anyOf]
           return nil unless choices.is_a?(::Array) && choices.all? { it.is_a?(::Hash) } # FIXME

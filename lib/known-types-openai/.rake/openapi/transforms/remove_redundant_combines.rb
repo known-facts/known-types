@@ -29,13 +29,18 @@ module OpenAPI::Transforms::RemoveRedundantCombines
       when schema[:oneOf], schema[:anyOf], schema[:allOf]
         variants = schema[:oneOf] || schema[:anyOf] || schema[:allOf] || []
         raise ArgumentError, schema.inspect unless variants.all? { it.is_a?(Hash) }
-        variants.reject! { |variant| variant[:'$recursiveRef'] }
+        variants.reject! { it[:'$recursiveRef'] }
         if variants.size == 1
           schema.merge!(variants.first)
           %i(oneOf anyOf allOf).each { schema.delete(it) }
-        end
-        variants.each do |variant|
-          transform_schema!(variant, schemas)
+        elsif variants.all? { it[:required] }
+          variants.each { it.delete(:required) }
+          variants.reject! { it.empty? }
+          %i(oneOf anyOf allOf).each { schema.delete(it) } if variants.empty?
+        else
+          variants.each do |variant|
+            transform_schema!(variant, schemas)
+          end
         end
       else # nothing to do
     end
