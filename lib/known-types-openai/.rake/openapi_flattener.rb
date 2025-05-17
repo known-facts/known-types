@@ -1,6 +1,9 @@
 # This is free and unencumbered software released into the public domain.
 
-module OpenAPIFlattener
+module OpenAPI; end
+module OpenAPI::Transforms; end
+
+module OpenAPI::Flattener
   DEFAULT_ARRAY_TYPE = { type: 'integer' }
 
   ##
@@ -81,4 +84,4 @@ module OpenAPIFlattener
   def snake_to_camel(name)
     name.to_s.gsub(/[_.]/, ' ').split.map(&:capitalize).join
   end
-end # FlattenOpenAPI
+end # OpenAPI::Flattener

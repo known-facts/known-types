@@ -5,7 +5,10 @@ require 'yaml'
 
 require 'hashie' # https://rubygems.org/gems/hashie
 
-module OpenAPIHelpers
+require_relative 'openapi_flattener'
+require_relative 'openapi/transforms'
+
+module OpenAPI
   def self.load_file(path)
     Hashie.symbolize_keys!(YAML.load_file(path, aliases: true))
   end
@@ -22,4 +25,4 @@ module OpenAPIHelpers
       else raise ArgumentError, schema.inspect
     end
   end
-end # OpenAPIHelpers
+end # OpenAPI

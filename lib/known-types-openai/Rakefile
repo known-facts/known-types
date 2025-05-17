@@ -14,15 +14,10 @@ Rust = Codify::Rust
 task default: %w(codegen)
 task codegen: %w(codegen:schemas codegen:groups)
 
-require_relative '.rake/openapi_helpers'
-require_relative '.rake/openapi_flattener'
-require_relative '.rake/openapi_hoister'
-require_relative '.rake/openapi_optimizer'
+require_relative '.rake/openapi'
 
-include OpenAPIHelpers
-include OpenAPIFlattener
-include OpenAPIHoister
-include OpenAPIOptimizer
+include OpenAPI::Flattener
+include OpenAPI::Transforms
 
 namespace :codegen do
   task flatten: [OPENAPI_FILE] do |t|
@@ -34,8 +29,9 @@ namespace :codegen do
       # puts; puts JSON.pretty_generate(output)
       #break if schema_ref == 'AssistantObject'
     end
-    hoist_nullables!(output)
-    optimize_combines!(output)
+    [HoistNullables, RemoveRedundantCombines, CombineAllOfs].each do |transform|
+      transform.transform_schemas!(schemas)
+    end
     output.each do |schema_ref, schema|
       #next unless schema[:oneOf] && schema[:oneOf].size < 3
       puts
@@ -476,7 +472,7 @@ end
 module OpenAI
   class Spec
     def self.parse(path)
-      self.new(OpenAPIHelpers.load_file(path))
+      self.new(OpenAPI.load_file(path))
     end
 
     def initialize(spec) @spec = spec end
@@ -487,8 +483,9 @@ module OpenAI
 
     def schemas
       schemas = flatten_openapi_schemas(self.schemas_raw)
-      hoist_nullables!(schemas)
-      optimize_combines!(schemas)
+      [HoistNullables, RemoveRedundantCombines, CombineAllOfs].each do |transform|
+        transform.transform_schemas!(schemas)
+      end
       schemas.map { |k, v| OpenAPI::Schema.new(k, v) }.sort_by(&:id)
     end
 

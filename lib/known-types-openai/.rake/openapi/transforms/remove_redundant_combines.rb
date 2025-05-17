@@ -1,21 +1,28 @@
 # This is free and unencumbered software released into the public domain.
 
-module OpenAPIOptimizer
+module OpenAPI; end
+module OpenAPI::Transforms; end
+
+##
+# Removes redundant `oneOf`, `anyOf`, and `allOf` wrappers.
+module OpenAPI::Transforms::RemoveRedundantCombines
   ##
   # @param  [Hash] The flattened `openapi.components.schemas` map
   # @return [void]
-  def optimize_combines!(schemas)
+  def self.transform_schemas!(schemas)
     raise ArgumentError, schemas.inspect unless schemas.is_a?(Hash)
     schemas.each_value do |schema|
-      optimize_combine!(schema, schemas)
+      transform_schema!(schema, schemas)
     end
-  end # optimize_combines!
+  end # transform_schemas!
+
+  protected
 
   ##
   # @param  [Hash] A JSON Schema schema type
   # @param  [Hash] The flattened `openapi.components.schemas` map
   # @return [void]
-  def optimize_combine!(schema, schemas)
+  def self.transform_schema!(schema, schemas)
     raise ArgumentError, schema.inspect unless schema.is_a?(Hash)
     raise ArgumentError, schemas.inspect unless schemas.is_a?(Hash)
     case
@@ -28,9 +35,9 @@ module OpenAPIOptimizer
           %i(oneOf anyOf allOf).each { schema.delete(it) }
         end
         variants.each do |variant|
-          optimize_combine!(variant, schemas)
+          transform_schema!(variant, schemas)
         end
       else # nothing to do
     end
-  end # optimize_combine!
-end # OpenAPIOptimizer
+  end # transform_schema!
+end # OpenAPI::Transforms::RemoveRedundantCombines

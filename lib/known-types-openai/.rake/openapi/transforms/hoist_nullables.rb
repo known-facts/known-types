@@ -1,21 +1,28 @@
 # This is free and unencumbered software released into the public domain.
 
-module OpenAPIHoister
+module OpenAPI; end
+module OpenAPI::Transforms; end
+
+##
+# Hoist `nullable` properties from referenced schemas into the referencing schema.
+module OpenAPI::Transforms::HoistNullables
   ##
   # @param  [Hash] The flattened `openapi.components.schemas` map
   # @return [void]
-  def hoist_nullables!(schemas)
+  def self.transform_schemas!(schemas)
     raise ArgumentError, schemas.inspect unless schemas.is_a?(Hash)
     schemas.each_value do |schema|
-      hoist_nullable!(schema, schemas)
+      transform_schema!(schema, schemas)
     end
-  end # hoist_nullables!
+  end # transform_schemas!
+
+  protected
 
   ##
   # @param  [Hash] A JSON Schema schema type
   # @param  [Hash] The flattened `openapi.components.schemas` map
   # @return [void]
-  def hoist_nullable!(schema, schemas)
+  def self.transform_schema!(schema, schemas)
     raise ArgumentError, schema.inspect unless schema.is_a?(Hash)
     raise ArgumentError, schemas.inspect unless schemas.is_a?(Hash)
     case
@@ -26,24 +33,24 @@ module OpenAPIHoister
       when schema[:oneOf], schema[:anyOf]
         variants = schema[:oneOf] || schema[:anyOf] || []
         variants.each do |variant|
-          hoist_nullable!(variant, schemas)
+          transform_schema!(variant, schemas)
         end
       when schema[:allOf]
         variants = schema[:allOf] || []
-        if variants.any? { it[:'$ref'] } && variants.any? { it[:nullable] }
+        if variants.size == 2 && variants.any? { it[:'$ref'] } && variants.any? { it[:nullable] }
           variants.each { schema.merge!(it) }
           schema.delete(:allOf)
         else
-          variants.each { hoist_nullable!(it, schemas) }
+          variants.each { transform_schema!(it, schemas) }
         end
       when schema[:properties] || schema[:type] == 'object'
         properties = schema[:properties] || {}
         properties.each_value do |property|
-          hoist_nullable!(property, schemas)
+          transform_schema!(property, schemas)
         end
       when schema[:items] || schema[:type] == 'array'
-        hoist_nullable!(schema[:items], schemas) if schema[:items]
+        transform_schema!(schema[:items], schemas) if schema[:items]
       else # nothing to do
     end
-  end # hoist_nullable!
-end # OpenAPIHoister
+  end # transform_schema!
+end # OpenAPI::Transforms::HoistNullables
