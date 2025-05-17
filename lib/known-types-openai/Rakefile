@@ -153,7 +153,7 @@ module OpenAPI
           OneOf
         when spec[:type] == 'object' || spec[:properties] then Object
         when spec[:type] == 'array' || spec[:items] then Array
-        when spec[:type] == 'string' && spec[:enum] then EnumString
+        when spec[:type] == 'string' && spec[:enum] then StringEnum
         when spec[:type] && %i(null boolean integer number string).include?(spec[:type].to_sym) then Primitive
         else raise NotImplementedError, [id, spec].inspect
       end
@@ -211,12 +211,12 @@ module OpenAPI
 
   ##
   # Schema of `type: "string"` with `enum: [...]` and (sometimes) `default: "..."`.
-  class EnumString < Schema
+  class StringEnum < Schema
     def initialize(id, spec)
       spec = spec.dup || {}
       super(:string, id, spec)
       @enum = spec.delete(:enum)
-      raise ArgumentError, [:EnumString, @enum].inspect unless @enum.is_a?(::Array) && @enum.all? { |s| s.is_a?(String) }
+      raise ArgumentError, [:StringEnum, @enum].inspect unless @enum.is_a?(::Array) && @enum.all? { |s| s.is_a?(String) }
     end
 
     def to_rust_variant
@@ -225,14 +225,19 @@ module OpenAPI
 
     def to_rust(level = 0)
       if level.zero?
-        Rust::TypeAlias.new(self.id, Rust::Types::String) do |definition|
+        Rust::Enum.new(self.id, derives: DERIVES, cfg_derives: CFG_DERIVES, rename_all: :lowercase) do |definition|
           definition.comment = self.summary
+          @enum.each do |variant_id|
+            variant_name = snake_to_camel(Identifier.new(variant_id).to_rust)
+            definition.variants << Rust::EnumVariant.new(variant_name, rename: variant_id)
+          end
+          definition.variants << Rust::EnumVariant.new(:Other, Rust::Types::String, other: true)
         end
       else
         Rust::Types::String
       end
     end
-  end # EnumString
+  end # StringEnum
 
   class Primitive < Schema
     def initialize(id, spec)
@@ -272,7 +277,7 @@ module OpenAPI
         type
       end
     end
-  end # EnumString
+  end # Primitive
 
   ##
   # Schema of `type: "object"` with `properties: {...}`.

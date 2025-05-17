@@ -208,7 +208,121 @@ pub enum AssistantStreamEvent {
     DoneEvent(DoneEvent),
 }
 
-pub type AssistantSupportedModels = String;
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", serde(untagged, rename_all = "lowercase"))]
+pub enum AssistantSupportedModels {
+    #[cfg_attr(feature = "serde", serde(rename = "gpt-4.1"))]
+    Gpt41,
+
+    #[cfg_attr(feature = "serde", serde(rename = "gpt-4.1-mini"))]
+    Gpt41Mini,
+
+    #[cfg_attr(feature = "serde", serde(rename = "gpt-4.1-nano"))]
+    Gpt41Nano,
+
+    #[cfg_attr(feature = "serde", serde(rename = "gpt-4.1-2025-04-14"))]
+    Gpt4120250414,
+
+    #[cfg_attr(feature = "serde", serde(rename = "gpt-4.1-mini-2025-04-14"))]
+    Gpt41Mini20250414,
+
+    #[cfg_attr(feature = "serde", serde(rename = "gpt-4.1-nano-2025-04-14"))]
+    Gpt41Nano20250414,
+
+    #[cfg_attr(feature = "serde", serde(rename = "o3-mini"))]
+    O3Mini,
+
+    #[cfg_attr(feature = "serde", serde(rename = "o3-mini-2025-01-31"))]
+    O3Mini20250131,
+
+    #[cfg_attr(feature = "serde", serde(rename = "o1"))]
+    O1,
+
+    #[cfg_attr(feature = "serde", serde(rename = "o1-2024-12-17"))]
+    O120241217,
+
+    #[cfg_attr(feature = "serde", serde(rename = "gpt-4o"))]
+    Gpt4o,
+
+    #[cfg_attr(feature = "serde", serde(rename = "gpt-4o-2024-11-20"))]
+    Gpt4o20241120,
+
+    #[cfg_attr(feature = "serde", serde(rename = "gpt-4o-2024-08-06"))]
+    Gpt4o20240806,
+
+    #[cfg_attr(feature = "serde", serde(rename = "gpt-4o-2024-05-13"))]
+    Gpt4o20240513,
+
+    #[cfg_attr(feature = "serde", serde(rename = "gpt-4o-mini"))]
+    Gpt4oMini,
+
+    #[cfg_attr(feature = "serde", serde(rename = "gpt-4o-mini-2024-07-18"))]
+    Gpt4oMini20240718,
+
+    #[cfg_attr(feature = "serde", serde(rename = "gpt-4.5-preview"))]
+    Gpt45Preview,
+
+    #[cfg_attr(feature = "serde", serde(rename = "gpt-4.5-preview-2025-02-27"))]
+    Gpt45Preview20250227,
+
+    #[cfg_attr(feature = "serde", serde(rename = "gpt-4-turbo"))]
+    Gpt4Turbo,
+
+    #[cfg_attr(feature = "serde", serde(rename = "gpt-4-turbo-2024-04-09"))]
+    Gpt4Turbo20240409,
+
+    #[cfg_attr(feature = "serde", serde(rename = "gpt-4-0125-preview"))]
+    Gpt40125Preview,
+
+    #[cfg_attr(feature = "serde", serde(rename = "gpt-4-turbo-preview"))]
+    Gpt4TurboPreview,
+
+    #[cfg_attr(feature = "serde", serde(rename = "gpt-4-1106-preview"))]
+    Gpt41106Preview,
+
+    #[cfg_attr(feature = "serde", serde(rename = "gpt-4-vision-preview"))]
+    Gpt4VisionPreview,
+
+    #[cfg_attr(feature = "serde", serde(rename = "gpt-4"))]
+    Gpt4,
+
+    #[cfg_attr(feature = "serde", serde(rename = "gpt-4-0314"))]
+    Gpt40314,
+
+    #[cfg_attr(feature = "serde", serde(rename = "gpt-4-0613"))]
+    Gpt40613,
+
+    #[cfg_attr(feature = "serde", serde(rename = "gpt-4-32k"))]
+    Gpt432k,
+
+    #[cfg_attr(feature = "serde", serde(rename = "gpt-4-32k-0314"))]
+    Gpt432k0314,
+
+    #[cfg_attr(feature = "serde", serde(rename = "gpt-4-32k-0613"))]
+    Gpt432k0613,
+
+    #[cfg_attr(feature = "serde", serde(rename = "gpt-3.5-turbo"))]
+    Gpt35Turbo,
+
+    #[cfg_attr(feature = "serde", serde(rename = "gpt-3.5-turbo-16k"))]
+    Gpt35Turbo16k,
+
+    #[cfg_attr(feature = "serde", serde(rename = "gpt-3.5-turbo-0613"))]
+    Gpt35Turbo0613,
+
+    #[cfg_attr(feature = "serde", serde(rename = "gpt-3.5-turbo-1106"))]
+    Gpt35Turbo1106,
+
+    #[cfg_attr(feature = "serde", serde(rename = "gpt-3.5-turbo-0125"))]
+    Gpt35Turbo0125,
+
+    #[cfg_attr(feature = "serde", serde(rename = "gpt-3.5-turbo-16k-0613"))]
+    Gpt35Turbo16k0613,
+
+    #[cfg_attr(feature = "serde", serde(other))]
+    Other(String),
+}
 
 #[derive(Clone, Debug, Default)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
@@ -298,7 +412,28 @@ pub struct AssistantsNamedToolChoice_Function {
 
 /// The format of the output, in one of these options: `json`, `text`, `srt`,
 /// `verbose_json`, or `vtt`.
-pub type AudioResponseFormat = String;
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", serde(untagged, rename_all = "lowercase"))]
+pub enum AudioResponseFormat {
+    #[cfg_attr(feature = "serde", serde(rename = "json"))]
+    Json,
+
+    #[cfg_attr(feature = "serde", serde(rename = "text"))]
+    Text,
+
+    #[cfg_attr(feature = "serde", serde(rename = "srt"))]
+    Srt,
+
+    #[cfg_attr(feature = "serde", serde(rename = "verbose_json"))]
+    VerboseJson,
+
+    #[cfg_attr(feature = "serde", serde(rename = "vtt"))]
+    Vtt,
+
+    #[cfg_attr(feature = "serde", serde(other))]
+    Other(String),
+}
 
 /// A log of a user action or configuration change within this organization.
 #[derive(Clone, Debug)]
@@ -455,7 +590,85 @@ pub struct AuditLogActorUser {
 }
 
 /// The event type.
-pub type AuditLogEventType = String;
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", serde(untagged, rename_all = "lowercase"))]
+pub enum AuditLogEventType {
+    #[cfg_attr(feature = "serde", serde(rename = "api_key.created"))]
+    ApiKeyCreated,
+
+    #[cfg_attr(feature = "serde", serde(rename = "api_key.updated"))]
+    ApiKeyUpdated,
+
+    #[cfg_attr(feature = "serde", serde(rename = "api_key.deleted"))]
+    ApiKeyDeleted,
+
+    #[cfg_attr(feature = "serde", serde(rename = "checkpoint_permission.created"))]
+    CheckpointPermissionCreated,
+
+    #[cfg_attr(feature = "serde", serde(rename = "checkpoint_permission.deleted"))]
+    CheckpointPermissionDeleted,
+
+    #[cfg_attr(feature = "serde", serde(rename = "invite.sent"))]
+    InviteSent,
+
+    #[cfg_attr(feature = "serde", serde(rename = "invite.accepted"))]
+    InviteAccepted,
+
+    #[cfg_attr(feature = "serde", serde(rename = "invite.deleted"))]
+    InviteDeleted,
+
+    #[cfg_attr(feature = "serde", serde(rename = "login.succeeded"))]
+    LoginSucceeded,
+
+    #[cfg_attr(feature = "serde", serde(rename = "login.failed"))]
+    LoginFailed,
+
+    #[cfg_attr(feature = "serde", serde(rename = "logout.succeeded"))]
+    LogoutSucceeded,
+
+    #[cfg_attr(feature = "serde", serde(rename = "logout.failed"))]
+    LogoutFailed,
+
+    #[cfg_attr(feature = "serde", serde(rename = "organization.updated"))]
+    OrganizationUpdated,
+
+    #[cfg_attr(feature = "serde", serde(rename = "project.created"))]
+    ProjectCreated,
+
+    #[cfg_attr(feature = "serde", serde(rename = "project.updated"))]
+    ProjectUpdated,
+
+    #[cfg_attr(feature = "serde", serde(rename = "project.archived"))]
+    ProjectArchived,
+
+    #[cfg_attr(feature = "serde", serde(rename = "service_account.created"))]
+    ServiceAccountCreated,
+
+    #[cfg_attr(feature = "serde", serde(rename = "service_account.updated"))]
+    ServiceAccountUpdated,
+
+    #[cfg_attr(feature = "serde", serde(rename = "service_account.deleted"))]
+    ServiceAccountDeleted,
+
+    #[cfg_attr(feature = "serde", serde(rename = "rate_limit.updated"))]
+    RateLimitUpdated,
+
+    #[cfg_attr(feature = "serde", serde(rename = "rate_limit.deleted"))]
+    RateLimitDeleted,
+
+    #[cfg_attr(feature = "serde", serde(rename = "user.added"))]
+    UserAdded,
+
+    #[cfg_attr(feature = "serde", serde(rename = "user.updated"))]
+    UserUpdated,
+
+    #[cfg_attr(feature = "serde", serde(rename = "user.deleted"))]
+    UserDeleted,
+
+    #[cfg_attr(feature = "serde", serde(other))]
+    Other(String),
+}
 
 /// The details for events with this `type`.
 #[derive(Clone, Debug)]
@@ -1647,7 +1860,31 @@ pub struct ChatCompletionResponseMessage_FunctionCall {
 }
 
 /// The role of the author of a message
-pub type ChatCompletionRole = String;
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", serde(untagged, rename_all = "lowercase"))]
+pub enum ChatCompletionRole {
+    #[cfg_attr(feature = "serde", serde(rename = "developer"))]
+    Developer,
+
+    #[cfg_attr(feature = "serde", serde(rename = "system"))]
+    System,
+
+    #[cfg_attr(feature = "serde", serde(rename = "user"))]
+    User,
+
+    #[cfg_attr(feature = "serde", serde(rename = "assistant"))]
+    Assistant,
+
+    #[cfg_attr(feature = "serde", serde(rename = "tool"))]
+    Tool,
+
+    #[cfg_attr(feature = "serde", serde(rename = "function"))]
+    Function,
+
+    #[cfg_attr(feature = "serde", serde(other))]
+    Other(String),
+}
 
 /// Options for streaming response.
 #[derive(Clone, Debug, Default)]
@@ -3248,7 +3485,16 @@ pub struct CreateFineTuningJobRequest_Integrations {
     pub r#wandb: CreateFineTuningJobRequest_Integrations_Wandb,
 }
 
-pub type CreateFineTuningJobRequest_Integrations_Type = String;
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", serde(untagged, rename_all = "lowercase"))]
+pub enum CreateFineTuningJobRequest_Integrations_Type {
+    #[cfg_attr(feature = "serde", serde(rename = "wandb"))]
+    Wandb,
+
+    #[cfg_attr(feature = "serde", serde(other))]
+    Other(String),
+}
 
 /// The settings for your integration with Weights and Biases.
 #[derive(Clone, Debug)]
@@ -5098,7 +5344,19 @@ pub struct FilePath {
 }
 
 /// The ranker to use for the file search.
-pub type FileSearchRanker = String;
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", serde(untagged, rename_all = "lowercase"))]
+pub enum FileSearchRanker {
+    #[cfg_attr(feature = "serde", serde(rename = "auto"))]
+    Auto,
+
+    #[cfg_attr(feature = "serde", serde(rename = "default_2024_08_21"))]
+    Default20240821,
+
+    #[cfg_attr(feature = "serde", serde(other))]
+    Other(String),
+}
 
 /// The ranking options for the file search.
 #[derive(Clone, Debug)]
@@ -5889,7 +6147,22 @@ pub struct ImagesResponse_Usage_InputTokensDetails {
 }
 
 /// Specify additional output data to include in the model response.
-pub type Includable = String;
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", serde(untagged, rename_all = "lowercase"))]
+pub enum Includable {
+    #[cfg_attr(feature = "serde", serde(rename = "file_search_call.results"))]
+    FileSearchCallResults,
+
+    #[cfg_attr(feature = "serde", serde(rename = "message.input_image.image_url"))]
+    MessageInputImageImageUrl,
+
+    #[cfg_attr(feature = "serde", serde(rename = "computer_call_output.output.image_url"))]
+    ComputerCallOutputOutputImageUrl,
+
+    #[cfg_attr(feature = "serde", serde(other))]
+    Other(String),
+}
 
 /// An audio input to the model.
 #[derive(Clone, Debug, Default)]
@@ -9422,7 +9695,22 @@ pub struct Reasoning {
 
 /// **o-series models only** Constrains effort on reasoning for [reasoning
 /// models](https://platform.openai.com/docs/guides/reasoning).
-pub type ReasoningEffort = String;
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", serde(untagged, rename_all = "lowercase"))]
+pub enum ReasoningEffort {
+    #[cfg_attr(feature = "serde", serde(rename = "low"))]
+    Low,
+
+    #[cfg_attr(feature = "serde", serde(rename = "medium"))]
+    Medium,
+
+    #[cfg_attr(feature = "serde", serde(rename = "high"))]
+    High,
+
+    #[cfg_attr(feature = "serde", serde(other))]
+    Other(String),
+}
 
 /// A description of the chain of thought used by a reasoning model while
 /// generating a response.
@@ -9722,7 +10010,67 @@ pub struct ResponseError {
 }
 
 /// The error code for the response.
-pub type ResponseErrorCode = String;
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", serde(untagged, rename_all = "lowercase"))]
+pub enum ResponseErrorCode {
+    #[cfg_attr(feature = "serde", serde(rename = "server_error"))]
+    ServerError,
+
+    #[cfg_attr(feature = "serde", serde(rename = "rate_limit_exceeded"))]
+    RateLimitExceeded,
+
+    #[cfg_attr(feature = "serde", serde(rename = "invalid_prompt"))]
+    InvalidPrompt,
+
+    #[cfg_attr(feature = "serde", serde(rename = "vector_store_timeout"))]
+    VectorStoreTimeout,
+
+    #[cfg_attr(feature = "serde", serde(rename = "invalid_image"))]
+    InvalidImage,
+
+    #[cfg_attr(feature = "serde", serde(rename = "invalid_image_format"))]
+    InvalidImageFormat,
+
+    #[cfg_attr(feature = "serde", serde(rename = "invalid_base64_image"))]
+    InvalidBase64Image,
+
+    #[cfg_attr(feature = "serde", serde(rename = "invalid_image_url"))]
+    InvalidImageUrl,
+
+    #[cfg_attr(feature = "serde", serde(rename = "image_too_large"))]
+    ImageTooLarge,
+
+    #[cfg_attr(feature = "serde", serde(rename = "image_too_small"))]
+    ImageTooSmall,
+
+    #[cfg_attr(feature = "serde", serde(rename = "image_parse_error"))]
+    ImageParseError,
+
+    #[cfg_attr(feature = "serde", serde(rename = "image_content_policy_violation"))]
+    ImageContentPolicyViolation,
+
+    #[cfg_attr(feature = "serde", serde(rename = "invalid_image_mode"))]
+    InvalidImageMode,
+
+    #[cfg_attr(feature = "serde", serde(rename = "image_file_too_large"))]
+    ImageFileTooLarge,
+
+    #[cfg_attr(feature = "serde", serde(rename = "unsupported_image_media_type"))]
+    UnsupportedImageMediaType,
+
+    #[cfg_attr(feature = "serde", serde(rename = "empty_image_file"))]
+    EmptyImageFile,
+
+    #[cfg_attr(feature = "serde", serde(rename = "failed_to_download_image"))]
+    FailedToDownloadImage,
+
+    #[cfg_attr(feature = "serde", serde(rename = "image_file_not_found"))]
+    ImageFileNotFound,
+
+    #[cfg_attr(feature = "serde", serde(other))]
+    Other(String),
+}
 
 /// Emitted when an error occurs.
 #[derive(Clone, Debug, Default)]
@@ -11230,7 +11578,22 @@ pub struct Scroll {
 }
 
 /// Specifies the latency tier to use for processing the request.
-pub type ServiceTier = String;
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", serde(untagged, rename_all = "lowercase"))]
+pub enum ServiceTier {
+    #[cfg_attr(feature = "serde", serde(rename = "auto"))]
+    Auto,
+
+    #[cfg_attr(feature = "serde", serde(rename = "default"))]
+    Default,
+
+    #[cfg_attr(feature = "serde", serde(rename = "flex"))]
+    Flex,
+
+    #[cfg_attr(feature = "serde", serde(other))]
+    Other(String),
+}
 
 #[derive(Clone, Debug, Default)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
@@ -11407,7 +11770,22 @@ pub struct ToolChoiceFunction {
 }
 
 /// Controls which (if any) tool is called by the model.
-pub type ToolChoiceOptions = String;
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", serde(untagged, rename_all = "lowercase"))]
+pub enum ToolChoiceOptions {
+    #[cfg_attr(feature = "serde", serde(rename = "none"))]
+    None,
+
+    #[cfg_attr(feature = "serde", serde(rename = "auto"))]
+    Auto,
+
+    #[cfg_attr(feature = "serde", serde(rename = "required"))]
+    Required,
+
+    #[cfg_attr(feature = "serde", serde(other))]
+    Other(String),
+}
 
 /// Indicates that the model should use a built-in tool to generate a response.
 #[derive(Clone, Debug, Default)]
@@ -11471,7 +11849,16 @@ pub struct TranscriptTextDoneEvent_Logprobs {
     pub r#bytes: Option<Vec<i64>>,
 }
 
-pub type TranscriptionInclude = String;
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", serde(untagged, rename_all = "lowercase"))]
+pub enum TranscriptionInclude {
+    #[cfg_attr(feature = "serde", serde(rename = "logprobs"))]
+    Logprobs,
+
+    #[cfg_attr(feature = "serde", serde(other))]
+    Other(String),
+}
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
@@ -12274,7 +12661,22 @@ pub struct Wait {
 
 /// High level guidance for the amount of context window space to use for the
 /// search.
-pub type WebSearchContextSize = String;
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", serde(untagged, rename_all = "lowercase"))]
+pub enum WebSearchContextSize {
+    #[cfg_attr(feature = "serde", serde(rename = "low"))]
+    Low,
+
+    #[cfg_attr(feature = "serde", serde(rename = "medium"))]
+    Medium,
+
+    #[cfg_attr(feature = "serde", serde(rename = "high"))]
+    High,
+
+    #[cfg_attr(feature = "serde", serde(other))]
+    Other(String),
+}
 
 /// Approximate location parameters for the search.
 #[derive(Clone, Debug, Default)]
