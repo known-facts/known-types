@@ -1466,8 +1466,6 @@ pub struct ChatCompletionRequestSystemMessage {
     pub r#name: Option<String>,
 }
 
-pub type ChatCompletionRequestSystemMessageContentPart = ChatCompletionRequestMessageContentPartText;
-
 /// The contents of the system message.
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
@@ -1477,7 +1475,7 @@ pub enum ChatCompletionRequestSystemMessage_Content {
     String(String),
 
     /// An array of content parts with a defined type.
-    Array(Vec<ChatCompletionRequestSystemMessageContentPart>),
+    Array(Vec<ChatCompletionRequestMessageContentPartText>),
 }
 
 #[derive(Clone, Debug)]
@@ -1492,8 +1490,6 @@ pub struct ChatCompletionRequestToolMessage {
     pub r#tool_call_id: String,
 }
 
-pub type ChatCompletionRequestToolMessageContentPart = ChatCompletionRequestMessageContentPartText;
-
 /// The contents of the tool message.
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
@@ -1503,7 +1499,7 @@ pub enum ChatCompletionRequestToolMessage_Content {
     String(String),
 
     /// An array of content parts with a defined type.
-    Array(Vec<ChatCompletionRequestToolMessageContentPart>),
+    Array(Vec<ChatCompletionRequestMessageContentPartText>),
 }
 
 /// Messages sent by an end user, containing prompts or additional context
@@ -1906,10 +1902,8 @@ pub struct CompoundFilter {
     pub r#type: String,
 
     /// Array of filters to combine.
-    pub r#filters: Vec<CompoundFilter_Filters>,
+    pub r#filters: Vec<ComparisonFilter>,
 }
-
-pub type CompoundFilter_Filters = ComparisonFilter;
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
@@ -2335,8 +2329,6 @@ pub enum CreateChatCompletionRequest_Variant2_FunctionCall {
 
     ChatCompletionFunctionCallOption(ChatCompletionFunctionCallOption),
 }
-
-pub type CreateChatCompletionRequest_Variant2_Prediction = PredictionContent;
 
 /// An object specifying the format that the model must output.
 #[derive(Clone, Debug)]
@@ -3311,8 +3303,6 @@ pub enum CreateMessageRequest_Content_Variant2 {
     MessageRequestContentTextObject(MessageRequestContentTextObject),
 }
 
-pub type CreateModelResponseProperties = ModelResponseProperties;
-
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct CreateModerationRequest {
@@ -3643,9 +3633,9 @@ pub struct CreateRunRequest {
     /// of the run.
     pub r#max_completion_tokens: Option<i64>,
 
-    pub r#truncation_strategy: Option<CreateRunRequest_TruncationStrategy>,
+    pub r#truncation_strategy: Option<TruncationObject>,
 
-    pub r#tool_choice: Option<CreateRunRequest_ToolChoice>,
+    pub r#tool_choice: Option<AssistantsApiToolChoiceOption>,
 
     pub r#parallel_tool_calls: Option<ParallelToolCalls>,
 
@@ -3663,8 +3653,6 @@ pub enum CreateRunRequest_Model {
     AssistantSupportedModels(AssistantSupportedModels),
 }
 
-pub type CreateRunRequest_ToolChoice = Option<AssistantsApiToolChoiceOption>;
-
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[cfg_attr(feature = "serde", serde(untagged))]
@@ -3675,8 +3663,6 @@ pub enum CreateRunRequest_Tools {
 
     AssistantToolsFunction(AssistantToolsFunction),
 }
-
-pub type CreateRunRequest_TruncationStrategy = Option<TruncationObject>;
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
@@ -3745,9 +3731,9 @@ pub struct CreateThreadAndRunRequest {
     /// of the run.
     pub r#max_completion_tokens: Option<i64>,
 
-    pub r#truncation_strategy: Option<CreateThreadAndRunRequest_TruncationStrategy>,
+    pub r#truncation_strategy: Option<TruncationObject>,
 
-    pub r#tool_choice: Option<CreateThreadAndRunRequest_ToolChoice>,
+    pub r#tool_choice: Option<AssistantsApiToolChoiceOption>,
 
     pub r#parallel_tool_calls: Option<ParallelToolCalls>,
 
@@ -3757,8 +3743,6 @@ pub struct CreateThreadAndRunRequest {
 /// The ID of the [Model](/docs/api-reference/models) to be used to execute this
 /// run.
 pub type CreateThreadAndRunRequest_Model = String;
-
-pub type CreateThreadAndRunRequest_ToolChoice = Option<AssistantsApiToolChoiceOption>;
 
 /// A set of resources that are used by the assistant's tools.
 #[derive(Clone, Debug)]
@@ -3795,8 +3779,6 @@ pub enum CreateThreadAndRunRequest_Tools {
 
     AssistantToolsFunction(AssistantToolsFunction),
 }
-
-pub type CreateThreadAndRunRequest_TruncationStrategy = Option<TruncationObject>;
 
 /// Options to create a new thread.
 #[derive(Clone, Debug)]
@@ -5168,10 +5150,6 @@ pub enum FineTunePreferenceRequestInput_Input_Messages {
     ChatCompletionRequestFunctionMessage(ChatCompletionRequestFunctionMessage),
 }
 
-pub type FineTunePreferenceRequestInput_NonPreferredCompletion = ChatCompletionRequestAssistantMessage;
-
-pub type FineTunePreferenceRequestInput_PreferredCompletion = ChatCompletionRequestAssistantMessage;
-
 /// Configuration for the supervised fine-tuning method.
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
@@ -5461,8 +5439,6 @@ pub enum FineTuningJob_Hyperparameters_NEpochs {
 
     Integer(i64),
 }
-
-pub type FineTuningJob_Integrations = FineTuningIntegration;
 
 /// The output of a function tool call.
 #[derive(Clone, Debug)]
@@ -10180,9 +10156,9 @@ pub struct RunObject {
     /// the course of the run.
     pub r#max_completion_tokens: Option<i64>,
 
-    pub r#truncation_strategy: Option<RunObject_TruncationStrategy>,
+    pub r#truncation_strategy: Option<TruncationObject>,
 
-    pub r#tool_choice: Option<RunObject_ToolChoice>,
+    pub r#tool_choice: Option<AssistantsApiToolChoiceOption>,
 
     pub r#parallel_tool_calls: ParallelToolCalls,
 
@@ -10226,8 +10202,6 @@ pub struct RunObject_RequiredAction_SubmitToolOutputs {
     pub r#tool_calls: Vec<RunToolCallObject>,
 }
 
-pub type RunObject_ToolChoice = Option<AssistantsApiToolChoiceOption>;
-
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[cfg_attr(feature = "serde", serde(untagged))]
@@ -10238,8 +10212,6 @@ pub enum RunObject_Tools {
 
     AssistantToolsFunction(AssistantToolsFunction),
 }
-
-pub type RunObject_TruncationStrategy = Option<TruncationObject>;
 
 /// Usage statistics related to the run step.
 #[derive(Clone, Debug, Default)]
@@ -11248,12 +11220,10 @@ pub struct UpdateVectorStoreRequest {
     /// The name of the vector store.
     pub r#name: Option<String>,
 
-    pub r#expires_after: Option<UpdateVectorStoreRequest_ExpiresAfter>,
+    pub r#expires_after: Option<VectorStoreExpirationAfter>,
 
     pub r#metadata: Option<Metadata>,
 }
-
-pub type UpdateVectorStoreRequest_ExpiresAfter = Option<VectorStoreExpirationAfter>;
 
 /// The Upload object can accept byte chunks in the form of Parts.
 #[derive(Clone, Debug)]
@@ -11283,7 +11253,8 @@ pub struct Upload {
     /// The object type, which is always "upload".
     pub r#object: Option<String>,
 
-    pub r#file: Option<Upload_File>,
+    /// The ready File object after the Upload is completed.
+    pub r#file: Option<OpenAIFile>,
 }
 
 #[derive(Clone, Debug, Default)]
@@ -11313,9 +11284,6 @@ pub struct UploadPart {
     /// The object type, which is always `upload.part`.
     pub r#object: String,
 }
-
-/// The ready File object after the Upload is completed.
-pub type Upload_File = Option<OpenAIFile>;
 
 /// A citation for a web resource used to generate a model response.
 #[derive(Clone, Debug, Default)]

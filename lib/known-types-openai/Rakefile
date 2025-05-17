@@ -29,7 +29,7 @@ namespace :codegen do
       # puts; puts JSON.pretty_generate(output)
       #break if schema_ref == 'AssistantObject'
     end
-    [HoistNullables, RemoveRedundantCombines, CombineAllOfs].each do |transform|
+    [HoistNullables, RemoveRedundantCombines, CombineAllOfs, DerefAliases].each do |transform|
       transform.transform_schemas!(schemas)
     end
     output.each do |schema_ref, schema|
@@ -483,7 +483,7 @@ module OpenAI
 
     def schemas
       schemas = flatten_openapi_schemas(self.schemas_raw)
-      [HoistNullables, RemoveRedundantCombines, CombineAllOfs].each do |transform|
+      [HoistNullables, RemoveRedundantCombines, CombineAllOfs, DerefAliases].each do |transform|
         transform.transform_schemas!(schemas)
       end
       schemas.map { |k, v| OpenAPI::Schema.new(k, v) }.sort_by(&:id)
