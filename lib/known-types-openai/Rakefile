@@ -361,42 +361,13 @@ module OpenAPI
     end
   end # Array
 
-  class Choices < Schema
+  class Combine < Schema
     attr_reader :choices
   end
 
   ##
-  # Schema of `allOf: [...]`.
-  class AllOf < Choices
-    TYPE = Rust::Types::Tuple0.new(:AllOf)
-
-    def initialize(id, spec)
-      spec = spec.dup || {}
-      super(:all_of, id, spec)
-      @choices = spec.delete(:allOf)
-      raise ArgumentError, [:AllOf, @choices].inspect unless @choices.is_a?(::Array) && @choices.all? { it.is_a?(::Hash) }
-    end
-
-    def to_rust_variant
-      :AllOf
-    end
-
-    def to_rust(level = 0)
-      # Only 9 top-level schemas are `allOf`.
-      schemas = self.choices
-      if schemas.size == 1
-        schemas.first.to_rust(level + 1)
-      else
-        Rust::Newtype.new(self.id, TYPE, derives: DERIVES + %i(Default), cfg_derives: CFG_DERIVES) do |definition|
-          definition.comment = self.summary
-        end
-      end
-    end
-  end # AllOf
-
-  ##
   # Schema of `oneOf: [...]` or `anyOf: [...]`.
-  class OneOf < Choices
+  class OneOf < Combine
     TYPE = Rust::Types::Tuple0.new(:OneOf)
 
     def initialize(id, spec)
@@ -404,11 +375,8 @@ module OpenAPI
       super(:one_of, id, spec)
       @choices = spec.delete(:oneOf) || spec.delete(:anyOf)
       raise ArgumentError, [:OneOf, @choices].inspect unless @choices.is_a?(::Array) && @choices.all? { it.is_a?(::Hash) }
-      if @choices.size == 1
-        @choices = [Schema.new(self.id, @choices.first)]
-      else
-        @choices.map!.with_index { |x, i| Schema.new("#{self.id}_#{i + 1}", x) }
-      end
+      raise ArgumentError, [:OneOf, @choices].inspect unless @choices.size > 1
+      @choices.map!.with_index { |x, i| Schema.new("#{self.id}_#{i + 1}", x) }
     end
 
     def to_rust_variant
@@ -418,9 +386,7 @@ module OpenAPI
     def to_rust(level = 0)
       # Some 23 top-level schemas are `oneOf`. Only 10 top-level schemas are `anyOf`.
       schemas = self.choices
-      type = if schemas.size == 1
-        schemas.first.to_rust
-      elsif schemas.all? { |t| t.type.to_sym == :string }
+      if schemas.all? { |t| t.type.to_sym == :string }
         # e.g. RealtimeResponseCreateParams_Conversation
         Rust::TypeAlias.new(self.id, Rust::Types::String) do |definition|
           definition.comment = self.summary
@@ -431,12 +397,13 @@ module OpenAPI
         Rust::TypeAlias.new(self.id, Rust::Types::Option.new(Rust::Types::String)) do |definition|
           definition.comment = self.summary
         end
+        # TODO: Rust::Types::Option.new(Rust::Types::String)
       elsif schemas.size == 2 && schemas.any? { |t| t && t.type.to_sym == :null }
         type = schemas.find { |t| t.type.to_sym != :null }
         Rust::TypeAlias.new(self.id, Rust::Types::Option.new(type.to_rust)) do |definition|
           definition.comment = self.summary
         end
-        # TODO: Rust::Types::Option.new(Rust::Types::String)
+        # TODO: Rust::Types::Option.new(type.to_rust)
       # elsif schemas.all? { |t| t.type.to_sym == :object && t.properties.size == 2 && t.properties.any? { |k, _| k.to_sym == :type } }
       #   # e.g. CreateEvalCompletionsRunDataSource, CreateEvalResponsesRunDataSource
       #   Rust::Enum.new(self.id, derives: DERIVES, cfg_derives: CFG_DERIVES) do |definition|
@@ -453,26 +420,42 @@ module OpenAPI
       else
         Rust::Enum.new(self.id, derives: DERIVES, cfg_derives: CFG_DERIVES) do |definition|
           definition.comment = self.summary
-          definition.variants << Rust::EnumVariant.new(:Null) if self.nullable?
-          #out.puts "#[default]" if self.nullable? # TODO: && self.default == 'null'
+          definition.variants << Rust::EnumVariant.new(:Null, default: true) if self.nullable?
           schemas.each do |t|
-            next if t.nil? # skip $recursiveRef
             variant = Rust::EnumVariant.new(t.to_rust_variant, t.to_rust(level + 1))
             variant.comment = t.summary
             definition.variants << variant
           end
         end
       end
-
-      if level.zero? && !type.definition?
-        # TODO: DERIVES + %i(Default)
-        type = Rust::Newtype.new(self.id, type, derives: DERIVES, cfg_derives: CFG_DERIVES) do |definition|
-          definition.comment = self.summary
-        end
-      end
-      type
     end
   end # OneOf
+
+  ##
+  # Schema of `allOf: [...]`.
+  class AllOf < Combine
+    TYPE = Rust::Types::Tuple0.new(:AllOf)
+
+    def initialize(id, spec)
+      spec = spec.dup || {}
+      super(:all_of, id, spec)
+      @choices = spec.delete(:allOf)
+      raise ArgumentError, [:AllOf, @choices].inspect unless @choices.is_a?(::Array) && @choices.all? { it.is_a?(::Hash) }
+      raise ArgumentError, [:AllOf, @choices].inspect unless @choices.size > 1
+    end
+
+    def to_rust_variant
+      :AllOf
+    end
+
+    def to_rust(level = 0)
+      # Only 9 top-level schemas, and 17 any-level schemas (before flattening), are `allOf`.
+      schemas = self.choices
+      Rust::Newtype.new(self.id, TYPE, derives: DERIVES + %i(Default), cfg_derives: CFG_DERIVES) do |definition|
+        definition.comment = self.summary
+      end
+    end
+  end # AllOf
 
   class Identifier
     include Comparable

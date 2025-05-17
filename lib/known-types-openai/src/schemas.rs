@@ -3663,9 +3663,7 @@ pub enum CreateRunRequest_Model {
     AssistantSupportedModels(AssistantSupportedModels),
 }
 
-#[derive(Clone, Debug, Default)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct CreateRunRequest_ToolChoice(pub (/*AllOf*/));
+pub type CreateRunRequest_ToolChoice = Option<AssistantsApiToolChoiceOption>;
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
@@ -3678,9 +3676,7 @@ pub enum CreateRunRequest_Tools {
     AssistantToolsFunction(AssistantToolsFunction),
 }
 
-#[derive(Clone, Debug, Default)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct CreateRunRequest_TruncationStrategy(pub (/*AllOf*/));
+pub type CreateRunRequest_TruncationStrategy = Option<TruncationObject>;
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
@@ -3762,9 +3758,7 @@ pub struct CreateThreadAndRunRequest {
 /// run.
 pub type CreateThreadAndRunRequest_Model = String;
 
-#[derive(Clone, Debug, Default)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct CreateThreadAndRunRequest_ToolChoice(pub (/*AllOf*/));
+pub type CreateThreadAndRunRequest_ToolChoice = Option<AssistantsApiToolChoiceOption>;
 
 /// A set of resources that are used by the assistant's tools.
 #[derive(Clone, Debug)]
@@ -3802,9 +3796,7 @@ pub enum CreateThreadAndRunRequest_Tools {
     AssistantToolsFunction(AssistantToolsFunction),
 }
 
-#[derive(Clone, Debug, Default)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct CreateThreadAndRunRequest_TruncationStrategy(pub (/*AllOf*/));
+pub type CreateThreadAndRunRequest_TruncationStrategy = Option<TruncationObject>;
 
 /// Options to create a new thread.
 #[derive(Clone, Debug)]
@@ -10188,9 +10180,9 @@ pub struct RunObject {
     /// the course of the run.
     pub r#max_completion_tokens: Option<i64>,
 
-    pub r#truncation_strategy: RunObject_TruncationStrategy,
+    pub r#truncation_strategy: Option<RunObject_TruncationStrategy>,
 
-    pub r#tool_choice: RunObject_ToolChoice,
+    pub r#tool_choice: Option<RunObject_ToolChoice>,
 
     pub r#parallel_tool_calls: ParallelToolCalls,
 
@@ -10234,9 +10226,7 @@ pub struct RunObject_RequiredAction_SubmitToolOutputs {
     pub r#tool_calls: Vec<RunToolCallObject>,
 }
 
-#[derive(Clone, Debug, Default)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct RunObject_ToolChoice(pub (/*AllOf*/));
+pub type RunObject_ToolChoice = Option<AssistantsApiToolChoiceOption>;
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
@@ -10249,9 +10239,7 @@ pub enum RunObject_Tools {
     AssistantToolsFunction(AssistantToolsFunction),
 }
 
-#[derive(Clone, Debug, Default)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct RunObject_TruncationStrategy(pub (/*AllOf*/));
+pub type RunObject_TruncationStrategy = Option<TruncationObject>;
 
 /// Usage statistics related to the run step.
 #[derive(Clone, Debug, Default)]
@@ -10968,10 +10956,11 @@ pub struct StaticChunkingStrategyResponseParam {
 }
 
 /// Not supported with latest reasoning models `o3` and `o4-mini`.
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Default)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[cfg_attr(feature = "serde", serde(untagged))]
 pub enum StopConfiguration {
+    #[default]
     Null,
 
     String(String),
@@ -11264,9 +11253,7 @@ pub struct UpdateVectorStoreRequest {
     pub r#metadata: Option<Metadata>,
 }
 
-#[derive(Clone, Debug, Default)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct UpdateVectorStoreRequest_ExpiresAfter(pub (/*AllOf*/));
+pub type UpdateVectorStoreRequest_ExpiresAfter = Option<VectorStoreExpirationAfter>;
 
 /// The Upload object can accept byte chunks in the form of Parts.
 #[derive(Clone, Debug)]
@@ -11327,9 +11314,8 @@ pub struct UploadPart {
     pub r#object: String,
 }
 
-#[derive(Clone, Debug, Default)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct Upload_File(pub (/*AllOf*/));
+/// The ready File object after the Upload is completed.
+pub type Upload_File = Option<OpenAIFile>;
 
 /// A citation for a web resource used to generate a model response.
 #[derive(Clone, Debug, Default)]

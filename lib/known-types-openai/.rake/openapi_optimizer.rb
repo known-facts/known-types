@@ -9,7 +9,7 @@ module OpenAPIOptimizer
     schemas.each_value do |schema|
       optimize_combine!(schema, schemas)
     end
-  end # hoist_nullables!
+  end # optimize_combines!
 
   ##
   # @param  [Hash] A JSON Schema schema type
@@ -32,5 +32,5 @@ module OpenAPIOptimizer
         end
       else # nothing to do
     end
-  end # hoist_nullable!
+  end # optimize_combine!
 end # OpenAPIOptimizer

@@ -23,10 +23,18 @@ module OpenAPIHoister
         ref = schema[:'$ref'].split('/').last.to_sym
         #p [ref, schema[:nullable], schemas[ref][:nullable]]
         schema[:nullable] = true if schemas[ref][:nullable]
-      when schema[:oneOf], schema[:anyOf], schema[:allOf]
-        variants = schema[:oneOf] || schema[:anyOf] || schema[:allOf] || []
+      when schema[:oneOf], schema[:anyOf]
+        variants = schema[:oneOf] || schema[:anyOf] || []
         variants.each do |variant|
           hoist_nullable!(variant, schemas)
+        end
+      when schema[:allOf]
+        variants = schema[:allOf] || []
+        if variants.any? { it[:'$ref'] } && variants.any? { it[:nullable] }
+          variants.each { schema.merge!(it) }
+          schema.delete(:allOf)
+        else
+          variants.each { hoist_nullable!(it, schemas) }
         end
       when schema[:properties] || schema[:type] == 'object'
         properties = schema[:properties] || {}
