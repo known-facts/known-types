@@ -48,7 +48,7 @@ namespace :codegen do
       definition = schema.to_rust
       p [definition.name, definition]
       definition.each_subtype do |definition2|
-        next if definition2.primitive?
+        next unless definition2.definition?
         p [definition2.name, definition2]
       end
     end
@@ -79,7 +79,7 @@ namespace :codegen do
         end
 
         definition.each_subtype do |definition|
-          next if definition.primitive?
+          next unless definition.definition?
           out.puts
           definition.write(out)
         end
@@ -174,6 +174,7 @@ module OpenAPI
       spec.delete(:example)
     end
 
+    def defaultible?() self.nullable? end
     def nullable?() !!@nullable end
     def deprecated() !!@deprecated end
 
@@ -190,6 +191,10 @@ module OpenAPI
       super(:ref, id, spec)
       raise ArgumentError, [:Ref, spec[:'$ref']].inspect unless spec[:'$ref']
       @ref = spec.delete(:'$ref').split('/').last
+    end
+
+    def defaultible?
+      self.nullable?
     end
 
     def to_rust_variant
@@ -219,13 +224,18 @@ module OpenAPI
       raise ArgumentError, [:StringEnum, @enum].inspect unless @enum.is_a?(::Array) && @enum.all? { |s| s.is_a?(String) }
     end
 
+    def defaultible?
+      false
+    end
+
     def to_rust_variant
       :String
     end
 
     def to_rust(level = 0)
       if level.zero?
-        Rust::Enum.new(self.id, derives: DERIVES, cfg_derives: CFG_DERIVES, rename_all: :lowercase) do |definition|
+        derives = DERIVES + (self.defaultible? ? %i(Default) : [])
+        Rust::Enum.new(self.id, derives: derives, cfg_derives: CFG_DERIVES, rename_all: :lowercase) do |definition|
           definition.comment = self.summary
           @enum.each do |variant_id|
             variant_name = snake_to_camel(Identifier.new(variant_id).to_rust)
@@ -234,6 +244,7 @@ module OpenAPI
           definition.variants << Rust::EnumVariant.new(:Other, Rust::Types::String, other: true)
         end
       else
+        # e.g. AssistantToolsFileSearchTypeOnly
         Rust::Types::String
       end
     end
@@ -243,7 +254,11 @@ module OpenAPI
     def initialize(id, spec)
       spec = spec.dup || {}
       super(spec.delete(:type), id, spec)
-     end
+    end
+
+    def defaultible?
+      true
+    end
 
     def to_rust_variant
       case @type
@@ -293,32 +308,35 @@ module OpenAPI
       raise ArgumentError, [:Object, @required].inspect unless @required.nil? || @required.is_a?(::Array)
     end
 
-    def properties
-      @properties.inject({}) do |result, (k, v)|
-        result[Identifier.new(k.to_sym)] = Schema.new("#{self.id}_#{snake_to_camel(k)}", v) # FIXME
-        result
+    def defaultible?(level = 0)
+      self.properties.all? do |property_id, property_type|
+        is_option = !(@required&.include?(property_id.to_sym))
+        is_option || property_type.defaultible? || property_type.to_rust(level + 1).defaultible?
       end
     end
 
+    def properties
+      result = @properties.inject({}) do |result, (k, v)|
+        result[Identifier.new(k.to_sym)] = Schema.new("#{self.id}_#{snake_to_camel(k)}", v) # FIXME
+        result
+      end
+      result.reject! { |_, v| v.nil? } # FIXME
+      result
+    end
+
     def to_rust_variant
-      :Object # FIXME
-      "Object_#{(rand * 100).to_i}"
+      :Object
     end
 
     def to_rust(level = 0)
       # Some 414 top-level schemas are `type: "object"`.
-      derive_default = self.properties.values.all? do |property|
-        #p self if property.type.nil?
-        %i(null boolean integer number string).include?(property.type.to_sym)
-      end
-      derives = DERIVES + (derive_default ? %i(Default) : [])
+      derives = DERIVES + (self.defaultible?(level) ? %i(Default) : [])
       Rust::Struct.new(self.id, derives: derives, cfg_derives: CFG_DERIVES) do |definition|
         definition.comment = self.summary
         self.properties.each do |(property_id, property_type)|
-          next if property_type.nil? # skip problematic properties (FIXME)
-          is_required = @required&.include?(property_id.to_sym)
+          is_option = !(@required&.include?(property_id.to_sym)) || property_type.nullable?
           field_type = property_type.to_rust(level + 1)
-          field_type = Rust::Types::Option.new(field_type).flatten if !is_required || property_type.nullable?
+          field_type = Rust::Types::Option.new(field_type).flatten if is_option
           field = Rust::StructField.new(property_id.to_rust, field_type)
           field.comment = property_type.summary
           field.rename = property_id.id if property_id.needs_rename?
@@ -336,6 +354,10 @@ module OpenAPI
       super(:array, id, spec)
       @items = spec.delete(:items)
       raise ArgumentError, [:Array, @items].inspect unless @items.is_a?(Hash)
+    end
+
+    def defaultible?
+      self.items.defaultible?
     end
 
     def items?() !!@items end
@@ -379,6 +401,10 @@ module OpenAPI
       raise ArgumentError, [:OneOf, @choices].inspect unless @choices.is_a?(::Array) && @choices.all? { it.is_a?(::Hash) }
       raise ArgumentError, [:OneOf, @choices].inspect unless @choices.size > 1
       @choices.map!.with_index { |x, i| Schema.new("#{self.id}_#{i + 1}", x) }
+    end
+
+    def defaultible?
+      self.nullable?
     end
 
     def to_rust_variant
