@@ -235,13 +235,13 @@ module OpenAPI
     def to_rust(level = 0)
       if level.zero?
         derives = DERIVES + (self.defaultible? ? %i(Default) : [])
-        Rust::Enum.new(self.id, derives: derives, cfg_derives: CFG_DERIVES, rename_all: :lowercase) do |definition|
+        Rust::Enum.new(self.id, derives: derives, cfg_derives: CFG_DERIVES) do |definition|
           definition.comment = self.summary
           @enum.each do |variant_id|
             variant_name = snake_to_camel(Identifier.new(variant_id).to_rust)
-            definition.variants << Rust::EnumVariant.new(variant_name, rename: variant_id)
+            definition.variants << Rust::EnumVariant.new(variant_name, serde: { rename: variant_id })
           end
-          definition.variants << Rust::EnumVariant.new(:Other, Rust::Types::String, other: true)
+          definition.variants << Rust::EnumVariant.new(:Other, Rust::Types::String, serde: { untagged: true })
         end
       else
         # e.g. AssistantToolsFileSearchTypeOnly
