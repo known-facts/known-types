@@ -1,0 +1,6 @@
+ChatCompletionRequestDeveloperMessage,role
+ChatCompletionRequestSystemMessage,role
+ChatCompletionRequestUserMessage,role
+ChatCompletionRequestAssistantMessage,role
+ChatCompletionRequestToolMessage,role
+ChatCompletionRequestFunctionMessage,role

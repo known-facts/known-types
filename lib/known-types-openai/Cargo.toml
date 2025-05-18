@@ -36,3 +36,6 @@ rasn = { workspace = true, optional = true }
 serde = { workspace = true, optional = true }
 
 [dev-dependencies]
+known-types-openai = { path = ".", features = ["serde"] }
+serde = { workspace = true, features = ["default"] }
+serde_json = { workspace = true, features = ["default"] }

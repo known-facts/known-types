@@ -9,6 +9,8 @@ OPENAPI_FILE = 'openapi.yaml'
 DERIVES = %i(Clone Debug)
 CFG_DERIVES = %i(serde)
 
+OMIT_FIELDS = File.readlines(".rake/omit_fields.csv").map(&:chomp)
+
 Rust = Codify::Rust
 
 task default: %w(codegen)
@@ -229,7 +231,7 @@ module OpenAPI
     end
 
     def to_rust_variant
-      :String
+      :Text
     end
 
     def to_rust(level = 0)
@@ -266,7 +268,7 @@ module OpenAPI
         when :boolean then :Boolean
         when :integer then :Integer
         when :number then :Number
-        when :string then :String
+        when :string then :Text
         else raise NotImplementedError, self.inspect
       end
     end
@@ -334,6 +336,7 @@ module OpenAPI
       Rust::Struct.new(self.id, derives: derives, cfg_derives: CFG_DERIVES) do |definition|
         definition.comment = self.summary
         self.properties.each do |(property_id, property_type)|
+          next if OMIT_FIELDS.include?([self.id, property_id].join(','))
           is_option = !(@required&.include?(property_id.to_sym)) || property_type.nullable?
           field_type = property_type.to_rust(level + 1)
           field_type = Rust::Types::Option.new(field_type).flatten if is_option
@@ -365,8 +368,9 @@ module OpenAPI
 
     def to_rust_variant
       case self.items.type
-        when :integer then :ArrayOfIntegers
-        when :string then :ArrayOfStrings
+        when :integer then :TokenArray
+        when :string then :TextArray
+        when :array then :TokenArrayArray
         else :Array
       end
     end
@@ -446,7 +450,7 @@ module OpenAPI
       #     end
       #   end
       else
-        Rust::Enum.new(self.id, derives: DERIVES, cfg_derives: CFG_DERIVES) do |definition|
+        Rust::Enum.new(self.id, derives: DERIVES, cfg_derives: CFG_DERIVES, serde: { untagged: true }) do |definition|
           definition.comment = self.summary
           definition.variants << Rust::EnumVariant.new(:Null, default: true) if self.nullable?
           schemas.each do |t|

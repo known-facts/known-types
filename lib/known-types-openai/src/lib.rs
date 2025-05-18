@@ -13,7 +13,7 @@
 #![deny(clippy::alloc_instead_of_core)]
 
 #[cfg(doctest)]
-#[doc = include_str!("../../../README.md")]
+#[doc = include_str!("../README.md")]
 pub struct ReadmeDoctests;
 
 mod prelude;
